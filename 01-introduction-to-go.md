@@ -559,7 +559,7 @@ Benefit: Combine any blocks to make anything!
 | **Cloudflare** | Edge computing, DNS | Low latency requirements |
 | **PayPal** | Microservices | Developer productivity |
 | **American Express** | Payment processing | Reliability + Performance |
-| **Razorpay** | Payment gateway (Catalyst!) | Your codebase! |
+| **Razorpay** | Payment gateway | Your codebase! |
 
 ### Why They Choose Go
 
