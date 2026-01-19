@@ -22,16 +22,16 @@
 │                                                                 │
 │  GO HTTP SERVER ARCHITECTURE                                    │
 │                                                                 │
-│  ┌─────────────────────────────────────────────────────────┐   │
-│  │  http.ListenAndServe(":8080", handler)                  │   │
-│  │         │                        │                      │   │
-│  │         ▼                        ▼                      │   │
-│  │  ┌───────────┐            ┌─────────────┐               │   │
-│  │  │   :8080   │            │   Handler   │               │   │
-│  │  │  (port)   │            │ (processes  │               │   │
-│  │  │           │            │  requests)  │               │   │
-│  │  └───────────┘            └─────────────┘               │   │
-│  └─────────────────────────────────────────────────────────┘   │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │  http.ListenAndServe(":8080", handler)                  │    │
+│  │         │                        │                      │    │
+│  │         ▼                        ▼                      │    │
+│  │  ┌───────────┐            ┌─────────────┐               │    │
+│  │  │   :8080   │            │   Handler   │               │    │
+│  │  │  (port)   │            │ (processes  │               │    │
+│  │  │           │            │  requests)  │               │    │
+│  │  └───────────┘            └─────────────┘               │    │
+│  └─────────────────────────────────────────────────────────┘    │
 │                                                                 │
 │  HANDLER INTERFACE:                                             │
 │  type Handler interface {                                       │
@@ -62,7 +62,7 @@ import (
 
 func main() {
     fmt.Println("╔══════════════════════════════════════════════════════════╗")
-    fmt.Println("║           HTTP SERVER BASICS                              ║")
+    fmt.Println("║           HTTP SERVER BASICS                             ║")
     fmt.Println("╚══════════════════════════════════════════════════════════╝")
     
     // Method 1: DefaultServeMux
@@ -355,7 +355,7 @@ import (
 
 func main() {
     fmt.Println("╔══════════════════════════════════════════════════════════╗")
-    fmt.Println("║           HTTP CLIENT                                     ║")
+    fmt.Println("║           HTTP CLIENT                                    ║")
     fmt.Println("╚══════════════════════════════════════════════════════════╝")
     
     // Method 1: Simple GET
@@ -473,7 +473,7 @@ import (
 
 func main() {
     fmt.Println("╔══════════════════════════════════════════════════════════╗")
-    fmt.Println("║           PRODUCTION HTTP SERVER                          ║")
+    fmt.Println("║           PRODUCTION HTTP SERVER                         ║")
     fmt.Println("╚══════════════════════════════════════════════════════════╝")
     
     // Create router
