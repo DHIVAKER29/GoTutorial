@@ -90,24 +90,24 @@ Imagine writing a large program in a single file:
 │  COMPANY (Project)                                              │
 │  ═════════════════                                              │
 │                                                                 │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐             │
-│  │   Finance   │  │   HR        │  │  Engineering│             │
-│  │  Department │  │  Department │  │  Department │             │
-│  ├─────────────┤  ├─────────────┤  ├─────────────┤             │
-│  │ • Payroll   │  │ • Hiring    │  │ • Backend   │             │
-│  │ • Budget    │  │ • Reviews   │  │ • Frontend  │             │
-│  │ • Taxes     │  │ • Benefits  │  │ • Database  │             │
-│  └─────────────┘  └─────────────┘  └─────────────┘             │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐              │
+│  │   Finance   │  │   HR        │  │  Engineering│              │
+│  │  Department │  │  Department │  │  Department │              │
+│  ├─────────────┤  ├─────────────┤  ├─────────────┤              │
+│  │ • Payroll   │  │ • Hiring    │  │ • Backend   │              │
+│  │ • Budget    │  │ • Reviews   │  │ • Frontend  │              │
+│  │ • Taxes     │  │ • Benefits  │  │ • Database  │              │
+│  └─────────────┘  └─────────────┘  └─────────────┘              │
 │                                                                 │
 │  In Go:                                                         │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐             │
-│  │   finance   │  │     auth    │  │   handler   │             │
-│  │   package   │  │   package   │  │   package   │             │
-│  ├─────────────┤  ├─────────────┤  ├─────────────┤             │
-│  │ payroll.go  │  │  login.go   │  │  user.go    │             │
-│  │ budget.go   │  │  token.go   │  │  order.go   │             │
-│  │ taxes.go    │  │  verify.go  │  │  payment.go │             │
-│  └─────────────┘  └─────────────┘  └─────────────┘             │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐              │
+│  │   finance   │  │     auth    │  │   handler   │              │
+│  │   package   │  │   package   │  │   package   │              │
+│  ├─────────────┤  ├─────────────┤  ├─────────────┤              │
+│  │ payroll.go  │  │  login.go   │  │  user.go    │              │
+│  │ budget.go   │  │  token.go   │  │  order.go   │              │
+│  │ taxes.go    │  │  verify.go  │  │  payment.go │              │
+│  └─────────────┘  └─────────────┘  └─────────────┘              │
 │                                                                 │
 │  Each package:                                                  │
 │  • Has a specific responsibility                                │
@@ -163,24 +163,24 @@ Imagine writing a large program in a single file:
 │                                                                 │
 │  MODULE vs PACKAGE                                              │
 │                                                                 │
-│  ┌────────────────────────────────────────────────────────────┐│
-│  │  MODULE (go.mod)                                           ││
-│  │  ════════════════                                          ││
-│  │  The whole project                                         ││
-│  │  Like a book                                               ││
-│  │                                                            ││
-│  │  ┌────────────┐ ┌────────────┐ ┌────────────┐             ││
-│  │  │  Package   │ │  Package   │ │  Package   │             ││
-│  │  │  ════════  │ │  ════════  │ │  ════════  │             ││
-│  │  │  One       │ │  One       │ │  One       │             ││
-│  │  │  chapter   │ │  chapter   │ │  chapter   │             ││
-│  │  └────────────┘ └────────────┘ └────────────┘             ││
-│  │                                                            ││
-│  └────────────────────────────────────────────────────────────┘│
+│  ┌────────────────────────────────────────────────────────────┐ │
+│  │  MODULE (go.mod)                                           │ │
+│  │  ════════════════                                          │ │
+│  │  The whole project                                         │ │
+│  │  Like a book                                               │ │
+│  │                                                            │ │
+│  │  ┌────────────┐ ┌────────────┐ ┌────────────┐              │ │
+│  │  │  Package   │ │  Package   │ │  Package   │              │ │
+│  │  │  ════════  │ │  ════════  │ │  ════════  │              │ │ 
+│  │  │  One       │ │  One       │ │  One       │              │ │
+│  │  │  chapter   │ │  chapter   │ │  chapter   │              │ │
+│  │  └────────────┘ └────────────┘ └────────────┘              │ │
+│  │                                                            │ │
+│  └────────────────────────────────────────────────────────────┘ │
 │                                                                 │
 │  Real Example:                                                  │
 │                                                                 │
-│  github.com/razorpay/catalyst   ← MODULE (the project)         │
+│  github.com/razorpay/catalyst   ← MODULE (the project)          │
 │    ├── internal/mgst            ← PACKAGE (one feature)         │
 │    ├── internal/boot            ← PACKAGE (initialization)      │
 │    ├── pkg/utils                ← PACKAGE (utilities)           │
