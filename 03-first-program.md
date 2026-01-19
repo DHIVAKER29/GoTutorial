@@ -59,20 +59,20 @@ package main
 │                                                                 │
 │  Real-World Analogy: Departments in a Company                   │
 │                                                                 │
-│  ┌─────────────────────────────────────────────────────────┐   │
-│  │                    COMPANY                              │   │
-│  │                                                         │   │
-│  │   ┌──────────┐  ┌──────────┐  ┌──────────┐             │   │
-│  │   │ Finance  │  │   HR     │  │Engineering│            │   │
-│  │   │Department│  │Department│  │Department │            │   │
-│  │   └──────────┘  └──────────┘  └──────────┘             │   │
-│  │                                                         │   │
-│  │   Each department:                                      │   │
-│  │   • Has specific responsibilities                       │   │
-│  │   • Exposes only what others need                       │   │
-│  │   • Hides internal workings                             │   │
-│  │                                                         │   │
-│  └─────────────────────────────────────────────────────────┘   │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │                    COMPANY                              │    │
+│  │                                                         │    │
+│  │   ┌──────────┐  ┌──────────┐  ┌──────────┐              │    │
+│  │   │ Finance  │  │   HR     │  │Engineering│             │    │
+│  │   │Department│  │Department│  │Department │             │    │
+│  │   └──────────┘  └──────────┘  └──────────┘              │    │
+│  │                                                         │    │
+│  │   Each department:                                      │    │
+│  │   • Has specific responsibilities                       │    │
+│  │   • Exposes only what others need                       │    │
+│  │   • Hides internal workings                             │    │
+│  │                                                         │    │
+│  └─────────────────────────────────────────────────────────┘    │
 │                                                                 │
 │  In Go:                                                         │
 │  • "fmt" package = Formatting/printing department               │
@@ -148,28 +148,28 @@ import "fmt"
 │                                                                 │
 │  Real-World Analogy: Ordering Supplies                          │
 │                                                                 │
-│  ┌─────────────────────────────────────────────────────────┐   │
-│  │                                                         │   │
-│  │  Your Office (package main)                             │   │
-│  │  ┌────────────────────────────────────────┐             │   │
-│  │  │                                        │             │   │
-│  │  │  "I need printing supplies!"           │             │   │
-│  │  │        │                               │             │   │
-│  │  │        ▼                               │             │   │
-│  │  │  import "fmt" ← Order from fmt dept    │             │   │
-│  │  │                                        │             │   │
-│  │  └────────────────────────────────────────┘             │   │
-│  │         │                                               │   │
-│  │         ▼                                               │   │
-│  │  ┌────────────────────────────────────────┐             │   │
-│  │  │  fmt package delivers:                 │             │   │
-│  │  │  • Println() function                  │             │   │
-│  │  │  • Printf() function                   │             │   │
-│  │  │  • Sprintf() function                  │             │   │
-│  │  │  • ... and more                        │             │   │
-│  │  └────────────────────────────────────────┘             │   │
-│  │                                                         │   │
-│  └─────────────────────────────────────────────────────────┘   │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │                                                         │    │
+│  │  Your Office (package main)                             │    │
+│  │  ┌────────────────────────────────────────┐             │    │
+│  │  │                                        │             │    │
+│  │  │  "I need printing supplies!"           │             │    │
+│  │  │        │                               │             │    │
+│  │  │        ▼                               │             │    │
+│  │  │  import "fmt" ← Order from fmt dept    │             │    │
+│  │  │                                        │             │    │
+│  │  └────────────────────────────────────────┘             │    │
+│  │         │                                               │    │
+│  │         ▼                                               │    │
+│  │  ┌────────────────────────────────────────┐             │    │
+│  │  │  fmt package delivers:                 │             │    │ 
+│  │  │  • Println() function                  │             │    │ 
+│  │  │  • Printf() function                   │             │    │
+│  │  │  • Sprintf() function                  │             │    │
+│  │  │  • ... and more                        │             │    │
+│  │  └────────────────────────────────────────┘             │    │
+│  │                                                         │    │
+│  └─────────────────────────────────────────────────────────┘    │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
