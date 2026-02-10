@@ -79,6 +79,35 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           REGULAR EXPRESSIONS                             ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Compile Pattern:
+   Compiled: \d+
+   Email pattern compiled
+
+📊 MatchString (bool):
+   Text: "Order #12345 confirmed"
+   Has digits: true
+
+📊 FindString (first match):
+   First digits: "12345"
+
+📊 FindAllString (all matches):
+   All digits: [10 20 30]
+
+📊 FindStringIndex (position):
+   Found at index 7-12
+
+📊 Email Matching:
+   user@example.com: true
+   invalid-email: false
+   test.user@company.org: true
+```
+
 ---
 
 ## 🔄 Replace and Split
@@ -131,6 +160,27 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           REPLACE & SPLIT                                 ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 ReplaceAllString:
+   Before: Order 123 and Order 456
+   After:  Order XXX and Order XXX
+
+📊 ReplaceAllStringFunc:
+   Doubled: Order 246 and Order 912
+
+📊 Replace with Groups:
+   Before: Date: 2024-12-25
+   After:  Date: 12/25/2024
+
+📊 Split:
+   Split: [apple banana cherry date]
+```
+
 ---
 
 ## 📦 Capture Groups
@@ -176,6 +226,24 @@ func main() {
         fmt.Printf("   Level: %-5s  Message: %s\n", m[1], m[2])
     }
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           CAPTURE GROUPS                                  ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Named Capture Groups:
+   Full match: 2024-12-25
+   year: 2024
+   month: 12
+   day: 25
+
+📊 All Matches with Groups:
+   Level: INFO   Message: Server started
+   Level: ERROR  Message: Connection failed
+   Level: WARN   Message: Slow response
 ```
 
 ---

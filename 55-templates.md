@@ -60,6 +60,18 @@ City: {{.city}}
 }
 ```
 
+**Output:**
+```
+Hello, World!
+
+User: Alice
+Email: alice@example.com
+Age: 30
+
+Name: Bob
+City: NYC
+```
+
 ---
 
 ## 🔄 Template Actions
@@ -126,6 +138,31 @@ Hello, {{$name}}!
 }
 ```
 
+**Output:**
+```
+=== Conditionals ===
+Active
+
+Count between 1-5
+
+=== Loops ===
+  - apple
+  - banana
+  - cherry
+
+  0: apple
+  1: banana
+  2: cherry
+
+=== With (change context) ===
+  City: NYC
+  Country: USA
+
+=== Variables ===
+Hello, Alice!
+
+```
+
 ---
 
 ## 🔗 Pipelines and Functions
@@ -189,6 +226,25 @@ Chained: {{.Name | upper | printf "Hello, %s!"}}
 }
 ```
 
+**Output:**
+```
+=== Built-in Functions ===
+Length: 3
+Index: a
+Print: Hello World
+Printf: Alice is 30
+
+=== Custom Functions ===
+Upper: ALICE
+Lower: alice
+Add: 8
+Repeat: GoGoGo
+
+=== Pipelines ===
+Pipeline: ALICE
+Chained: Hello, ALICE!
+```
+
 ---
 
 ## 🌐 html/template (Safe HTML)
@@ -236,6 +292,19 @@ func main() {
     <a href="#ZgotmplZ">Link</a>
     */
 }
+```
+
+**Output:**
+```
+<!DOCTYPE html>
+<html>
+<head><title>My Page</title></head>
+<body>
+    <h1>My Page</h1>
+    <p>User input: &lt;script&gt;alert(&#39;XSS&#39;)&lt;/script&gt;</p>
+    <a href="#ZgotmplZ">Link</a>
+</body>
+</html>
 ```
 
 ---
@@ -317,6 +386,17 @@ func main() {
     
     tmpl.ExecuteTemplate(os.Stdout, "base", data)
 }
+```
+
+**Output:**
+```
+<!DOCTYPE html>
+<html>
+<body>
+    <header>Welcome to My Website</header>
+    <main>Hello, World!</main>
+</body>
+</html>
 ```
 
 ---

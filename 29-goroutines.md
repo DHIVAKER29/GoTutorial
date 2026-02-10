@@ -307,6 +307,38 @@ func runWorkers() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           GOMAXPROCS - CONTROLLING PARALLELISM            ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 System Information:
+   NumCPU (logical cores): 8
+   GOMAXPROCS (default): 8
+   NumGoroutine (current): 1
+
+📊 GOMAXPROCS Explained:
+   • Controls max number of OS threads running Go code simultaneously
+   • Default = number of CPU cores (since Go 1.5)
+   • GOMAXPROCS(1) = no parallelism (concurrency only)
+   • GOMAXPROCS(4) = up to 4 goroutines run in parallel
+
+📊 Experiment: GOMAXPROCS Effect
+
+   GOMAXPROCS = 1 (sequential on single thread):
+   Completed in: 45.234ms
+
+   GOMAXPROCS = 8 (parallel on multiple cores):
+   Completed in: 12.456ms
+
+💡 When to Change GOMAXPROCS:
+   • Usually DON'T - default is optimal
+   • Container limits: may need to match cgroup CPU limit
+   • CPU-bound work: might limit to leave room for GC
+   • Debugging: GOMAXPROCS=1 to simplify race condition debugging
+```
+
 ---
 
 ## 📝 Creating Goroutines - Complete Guide
@@ -378,6 +410,36 @@ func main() {
     wg.Wait()
     fmt.Printf("   After completion: %d\n", runtime.NumGoroutine())
 }
+```
+
+**Output:**
+```
+(goroutine output order may vary)
+╔══════════════════════════════════════════════════════════╗
+║           GOROUTINES - COMPLETE GUIDE                     ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Method 1: Named Function
+   Hello from named function!
+
+📊 Method 2: Anonymous Function
+   Hello from anonymous function!
+
+📊 Method 3: With Parameters (Pass by Value)
+   Goroutine received: 1
+   Goroutine received: 2
+   Goroutine received: 3
+
+📊 Method 4: Method as Goroutine
+   Worker 1 doing work!
+
+📊 Goroutine Statistics:
+   Active goroutines: 1
+
+📊 Spawning 10,000 Goroutines:
+   Peak goroutines: 10001
+   After completion: 1
+```
 
 func namedFunction(wg *sync.WaitGroup) {
     defer wg.Done()
@@ -498,6 +560,79 @@ func main() {
 }
 ```
 
+**Output:**
+```
+(goroutine output order may vary)
+╔══════════════════════════════════════════════════════════╗
+║           GOROUTINE GOTCHAS - DETAILED                    ║
+╚══════════════════════════════════════════════════════════╝
+
+❌ GOTCHA 1: Loop Variable Capture
+   The Classic Bug:
+
+   BAD (all print same value):
+   value: 5
+   value: 5
+   value: 5
+   value: 5
+   value: 5
+
+   GOOD (pass as parameter):
+   value: 1
+   value: 2
+   value: 3
+   value: 4
+   value: 5
+
+   ALSO GOOD (shadow variable - Go 1.22+ default):
+   value: 1
+   value: 2
+   value: 3
+   value: 4
+   value: 5
+
+❌ GOTCHA 2: Main Exits = Goroutines Die
+   func main() {
+       go doWork()  // May NEVER run!
+   }  // main exits immediately
+
+   FIX: Use WaitGroup, channels, or select{}
+
+❌ GOTCHA 3: Goroutine Leak
+   ch := make(chan int)
+   go func() {
+       val := <-ch  // Blocks forever if nothing sent!
+   }()
+   // Forgot to send or close ch - goroutine leaks!
+
+   FIX: Always ensure goroutines can exit
+        Use context for cancellation
+
+❌ GOTCHA 4: Data Race
+   counter := 0
+   for i := 0; i < 1000; i++ {
+       go func() { counter++ }()  // RACE!
+   }
+
+   FIX: Use sync.Mutex, sync/atomic, or channels
+   DETECT: Run with 'go run -race program.go'
+
+❌ GOTCHA 5: Panic in Goroutine
+   go func() {
+       panic("oops")  // Crashes ENTIRE program!
+   }()
+
+   FIX: Use recover in deferred function:
+   go func() {
+       defer func() {
+           if r := recover(); r != nil {
+               log.Printf("Recovered: %v", r)
+           }
+       }()
+       // risky code here
+   }()
+```
+
 ---
 
 ## 🔄 sync.WaitGroup In-Depth
@@ -565,6 +700,48 @@ func main() {
     fmt.Println("   • Cannot Add() while Wait() is blocking")
     fmt.Println("   • counter must reach 0 for Wait() to return")
 }
+```
+
+**Output:**
+```
+(goroutine output order may vary)
+╔══════════════════════════════════════════════════════════╗
+║           WAITGROUP - IN DEPTH                            ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Basic WaitGroup Pattern:
+   Worker 1 starting
+   Worker 2 starting
+   Worker 3 starting
+   Worker 1 done
+   Worker 2 done
+   Worker 3 done
+   All workers completed!
+
+⚠️ Common Mistake:
+   // WRONG!
+   go func() {
+       wg.Add(1)  // Race condition!
+       defer wg.Done()
+   }()
+
+   // RIGHT!
+   wg.Add(1)  // Add BEFORE go
+   go func() {
+       defer wg.Done()
+   }()
+
+📊 Add with Count:
+   Worker 0
+   Worker 1
+   Worker 2
+   Worker 3
+   Worker 4
+
+📊 WaitGroup Lifecycle:
+   • Can reuse after Wait() returns
+   • Cannot Add() while Wait() is blocking
+   • counter must reach 0 for Wait() to return
 ```
 
 ---
@@ -674,6 +851,36 @@ func channelCounter() {
     
     fmt.Printf("   Channel result: %d\n", counter)
 }
+```
+
+**Output:**
+```
+(goroutine output order may vary)
+╔══════════════════════════════════════════════════════════╗
+║           RACE CONDITION DETECTION                        ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 What is a Data Race?
+   When two goroutines access the same memory
+   AND at least one is a write
+   AND they're not synchronized
+
+📊 Race Detector:
+   go run -race program.go
+   go test -race ./...
+   go build -race program.go
+
+❌ Example Race Condition:
+   Racy result: 987 (should be 1000)
+
+✅ Fixed with Mutex:
+   Mutex result: 1000
+
+✅ Fixed with Atomic:
+   (See sync/atomic examples in sync package file)
+
+✅ Fixed with Channel:
+   Channel result: 1000
 ```
 
 ---

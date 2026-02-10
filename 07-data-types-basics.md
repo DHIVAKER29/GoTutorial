@@ -179,6 +179,37 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║              INTEGER TYPES IN GO                          ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 int (default):
+   Value: 42
+   Size:  8 bytes
+
+📊 Signed Integers (can be negative):
+   int8  : 127 (max: 127, min: -128)
+   int16 : 32767 (max: 32767)
+   int32 : 2147483647 (max: 2147483647)
+   int64 : 9223372036854775807
+
+📊 Unsigned Integers (positive only):
+   uint8  : 255 (max: 255)
+   uint16 : 65535 (max: 65535)
+   uint32 : 4294967295 (max: 4294967295)
+
+📊 byte (alias for uint8):
+   byte 'A' = 65 (decimal) = A (character)
+
+💡 Practical Use Cases:
+   Amount: ₹999.50 (stored as 99950 paisa)
+   Timestamp: 1705555200 seconds since 1970
+   Visitors: 1000000
+   Temperature: -15°C
+```
+
 ### Why `int64` for Money?
 
 ```
@@ -288,6 +319,41 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           FLOATING POINT TYPES IN GO                      ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 float64 (default):
+   Pi = 3.141592653589793
+   Precision: ~15 decimal digits
+
+📊 Precision Comparison:
+   float32: 1.123456835746765 (loses precision after ~7 digits)
+   float64: 1.123456789012345 (accurate to ~15 digits)
+
+📊 Special Float Values:
+   +Inf: +Inf
+   -Inf: -Inf
+   NaN (Not a Number): NaN
+   Max float64: 1.797693e+308
+   Smallest positive: 5.000000e-324
+
+⚠️ Famous Floating Point Problem:
+   0.1 + 0.2 = 0.30000000000000004
+   Expected:   0.30000000000000000
+   Equal to 0.3? false
+
+✅ How to Compare Floats:
+   Using epsilon comparison: true
+
+💡 Practical Use Cases:
+   Discount: 75.5%
+   Earth-Sun distance: 1.496e+08 km
+   Bangalore coordinates: 12.9716, 77.5946
+```
+
 ---
 
 ## ✅ Boolean Type
@@ -379,6 +445,48 @@ func increment(count *int) bool {
     *count++
     return true
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║              BOOLEAN TYPE IN GO                           ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Boolean Basics:
+   isActive: true
+   isDeleted: false
+   hasPermission (zero value): false
+
+📊 Comparison Operators (return bool):
+   10 == 20 : false
+   10 != 20 : true
+   10 > 20  : false
+   10 < 20  : true
+   10 >= 20 : false
+   10 <= 20 : true
+
+📊 Logical Operators:
+   true && false  = false (AND)
+   true || false  = true (OR)
+   !true       = false (NOT)
+   !false      = true (NOT)
+
+📊 Short-Circuit Evaluation:
+   If first part of && is false, second part not evaluated
+   If first part of || is true, second part not evaluated
+   false && func() - func called? count = 0
+   true || func() - func called? count = 0
+
+💡 Practical Use Cases:
+   New feature is enabled!
+   Input valid? true
+   Can access admin panel? false
+
+⚠️ Go vs Other Languages:
+   In JavaScript: if (1) → true
+   In Go: if 1 → COMPILE ERROR!
+   Go requires explicit bool expressions
 ```
 
 ### No Implicit Boolean Conversion
@@ -516,6 +624,56 @@ func main() {
     joined := strings.Join(parts, " | ")
     fmt.Printf("   Join with ' | ': %q\n", joined)
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║              STRING TYPE IN GO                            ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 String Basics:
+   greeting = "Hello, World!"
+   name = "Go Developer"
+   empty = "" (zero value)
+
+📊 String Length:
+   len("Hello") = 5 bytes
+   len("नमस्ते") = 18 bytes (not 6 characters!)
+   len("👋") = 4 bytes (not 1 character!)
+
+📊 String Concatenation:
+   "Hello" + "World" = "Hello, World!"
+
+📊 Raw Strings (backticks):
+   Raw string:
+This is a
+    multi-line string.
+    Special chars like \n are literal.
+
+📊 String Indexing:
+   word[0] = 72 (H) - returns byte!
+   word[4] = 111 (o)
+
+📊 Strings are Immutable:
+   s := "Hello"
+   s[0] = 'h'  // ❌ COMPILE ERROR!
+   s = "hello" // ✅ Reassign entire string is OK
+
+📊 String Comparison:
+   "apple" == "apple" : true
+   "apple" != "banana" : true
+   "apple" < "banana"  : true (lexicographic)
+
+💡 Common String Operations:
+   Original: "  Hello, Go World!  "
+   Trimmed:  "Hello, Go World!"
+   Upper:    "  HELLO, GO WORLD!  "
+   Lower:    "  hello, go world!  "
+   Contains 'Go': true
+   Replace:  "  Hello, Golang World!  "
+   Split "apple,banana,cherry": [apple banana cherry]
+   Join with ' | ': "apple | banana | cherry"
 ```
 
 ---

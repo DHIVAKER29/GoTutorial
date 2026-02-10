@@ -95,6 +95,27 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║              BREAK STATEMENT                              ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Basic Break:
+   0 1 2 3 4 ← stopped at 5
+
+📊 Break in Switch:
+   Two
+
+📊 Find First Even Number > 10:
+   Found: 12
+
+⚠️ Break in Nested Loops (only exits INNER loop):
+   i=1, j=1
+   i=2, j=1
+   i=3, j=1
+```
+
 ---
 
 ## ⏭️ Continue Statement
@@ -163,6 +184,24 @@ func main() {
         fmt.Printf("   Processing: %s\n", item)
     }
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║              CONTINUE STATEMENT                           ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Basic Continue (skip even numbers):
+   Odd numbers: 1 3 5 7 9 
+
+📊 Skip Specific Values:
+   Keeping: 1 2 4 6 8 9 10 
+
+📊 Process Only Valid Items:
+   Processing: apple
+   Processing: banana
+   Processing: cherry
 ```
 
 ---
@@ -263,6 +302,32 @@ search:
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║              LABELS                                       ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Break with Label (exit outer loop):
+   i=1, j=1
+   i=1, j=2
+   i=1, j=3
+   i=2, j=1
+   Breaking outer at i=2, j=2
+   Outside both loops
+
+📊 Continue with Label (skip to next outer iteration):
+   i=1, j=1
+   Skipping rest of inner at i=1
+   i=2, j=1
+   Skipping rest of inner at i=2
+   i=3, j=1
+   Skipping rest of inner at i=3
+
+💡 Practical: Search in 2D Array:
+   Found 5 at [1][1]
+```
+
 ---
 
 ## 🚀 Goto Statement
@@ -320,6 +385,28 @@ cleanup:
     fmt.Println("   Cleaning up...")
     return fmt.Errorf("resource allocation failed")
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║              GOTO STATEMENT (Use Rarely!)                 ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Goto for Cleanup (rare use case):
+   Allocating resource 1...
+   Allocating resource 2...
+   All resources allocated!
+
+⚠️ Goto Restrictions:
+   ❌ Cannot jump over variable declarations
+   ❌ Cannot jump into blocks
+   ❌ Cannot jump between functions
+
+💡 Better Alternatives:
+   • Use labeled break/continue
+   • Use defer for cleanup
+   • Use early return
 ```
 
 ---
@@ -380,6 +467,24 @@ findPerm:
         }
     }
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           PRODUCTION PATTERNS                             ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Pattern 1: Early Exit on Error
+   Processing: valid
+   Processing: valid
+   Error at index 2, stopping
+
+📊 Pattern 2: Skip Invalid Items
+   Positive numbers: 1 3 7 4 
+
+📊 Pattern 3: Find in Nested Structure
+   Role 'admin' has 'delete' permission
 ```
 
 ---

@@ -58,6 +58,26 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           Signal Handling                                 ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Common Signals:
+   SIGINT  (2)  - Ctrl+C
+   SIGTERM (15) - kill command, container stop
+   SIGKILL (9)  - Cannot be caught! Immediate kill
+   SIGHUP  (1)  - Terminal hangup
+
+   Press Ctrl+C to trigger SIGINT...
+
+   (Program blocks here until user presses Ctrl+C or sends SIGTERM)
+   Received signal: interrupt
+   Cleaning up...
+   Goodbye!
+```
+
 ---
 
 ## 🏭 Graceful Shutdown Pattern
@@ -116,6 +136,19 @@ func main() {
     
     fmt.Println("   Server stopped")
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           Graceful Shutdown                               ║
+╚══════════════════════════════════════════════════════════╝
+
+   Server starting on :8080
+
+   (Program blocks until user presses Ctrl+C or sends SIGTERM)
+   Shutting down gracefully...
+   Server stopped
 ```
 
 ---
@@ -201,6 +234,37 @@ func min(a, b int) int {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           Running External Commands                       ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Simple Command:
+   Output: Hello from Go!
+
+📊 List Files:
+total 24
+drwxr-x   ...
+   ...
+
+📊 Stdout and Stderr:
+   Error: ...
+
+   Stderr: ls: /nonexistent: No such file or directory
+
+📊 Command with Timeout:
+   Command completed
+
+📊 CombinedOutput (stdout + stderr):
+   Tue Feb 10 12:00:00 PST 2025
+
+📊 Check Command Exists:
+   git found at: /usr/bin/git
+```
+
+*Note: Output varies by system (ls listing, date, git path).*
+
 ---
 
 ## 🔧 Advanced Command Execution
@@ -258,6 +322,31 @@ func main() {
 
 import "strings"
 ```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           Advanced Command Execution                      ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Pipe Input:
+Hello Go
+I love Go
+
+📊 Stream Output:
+   > PING localhost (...): 56 data bytes
+   > 64 bytes from localhost: ...
+   > ...
+
+📊 With Environment:
+   Hello from Go!
+
+📊 Set Working Directory:
+   /tmp
+
+```
+
+*Note: Stream output (ping) varies by system and platform.*
 
 ---
 

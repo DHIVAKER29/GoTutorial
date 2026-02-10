@@ -140,6 +140,38 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           NUMERIC CONVERSIONS IN GO                       ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 int → float64
+   int 42 → float64 42.000000
+
+📊 float64 → int (TRUNCATES!)
+   float64 3.141590 → int 3
+   float64 -3.700000 → int -3 (truncates toward zero)
+
+📊 Smaller → Larger (Safe)
+   int32 100 → int64 100 ✅
+
+⚠️ Larger → Smaller (DANGER!)
+   int64 3000000000 → int32 -1294967296 (OVERFLOW!)
+
+✅ Safe Conversion Pattern:
+   int64 1000000 → int32 1000000 (safe)
+
+📊 byte ↔ int
+   byte 65 → int 65
+
+📊 rune ↔ int
+   rune '中' → int 20013 (U+4E2D)
+
+📊 Same 'int' family still needs conversion
+   int 10 + int32 20 = int 30
+```
+
 ### Conversion Rules
 
 ```
@@ -263,6 +295,41 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           STRING CONVERSIONS (strconv)                    ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Int → String
+   strconv.Itoa(42) = "42"
+   strconv.FormatInt(1234567890, 10) = "1234567890"
+
+📊 Int → String (Different Bases)
+   Decimal:     255
+   Binary:      11111111
+   Octal:       377
+   Hexadecimal: ff
+
+📊 String → Int
+   strconv.Atoi("123") = 123
+   strconv.ParseInt("9223372036854775807") = 9223372036854775807
+
+📊 Float → String
+   strconv.FormatFloat(pi, 'f', 2, 64) = "3.14"
+   strconv.FormatFloat(pi, 'e', 4, 64) = "3.1416e+00"
+
+📊 String → Float
+   strconv.ParseFloat("3.14159") = 3.141590
+
+📊 Bool ↔ String
+   strconv.FormatBool(true) = "true"
+   strconv.ParseBool("true") = true
+
+⚠️ Error Handling (invalid input)
+   strconv.Atoi("not-a-number") error: strconv.Atoi: parsing "not-a-number": invalid syntax
+```
+
 ### Quick Reference: strconv Functions
 
 ```
@@ -364,6 +431,31 @@ func describeType(x interface{}) {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           TYPE ASSERTIONS                                 ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Type Assertion Basics:
+   anything = 42 (type: int)
+   anything.(int) = 42
+
+⚠️ Wrong Assertion = PANIC!
+   // anything.(string) would PANIC!
+
+✅ Safe Type Assertion (comma-ok idiom):
+   Not a string! ok = false
+   It's an int: 42
+
+📊 Type Switch:
+   42 is an int (doubled: 84)
+   "hello" is a string (length: 5)
+   3.14 is a float64
+   true is a bool
+   [1 2 3] is unknown type []int
+```
+
 ---
 
 ## 🏭 Production Patterns
@@ -452,6 +544,29 @@ func main() {
     fmt.Printf("   JSON amount as int: %d\n", amountInt)
     fmt.Printf("   JSON amount as float: %.2f\n", amountFloat)
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           PRODUCTION CONVERSION PATTERNS                  ║
+╚══════════════════════════════════════════════════════════╝
+
+💰 Money Conversion:
+   ₹999.99 → 99999 paisa
+   99999 paisa → ₹999.99
+
+📊 Safe Parsing with Default:
+   ParseIntOrDefault("42", 0) = 42
+   ParseIntOrDefault("bad", 0) = 0
+   ParseIntOrDefault("", -1) = -1
+
+📊 Query Parameter Pattern:
+   page = 5, limit = 10
+
+📊 JSON Number Handling:
+   JSON amount as int: 99
+   JSON amount as float: 99.99
 ```
 
 ---

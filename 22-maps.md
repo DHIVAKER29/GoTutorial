@@ -163,6 +163,36 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║              CREATING MAPS                                ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Method 1: Map Literal
+   ages = map[Alice:25 Bob:30 Charlie:28]
+
+📊 Method 2: Empty Map Literal
+   scores = map[Alice:95]
+
+📊 Method 3: make()
+   users = map[1:Alice 2:Bob]
+
+📊 Method 4: make() with Capacity
+   Created map with capacity hint 1000
+
+⚠️ Method 5: Nil Map (careful!)
+   var nilMap map[string]int
+   nilMap == nil: true
+   Reading nil map: nilMap["key"] = 0 (returns zero value)
+
+📊 Various Types:
+   map[string]int: map[hello:5 world:3]
+   map[int]string: map[404:Not Found 500:Server Error]
+   map[string]bool (set): map[apple:true banana:true]
+   map[Point]string: map[{0 0}:origin {1 0}:unit-x]
+```
+
 ---
 
 ## 🔍 Reading and Writing
@@ -239,6 +269,39 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║              MAP OPERATIONS                               ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Reading Values:
+   ages["Alice"] = 25
+   ages["Charlie"] = 0 (missing key → zero value!)
+
+⚠️ The Problem:
+   ages["Dave"] = 0 (exists but is 0)
+   ages["Eve"] = 0 (doesn't exist, also 0!)
+
+✅ Solution: Comma-Ok Idiom
+   ages["Dave"]: value=0, exists=true
+   ages["Eve"]: value=0, exists=false
+
+📊 Common Pattern:
+   Alice is 25 years old
+   Eve not found
+
+📊 Writing Values:
+   After updates: map[Alice:26 Bob:30 Charlie:28 Dave:0]
+
+📊 Deleting Values:
+   After delete(ages, "Bob"): map[Alice:26 Charlie:28 Dave:0]
+   delete() on missing key: no error
+
+📊 Length:
+   len(ages) = 3
+```
+
 ---
 
 ## 🔄 Iteration
@@ -299,6 +362,43 @@ func main() {
     fmt.Println("   Solution: Collect keys first, then modify")
 }
 ```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║              MAP ITERATION                                ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Iterate Key-Value (order is RANDOM!):
+   Alice: 95
+   Bob: 87
+   Charlie: 92
+   Diana: 88
+
+   Run again - different order!
+   Diana: 88
+   Alice: 95
+   Charlie: 92
+   Bob: 87
+
+📊 Iterate Keys Only:
+   Alice
+   Bob
+   Charlie
+   Diana
+
+📊 Sorted Iteration (collect keys, sort, iterate):
+   Alice: 95
+   Bob: 87
+   Charlie: 92
+   Diana: 88
+
+⚠️ Modifying While Iterating:
+   Adding/deleting during iteration = undefined!
+   Solution: Collect keys first, then modify
+```
+
+*Note: Map iteration order is random in Go and may vary between runs.*
 
 ---
 
@@ -399,6 +499,32 @@ func getOrDefault(m map[string]string, key, defaultVal string) string {
     }
     return defaultVal
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           PRODUCTION MAP PATTERNS                         ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Pattern 1: Set (using map[T]bool)
+   Unique items: apple banana cherry 
+
+📊 Pattern 2: Set with struct{} (0 bytes per value)
+   apple is in set
+
+📊 Pattern 3: Word Frequency
+   Frequency: map[brown:1 fox:1 quick:2 the:2]
+
+📊 Pattern 4: Grouping
+   Grouped by city: map[LA:[Bob Diana] NYC:[Alice Charlie]]
+
+📊 Pattern 5: Memoization Cache
+   fib(10) = 20 (calculated)
+   fib(10) = 20 (cached)
+
+📊 Pattern 6: Get with Default
+   host=localhost, port=8080
 ```
 
 ---

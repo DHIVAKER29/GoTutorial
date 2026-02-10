@@ -94,6 +94,36 @@ func main() {
     })
     time.Sleep(200 * time.Millisecond)
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║        ANONYMOUS FUNCTIONS & CLOSURES                     ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Function as Variable:
+   double(5) = 10
+
+📊 Immediately Invoked:
+   Result: 7
+
+📊 Closure (captures counter):
+   counter() = 1
+   counter() = 2
+   counter() = 3
+   counter2() = 1 (separate state)
+
+📊 Function as Argument:
+   Doubled: [2 4 6 8 10]
+
+📊 Deferred Anonymous Function:
+   Current: modified
+   Deferred sees: modified
+
+📊 Timer Callback:
+   Timer fired!
+```
 
 // Returns a function (closure)
 func makeCounter() func() int {

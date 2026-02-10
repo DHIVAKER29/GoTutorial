@@ -86,6 +86,12 @@ func getSystemInfo() string {
 }
 ```
 
+**Output:** (varies by GOOS build target)
+```
+Running on Linux
+```
+(or "Running on macOS" for darwin, "Running on Windows" for windows)
+
 ---
 
 ## 🏷️ Build Tags Syntax
@@ -171,6 +177,17 @@ func main() {
     
     fmt.Println("Hello, World!")
 }
+```
+
+**Output:**
+```
+(When built with -tags debug:)
+[DEBUG] Starting application...
+Running in debug mode
+Hello, World!
+
+(When built without -tags debug:)
+Hello, World!
 ```
 
 ```bash

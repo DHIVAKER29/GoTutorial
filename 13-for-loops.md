@@ -183,6 +183,47 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║              FOR LOOPS IN GO                              ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Form 1: Classic For Loop
+   0 1 2 3 4 
+   Descending: 5 4 3 2 1 
+   Step by 2: 0 2 4 6 8 10 
+
+📊 Form 2: While-Style Loop
+   0 1 2 3 4 
+
+📊 Form 3: Infinite Loop (with break)
+   Sum until > 10: 1 2 3 4 5 6 7 8 9 10 11 
+
+📊 Form 4: Range Loop - Slice
+   [0] apple
+   [1] banana
+   [2] cherry
+
+📊 Range Loop - String (runes)
+   [0] H (U+0048)
+   [1] e (U+0065)
+   [2] l (U+006C)
+   [3] l (U+006C)
+   [4] o (U+006F)
+   [5] 世 (U+4E16)
+   [8] 界 (U+754C)
+
+📊 Range Loop - Map
+   Alice is 25 years old
+   Bob is 30 years old
+   Carol is 28 years old
+
+📊 Ignoring Index or Value
+   Values only: 10 20 30 40 50 
+   Indices only: 0 1 2 3 4 
+```
+
 ---
 
 ## 🔄 Break and Continue
@@ -260,6 +301,40 @@ outerLoop:
         }
     }
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           BREAK AND CONTINUE                              ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 break - Exit Loop Early
+   Finding first even: 1 Found 2!
+
+📊 continue - Skip Iteration
+   Odd numbers only: 1 3 5 7 9 
+
+📊 break in Nested Loops
+   break only exits INNER loop:
+   i=1, j=1
+   i=2, j=1
+   i=3, j=1
+
+📊 Labels - Break Outer Loop
+   i=1, j=1
+   i=1, j=2
+   i=1, j=3
+   i=2, j=1
+   Breaking outer loop!
+
+📊 Labels - Continue Outer Loop
+   i=1, j=1
+   Skipping rest of inner loop at i=1
+   i=2, j=1
+   Skipping rest of inner loop at i=2
+   i=3, j=1
+   Skipping rest of inner loop at i=3
 ```
 
 ---
@@ -427,6 +502,44 @@ func isPalindrome(s string) bool {
     }
     return true
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           PRODUCTION FOR LOOP PATTERNS                    ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Pattern 1: Retry with Backoff
+   Attempt 1...
+   Failed, waiting 100ms
+   Attempt 2...
+   Success!
+   Final result: true
+
+📊 Pattern 2: Pagination
+   Page 1: [item1 item2]
+   Page 2: [item3 item4]
+
+📊 Pattern 3: Batch Processing
+   Batch: [a b c]
+   Batch: [d e f]
+   Batch: [g h]
+
+📊 Pattern 4: Finding Element
+   First number > 30: 45 at index 3
+
+📊 Pattern 5: Filtering
+   Active users: [alice bob charlie]
+
+📊 Pattern 6: Transforming
+   Doubled: [2 4 6 8 10]
+
+📊 Pattern 7: Two-Pointer (Palindrome Check)
+   radar: ✅
+   hello: ❌
+   level: ✅
+   world: ❌
 ```
 
 ---

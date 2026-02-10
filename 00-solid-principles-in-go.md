@@ -280,6 +280,31 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║        SINGLE RESPONSIBILITY PRINCIPLE                    ║
+╚══════════════════════════════════════════════════════════╝
+
+❌ BAD Example (one struct does everything):
+Saving to database...
+Sending email...
+[LOG] User Alice: registered
+
+✅ GOOD Example (separated responsibilities):
+Saving user Bob to database...
+Sending welcome email to bob@example.com...
+[INFO] 2026-02-10 12:34:56: User Bob registered successfully
+Created user: {
+  "ID": 1,
+  "Name": "Bob",
+  "Email": "bob@example.com",
+  "CreatedAt": "2026-02-10T12:34:56.123456789Z"
+}
+```
+
+*Note: Timestamp will vary based on execution time.*
+
 ---
 
 ## O - Open/Closed Principle
@@ -459,6 +484,34 @@ func main() {
     fmt.Println("   New payment methods added by creating NEW types,")
     fmt.Println("   NOT by modifying PaymentService!")
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           OPEN/CLOSED PRINCIPLE                           ║
+╚══════════════════════════════════════════════════════════╝
+
+❌ BAD: Modifying code for each new payment method
+Processing credit card: $100.00
+Processing PayPal: $50.00
+
+✅ GOOD: Extending via new types (no modification needed)
+Using Credit Card for checkout...
+💳 Credit Card [****-****-****-1234]: Processing $99.99
+
+Using PayPal for checkout...
+🅿️  PayPal [user@example.com]: Processing $99.99
+
+Using Cryptocurrency for checkout...
+🪙 Crypto [ETH to 0x123456...]: Processing $99.99
+
+Using UPI for checkout...
+📱 UPI [user@bank]: Processing ₹99.99
+
+📝 Key Point:
+   New payment methods added by creating NEW types,
+   NOT by modifying PaymentService!
 ```
 
 ---
@@ -664,6 +717,28 @@ func main() {
     fmt.Println("   All shapes can substitute for each other in PrintShapeInfo()")
     fmt.Println("   and TotalArea() without breaking the program!")
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║        LISKOV SUBSTITUTION PRINCIPLE                      ║
+╚══════════════════════════════════════════════════════════╝
+
+❌ BAD: Square as Rectangle violates expectations
+  Rectangle area (5x4): 20 (expected 20) ✓
+  Square area (5x4): 16 (expected 20) ✗ GOT WRONG ANSWER!
+
+✅ GOOD: Each shape implements interface correctly
+  Rectangle: Area=20.00, Perimeter=18.00
+  Square: Area=25.00, Perimeter=20.00
+  Circle: Area=28.27, Perimeter=18.85
+
+  Total area of all shapes: 73.27
+
+📝 Key Point:
+   All shapes can substitute for each other in PrintShapeInfo()
+   and TotalArea() without breaking the program!
 ```
 
 ---
@@ -892,6 +967,39 @@ func main() {
     fmt.Println("   io.Closer  - just Close()")
     _ = time.Now() // Just to use time package
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║        INTERFACE SEGREGATION PRINCIPLE                    ║
+╚══════════════════════════════════════════════════════════╝
+
+❌ BAD: Fat interface forces empty/panic implementations
+   Robot forced to implement Eat() and Sleep() with panic!
+
+✅ GOOD: Small interfaces, implement only what you can do
+
+👷 Assigning work (both are Workers):
+👤 Alice is working
+🤖 Robot R2D2 (Analyzer-3000) is working
+
+🍽️  Lunch break (only Eaters):
+👤 Alice is having lunch
+
+📄 Generating Reports:
+  - Report by Alice: All tasks completed.
+  - Automated report from R2D2: 1000 tasks completed.
+
+📝 Key Point:
+   Human implements: Worker, Eater, Sleeper, Reporter, Reviewer
+   Robot implements: Worker, Reporter, Reviewer
+   Each only implements what makes sense!
+
+💡 Go Standard Library Examples:
+   io.Reader  - just Read()
+   io.Writer  - just Write()
+   io.Closer  - just Close()
 ```
 
 ---
@@ -1166,6 +1274,39 @@ func main() {
     fmt.Println("   4. New stores can be added without modifying OrderService")
 }
 ```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║        DEPENDENCY INVERSION PRINCIPLE                     ║
+╚══════════════════════════════════════════════════════════╝
+
+❌ BAD: OrderService directly depends on MySQL
+   - Can't switch databases without changing OrderService
+   - Can't test without real MySQL
+  MySQL: Executing 'SELECT * FROM orders'
+
+✅ GOOD: Both depend on DataStore interface
+
+📦 Production (MySQL):
+🐬 MySQL: INSERT INTO table VALUES (ORD-1739199236123456789, &{ORD-1739199236123456789 Alice 99.99 2026-02-10 12:34:56.123456789 +0000 UTC})
+
+📦 Development (Redis):
+🔴 Redis: SET ORD-1739199236123456789 &{ORD-1739199236123456789 Bob 49.99 2026-02-10 12:34:56.123456789 +0000 UTC}
+
+📦 Testing (In-Memory):
+💾 InMemory: Storing ORD-1739199236123456789 = &{ORD-1739199236123456789 TestUser 10 2026-02-10 12:34:56.123456789 +0000 UTC}
+💾 InMemory: Getting all data
+  Found 1 orders
+
+📝 Key Points:
+   1. OrderService doesn't know which store it's using
+   2. We can swap implementations without changing OrderService
+   3. Easy to test with mock/fake implementations
+   4. New stores can be added without modifying OrderService
+```
+
+*Note: Order IDs and timestamps will vary based on execution time.*
 
 ---
 

@@ -117,6 +117,32 @@ func main() {
 }
 ```
 
+**Output:**
+```
+(goroutine output order may vary)
+╔══════════════════════════════════════════════════════════╗
+║           CHANNEL BASICS                                  ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Creating Channels:
+   ch: chan int
+   bufferedCh: chan string, cap=3
+
+📊 Basic Send and Receive:
+   main: received 42
+   goroutine: sent 42
+
+📊 Multiple Values:
+   Received: 10
+   Received: 20
+   Received: 30
+
+📊 Buffered Channel (no blocking until full):
+   Received: first
+   Received: second
+   Received: third
+```
+
 ---
 
 ## 📤📥 Send and Receive Operations
@@ -191,6 +217,32 @@ func main() {
 }
 ```
 
+**Output:**
+```
+(goroutine output order may vary)
+╔══════════════════════════════════════════════════════════╗
+║           CHANNEL OPERATIONS                              ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Send Operation (ch <- value):
+   Sent 10 and 20
+
+📊 Receive Operation (value := <-ch):
+   Received: 10, 20
+
+📊 Receive with OK (check if closed):
+   Received: 42 (channel open)
+   Received: 0 (channel CLOSED)
+
+📊 Range Over Channel:
+   Values: 1 2 3 4 5 (channel closed, range exited)
+
+📊 Channel Direction (restrict access):
+   chan int     - bidirectional
+   chan<- int   - send only
+   <-chan int   - receive only
+```
+
 ---
 
 ## 🔒 Closing Channels
@@ -242,6 +294,31 @@ func main() {
     fmt.Printf("   <-closedCh = %d (zero value)\n", <-closedCh)
     fmt.Printf("   <-closedCh = %d (still works, zero value)\n", <-closedCh)
 }
+```
+
+**Output:**
+```
+(goroutine output order may vary)
+╔══════════════════════════════════════════════════════════╗
+║           CLOSING CHANNELS                                ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Reading from Closed Channel:
+   Received: 1
+   Received: 2
+   Received: 3
+   Channel closed!
+
+⚠️ Channel Closing Rules:
+   • Only SENDER should close
+   • Sending to closed channel = PANIC
+   • Receiving from closed = zero value, ok=false
+   • Closing already closed = PANIC
+   • Don't need to close if garbage collected
+
+📊 Closed Channel Returns Zero Values:
+   <-closedCh = 0 (zero value)
+   <-closedCh = 0 (still works, zero value)
 ```
 
 ---
@@ -365,6 +442,41 @@ func pipeline() {
         fmt.Printf("   Squared: %d\n", n)
     }
 }
+```
+
+**Output:**
+```
+(goroutine output order may vary)
+╔══════════════════════════════════════════════════════════╗
+║           CHANNEL PATTERNS                                ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Pattern 1: Done Channel
+   worker: working...
+   worker: done!
+   main: worker finished
+
+📊 Pattern 2: Producer-Consumer
+   Result: 2
+   Result: 4
+   Result: 6
+   Result: 8
+   Result: 10
+
+📊 Pattern 3: Fan-out, Fan-in
+   Result: 2
+   Result: 4
+   Result: 6
+   Result: 8
+   Result: 10
+   Result: 12
+
+📊 Pattern 4: Pipeline
+   Squared: 1
+   Squared: 4
+   Squared: 9
+   Squared: 16
+   Squared: 25
 ```
 
 ---

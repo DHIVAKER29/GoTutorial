@@ -110,6 +110,23 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           Worker Pool Pattern                             ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Results:
+   Worker 1 processed: Job-1
+   Worker 2 processed: Job-2
+   Worker 3 processed: Job-3
+   Worker 1 processed: Job-4
+   Worker 2 processed: Job-5
+   ...
+```
+
+*Note: Output order may vary due to concurrent execution.*
+
 ---
 
 ## 📤📥 Fan-Out / Fan-In Pattern
@@ -207,6 +224,25 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           Fan-Out / Fan-In Pattern                        ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Squared Results:
+   1
+   4
+   9
+   16
+   25
+   36
+   49
+   64
+```
+
+*Note: Output order may vary due to concurrent fan-in.*
+
 ---
 
 ## 🔗 Pipeline Pattern
@@ -300,6 +336,20 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           Pipeline Pattern                                ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Pipeline Output:
+   Value: 4
+   Value: 8
+   Value: 12
+   Value: 16
+   Value: 20
+```
+
 ---
 
 ## 🚦 Semaphore Pattern
@@ -367,6 +417,24 @@ func main() {
     fmt.Println("   All tasks completed!")
 }
 ```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           Semaphore Pattern                               ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Processing (max 3 concurrent):
+   [12:00:00.123] Task 1 started
+   [12:00:00.124] Task 2 started
+   [12:00:00.125] Task 3 started
+   [12:00:00.323] Task 1 done
+   [12:00:00.324] Task 4 started
+   ...
+   All tasks completed!
+```
+
+*Note: Timestamps and task order may vary due to concurrency.*
 
 ---
 
@@ -441,6 +509,24 @@ func main() {
 Install: go get golang.org/x/sync/errgroup
 */
 ```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           errgroup Pattern                                ║
+╚══════════════════════════════════════════════════════════╝
+
+   Task 1: Starting...
+   Task 2: Starting...
+   Task 3: Starting...
+   Task 2: Error!
+   Task 1: Done
+   Task 3: Cancelled!
+
+   Error: task 2 failed
+```
+
+*Note: Output order may vary; Task 3 is cancelled when Task 2 fails.*
 
 ---
 

@@ -111,6 +111,25 @@ func divide(a, b float64) (float64, error) {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           THE ERROR INTERFACE                             ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Creating Errors:
+   errors.New(): something went wrong
+   fmt.Errorf(): could not open file.txt
+
+📊 Sentinel Errors (predefined):
+   var ErrNotFound = errors.New("not found")
+   Used with errors.Is() for comparison
+
+📊 Standard Pattern:
+   Error: division by zero
+   Result: 5.00
+```
+
 ---
 
 ## 🎨 Custom Errors
@@ -192,6 +211,21 @@ func fetchData(url string) error {
     // Simulating HTTP error
     return &HTTPError{StatusCode: 404, Message: "Resource not found"}
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           CUSTOM ERRORS                                   ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Custom Validation Error:
+   Error: validation error on field 'name': cannot be empty
+   Field: name
+
+📊 Custom HTTP Error:
+   Error: HTTP 404: Resource not found
+   Is client error: true
 ```
 
 ---
@@ -291,6 +325,30 @@ func databaseCall() error {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           ERROR WRAPPING (Go 1.13+)                       ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Wrapping Errors with %w:
+   Wrapped error: reading config config.json: open config.json: no such file or directory
+
+📊 errors.Unwrap():
+   Unwrapped: open config.json: no such file or directory
+
+📊 errors.Is() - Checking Error Type:
+   ✅ Error is (or wraps) os.ErrNotExist
+
+📊 errors.As() - Extracting Error Type:
+   Path: /nonexistent/file.txt
+   Op: open
+
+📊 Error Chain:
+   Full chain: service layer: repository layer: database query failed: not found
+   Is ErrNotFound? true
+```
+
 ---
 
 ## 🏭 Production Patterns
@@ -371,6 +429,31 @@ func getUser(id int) (*User, error) {
     }
     return nil, fmt.Errorf("database query: %w", ErrUserNotFound)
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           PRODUCTION ERROR PATTERNS                       ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Pattern 1: Handle at Appropriate Level
+   Found user: &{ID:1 Name:Alice}
+   User 999 not found (404)
+
+⚠️ Pattern 2: DON'T Ignore Errors
+   // BAD:
+   result, _ := doSomething()  // Ignored!
+   
+   // GOOD:
+   result, err := doSomething()
+   if err != nil { ... }
+
+📊 Pattern 3: Wrap with Context
+   return fmt.Errorf("getting user %d: %w", id, err)
+
+📊 Pattern 4: Compare with errors.Is()
+   if errors.Is(err, ErrNotFound) { ... }
 ```
 
 ---

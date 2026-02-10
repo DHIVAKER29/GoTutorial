@@ -65,6 +65,15 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           DATABASE CONNECTION                             ║
+╚══════════════════════════════════════════════════════════╝
+   Connected to database!
+   Open connections: 1
+```
+
 ---
 
 ## 📝 CRUD Operations
@@ -165,6 +174,22 @@ func main() {
 }
 ```
 
+**Output:**
+```
+📊 INSERT:
+   Inserted ID: 1, Rows: 1
+
+📊 SELECT (single):
+   User: {ID:1 Name:Alice Email:alice@example.com CreatedAt:2024-01-01 10:00:00 +0000 UTC}
+
+📊 SELECT (multiple):
+   Found 1 users
+
+📊 UPDATE:
+
+📊 DELETE:
+```
+
 ---
 
 ## 🔒 Prepared Statements
@@ -218,6 +243,20 @@ func main() {
     fmt.Println("   ❌ NEVER: fmt.Sprintf(\"SELECT * WHERE name='%s'\", userInput)")
     fmt.Println("   ✅ ALWAYS: db.Query(\"SELECT * WHERE name=?\", userInput)")
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           PREPARED STATEMENTS                             ║
+╚══════════════════════════════════════════════════════════╝
+   Inserted: Alice
+   Inserted: Bob
+   Inserted: Charlie
+
+📊 SQL Injection Prevention:
+   ❌ NEVER: fmt.Sprintf("SELECT * WHERE name='%s'", userInput)
+   ✅ ALWAYS: db.Query("SELECT * WHERE name=?", userInput)
 ```
 
 ---
@@ -281,6 +320,19 @@ func main() {
     fmt.Println("   3. Execute queries with tx")
     fmt.Println("   4. tx.Commit() on success")
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           TRANSACTIONS                                    ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Transaction Pattern:
+   1. tx, err := db.BeginTx(ctx, nil)
+   2. defer tx.Rollback()  // Safety net
+   3. Execute queries with tx
+   4. tx.Commit() on success
 ```
 
 ---

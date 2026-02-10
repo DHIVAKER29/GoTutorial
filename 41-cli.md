@@ -58,6 +58,23 @@ Output:
 */
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           COMMAND LINE ARGUMENTS                          ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 os.Args:
+   Program name: /tmp/go-build123456789/exe/cli_args
+   All args: [/tmp/go-build123456789/exe/cli_args hello world 123]
+   Arg count: 4
+
+📊 User Arguments:
+   Arg 1: hello
+   Arg 2: world
+   Arg 3: 123
+```
+
 ---
 
 ## 🚩 Flag Package
@@ -120,6 +137,25 @@ Output:
 */
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           FLAG PACKAGE                                    ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Parsed Flags:
+   Name:    Alice
+   Age:     30
+   Verbose: true
+   Email:   
+
+📊 Remaining Args:
+   Args: [file1.txt file2.txt]
+   Count: 2
+
+📊 Verbose mode enabled!
+```
+
 ---
 
 ## 🌍 Environment Variables
@@ -176,6 +212,30 @@ func truncate(s string, n int) string {
     }
     return s[:n]
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           ENVIRONMENT VARIABLES                           ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Get Variable:
+   HOME: /Users/dhivaker.s
+
+📊 Check Existence:
+   API_KEY: (not set)
+
+📊 Set Variable:
+   MY_VAR: hello
+
+📊 All Variables (first 5):
+   PATH=/usr/local/bin:/usr/bin:...
+   HOME=/Users/dhivaker.s
+   USER=dhivaker.s
+   SHELL=/bin/zsh
+   TERM=xterm-256color
+   ...
 ```
 
 ---
@@ -269,6 +329,27 @@ Run:
   ./myapp serve -port=3000 -debug
   ./myapp version
 */
+```
+
+**Output:**
+```
+Starting server on localhost:3000 (debug=true)
+```
+
+(When running `./myapp version`:)
+```
+Version: 1.0.0
+Build: 2026-02-10T12:34:56
+```
+
+(When running `./myapp` without arguments:)
+```
+Usage: myapp <command> [options]
+
+Commands:
+  serve     Start the server
+  version   Show version info
+  help      Show this help
 ```
 
 ---

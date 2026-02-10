@@ -166,6 +166,26 @@ func unsafe_Sizeof(x interface{}) int {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║              DEFINING STRUCTS                             ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Simple Struct:
+   Zero value: {Name: Age:0 Email: Active:false}
+
+📊 Grouped Fields:
+   Rectangle: {Width:10 Height:5}
+
+📊 Nested Struct:
+   Employee: {ID:1 Name:Alice Address:{Street:123 Main St City:NYC Country:USA ZipCode:10001} Salary:75000}
+
+📊 Empty Struct (size = 0 bytes!):
+   Empty struct size: 0 bytes
+   Use case: Sets (map[string]struct{})
+```
+
 ---
 
 ## 🏗️ Creating Struct Instances
@@ -245,6 +265,36 @@ func NewPerson(name string, age int, email string) *Person {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║              CREATING STRUCT INSTANCES                    ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Method 1: Zero Value (var)
+   var p1 Person = {Name: Age:0 Email:}
+
+📊 Method 2: Named Fields (recommended)
+   p2 = {Name:Alice Age:25 Email:alice@example.com}
+
+📊 Method 3: Positional (not recommended)
+   p3 = {Name:Bob Age:30 Email:bob@example.com}
+   ⚠️ Warning: Breaks if field order changes!
+
+📊 Method 4: Partial (others get zero values)
+   p4 = {Name:Charlie Age:0 Email:}
+
+📊 Method 5: Pointer with &
+   p5 (pointer) = &{Name:Diana Age:28 Email:}
+   *p5 (value) = {Name:Diana Age:28 Email:}
+
+📊 Method 6: new() - returns pointer to zero value
+   p6 = &{Name:Eve Age:22 Email:}
+
+📊 Method 7: Constructor Function (idiomatic)
+   p7 = &{Name:Frank Age:35 Email:frank@example.com}
+```
+
 ---
 
 ## 🔧 Accessing and Modifying Fields
@@ -299,6 +349,32 @@ func main() {
     fmt.Printf("   original = %+v\n", original)
     fmt.Printf("   copy = %+v (independent)\n", copy)
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           ACCESSING AND MODIFYING FIELDS                  ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Accessing Fields:
+   p.Name = "Alice"
+   p.Age = 25
+   p.Email = "alice@example.com"
+
+📊 Modifying Fields:
+   After p.Age = 26: {Name:Alice Age:26 Email:alice@example.com}
+
+📊 Pointer to Struct:
+   (*ptr).Name = "Alice"
+   ptr.Name = "Alice" (automatic dereference!)
+
+📊 Modifying Through Pointer:
+   After ptr.Age = 27: p = {Name:Alice Age:27 Email:alice@example.com}
+
+⚠️ Structs are Values (copied!):
+   original = {Name:Bob Age:30 Email:}
+   copy = {Name:Bob Age:31 Email:} (independent)
 ```
 
 ---
@@ -391,6 +467,25 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║              STRUCT EMBEDDING                             ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 With Embedding:
+   p.Name = "Alice"
+   p.City = "NYC" (promoted from Address!)
+   p.Email = "alice@example.com" (promoted from ContactInfo!)
+   p.Address.City = "NYC"
+
+📊 Without Embedding (nested):
+   pn.Address.City = "LA" (must use field name)
+
+💡 Embedding = Composition + Field Promotion
+   Not inheritance! Go has no inheritance.
+```
+
 ---
 
 ## 🏷️ Struct Tags
@@ -459,6 +554,34 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║              STRUCT TAGS                                  ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 JSON Serialization:
+   {
+     "id": 1,
+     "first_name": "Alice",
+     "last_name": "Smith",
+     "email": "alice@example.com"
+   }
+
+📊 JSON Deserialization:
+   Parsed: {ID:2 FirstName:Bob LastName:Jones Email: Age:0}
+
+📊 Tag Syntax:
+   `key:"value" key2:"value2"`
+
+   Common tags:
+   • json:"field_name"        - JSON field name
+   • json:"-"                 - Exclude from JSON
+   • json:",omitempty"        - Omit if zero value
+   • db:"column_name"         - Database column
+   • validate:"required,min=1" - Validation rules
+```
+
 ---
 
 ## 📋 Anonymous Structs
@@ -522,6 +645,25 @@ func main() {
         }
     }
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║              ANONYMOUS STRUCTS                            ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Inline Anonymous Struct:
+   person = {Name:Alice Age:25}
+
+📊 Use Case: Quick JSON Parsing
+   Status: success
+   Data.Name: Widget
+
+📊 Use Case: Table-Driven Tests
+   ✅ double(1) = 2
+   ✅ double(2) = 4
+   ✅ double(3) = 6
 ```
 
 ---

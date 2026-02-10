@@ -115,6 +115,28 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║              SWITCH STATEMENTS                            ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Basic Switch:
+   Regular day: Wednesday
+
+📊 Switch with Expression:
+   Grade: B
+
+📊 Switch with Init Statement:
+   Good afternoon! (hour: 14)
+
+📊 No Break Needed (Go's Gift!):
+   Two
+
+📊 Multiple Values per Case:
+   'a' is a vowel
+```
+
 ---
 
 ## 🔽 Fallthrough
@@ -170,6 +192,28 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║              FALLTHROUGH                                  ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Fallthrough (Opt-in):
+   One
+   Two (via fallthrough)
+   Three (via fallthrough)
+
+⚠️ Key Difference from C/Java:
+   C/Java: fallthrough is DEFAULT (need break)
+   Go: NO fallthrough is DEFAULT (need fallthrough)
+
+💡 Practical: Permission Levels
+   Level 2 permissions:
+   - Admin access
+   - User access
+   - Guest access
+```
+
 ---
 
 ## 🔍 Type Switch
@@ -213,6 +257,21 @@ func describe(value interface{}) {
         fmt.Printf("   Unknown type: %T = %v\n", v, v)
     }
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║              TYPE SWITCH                                  ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Type Switch Examples:
+   Integer: 42 (doubled: 84)
+   String: "hello" (length: 5)
+   Float: 3.140000
+   Boolean: true
+   Int slice: [1 2 3] (length: 3)
+   nil value
 ```
 
 ---
@@ -295,6 +354,29 @@ func checkAge(age int) {
         fmt.Printf("   Age %d: Senior\n", age)
     }
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           PRODUCTION SWITCH PATTERNS                      ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 HTTP Status Handling:
+   200: Success ✅
+   404: Not Found 🔍
+   500: Server Error 🔥
+
+📊 State Machine:
+   Order pending → waiting for payment
+   Order paid → processing shipment
+   Order shipped → tracking available
+
+📊 Expression Switch (replaces if-else chain):
+   Age 5: Child
+   Age 15: Teenager
+   Age 25: Adult
+   Age 70: Senior
 ```
 
 ---

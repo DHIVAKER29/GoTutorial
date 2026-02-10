@@ -142,6 +142,36 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           Controlling GC                                  ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Memory Stats:
+   Alloc:      0 MB (currently allocated)
+   TotalAlloc: 0 MB (total allocated ever)
+   Sys:        0 MB (obtained from OS)
+   NumGC:      0 (number of GC cycles)
+
+📊 Force GC:
+   GC triggered manually
+
+📊 GOGC:
+   Current: 100%
+   GOGC=100 means: GC when heap doubles
+   GOGC=50  means: GC when heap grows 50%
+   GOGC=200 means: GC when heap triples
+
+📊 Memory Limit (Go 1.19+):
+   debug.SetMemoryLimit(1 << 30)  // 1GB limit
+
+📊 Free Memory to OS:
+   Released unused memory to OS
+```
+
+*Note: Actual memory values may vary based on runtime state.*
+
 ```bash
 # Environment variables
 

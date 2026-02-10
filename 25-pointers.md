@@ -143,6 +143,41 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║              POINTER BASICS                               ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Creating Pointers:
+   x = 42
+   &x (address) = 0xc0000140a0
+   ptr = 0xc0000140a0
+   *ptr (value at ptr) = 42
+
+📊 Modifying Through Pointer:
+   After *ptr = 100:
+   x = 100 (changed!)
+   *ptr = 100
+
+📊 Pointer Types:
+   var intPtr *int = <nil>
+   var strPtr *string = <nil>
+
+📊 new() Function:
+   p := new(int)
+   p = 0xc0000140a8
+   *p = 0 (zero value)
+   *p = 50 (after assignment)
+
+📊 Operators Summary:
+   & = Address-of operator (get pointer)
+   * = Dereference operator (get value)
+   *T = Pointer type (e.g., *int, *string)
+```
+
+*Note: Memory addresses (like 0xc0000140a0) will vary between runs.*
+
 ---
 
 ## 🔄 Pointers and Functions
@@ -201,6 +236,28 @@ func createInt(n int) *int {
     result := n  // Local variable
     return &result  // Returning pointer to local is SAFE in Go!
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           POINTERS AND FUNCTIONS                          ║
+╚══════════════════════════════════════════════════════════╝
+
+⚠️ Pass by Value (doesn't modify original):
+   Before: x = 10
+   After doubleValue(x): x = 10 (unchanged!)
+
+✅ Pass by Pointer (modifies original):
+   Before: y = 10
+   After doublePointer(&y): y = 20 (doubled!)
+
+📊 Swap Example:
+   Before: a=5, b=10
+   After swap(&a, &b): a=10, b=5
+
+📊 Returning Pointer:
+   createInt(42) returned pointer to 42
 ```
 
 ---
@@ -276,6 +333,34 @@ func NewPerson(name string, age int) *Person {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           POINTERS AND STRUCTS                            ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Struct Value vs Pointer:
+   p1 (value): {Name:Alice Age:25}, type: main.Person
+   p2 (pointer): &{Name:Bob Age:30}, type: *main.Person
+
+📊 Accessing Fields:
+   p1.Name = "Alice"
+   p2.Name = "Bob" (auto-dereference!)
+   (*p2).Name = "Bob" (explicit dereference)
+
+📊 Modifying Through Pointer:
+   p2.Age = 31 → &{Name:Bob Age:31}
+
+⚠️ Pass Struct by Value (copied!):
+   After updateAgeValue: {Name:Charlie Age:28} (unchanged)
+
+✅ Pass Struct by Pointer (modified!):
+   After updateAgePointer: {Name:Charlie Age:99} (changed)
+
+📊 Constructor Returns Pointer:
+   NewPerson() = &{Name:Diana Age:35}
+```
+
 ---
 
 ## ⚠️ Nil Pointers
@@ -336,6 +421,34 @@ func (p *Person) SafeGreet() string {
     }
     return "Hello, " + p.Name
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║              NIL POINTERS                                 ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Nil Pointer:
+   var ptr *int = <nil>
+   ptr == nil: true
+
+⚠️ Dereferencing Nil = PANIC!
+   *ptr  // This would panic!
+
+✅ Safe Nil Check:
+   Pointer is nil, skipping dereference
+
+💡 Methods Can Handle Nil Receivers:
+   nil person.SafeGreet() = "Hello, stranger"
+
+📊 Common Pattern:
+   func (p *Person) Method() {
+       if p == nil {
+           return  // Handle nil gracefully
+       }
+       // Normal logic
+   }
 ```
 
 ---

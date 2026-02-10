@@ -175,6 +175,24 @@ func main() {
 }
 ```
 
+**Output:**
+```
+GOROOT: /usr/local/go
+
+GOROOT contents:
+  📁 api/
+  📁 bin/
+  📁 doc/
+  📁 lib/
+  📁 misc/
+  📁 pkg/
+  📁 src/
+
+fmt package source: /usr/local/go/src/fmt
+```
+
+*Note: GOROOT path and directory contents may vary based on your Go installation.*
+
 Run it:
 ```bash
 go run explore_goroot.go
@@ -586,6 +604,39 @@ func getGoEnv(name string) string {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║              GO ENVIRONMENT EXPLORER                      ║
+╚══════════════════════════════════════════════════════════╝
+
+📦 Go Version: go1.22.0
+🖥️  OS/Arch: darwin/arm64
+
+🔧 Key Environment Variables:
+────────────────────────────────────────────────────────────
+GOROOT           = /usr/local/go
+GOPATH           = /Users/you/go
+GOBIN            =
+GOMODCACHE       = /Users/you/go/pkg/mod
+GO111MODULE      = on
+
+📖 What Each Means:
+────────────────────────────────────────────────────────────
+GOROOT      → Where Go is installed (don't modify!)
+GOPATH      → Your workspace (~go by default)
+GOBIN       → Where 'go install' puts binaries
+GOMODCACHE  → Where downloaded modules are cached
+GO111MODULE → Module mode (on=modules, off=GOPATH)
+
+✅ Current Mode:
+────────────────────────────────────────────────────────────
+🎉 Module mode (RECOMMENDED)
+   You can work from anywhere with go.mod
+```
+
+*Note: Values will vary based on your system and Go installation.*
+
 ---
 
 ## 💻 Setting Up Your Editor
@@ -722,6 +773,22 @@ func checkCanCreateModule() (bool, string) {
     return true, "Ready to use go mod init"
 }
 ```
+
+**Output:**
+```
+🔍 Go Setup Verification
+══════════════════════════════════════════════════════
+✅ Go Installed: go command found
+✅ Go Version: go1.22.0
+✅ GOPATH Set: /Users/you/go
+✅ GOPATH/bin in PATH: In PATH
+✅ Module Mode: Modules enabled (good!)
+✅ Can Create Module: Ready to use go mod init
+══════════════════════════════════════════════════════
+🎉 All checks passed! You're ready to Go!
+```
+
+*Note: Output may vary if some checks fail or paths differ on your system.*
 
 ---
 

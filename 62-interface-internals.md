@@ -102,6 +102,29 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           Interface Internals                             ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Empty Interface (eface):
+   Size of interface{}: 16 bytes
+   interface{} holding int: type + data pointer
+
+📊 Interface with Methods (iface):
+   Size of Stringer: 16 bytes
+   Stringer holding MyString: itab + data pointer
+
+📊 What's Stored:
+   ┌──────────────┐
+   │ interface{}  │
+   ├──────────────┤
+   │ type: *int   │──► type descriptor
+   │ data: 0x...  │──► actual value (42)
+   └──────────────┘
+```
+
 ---
 
 ## ⚠️ nil Interface vs nil Pointer
@@ -168,6 +191,39 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           nil Interface vs nil Pointer                    ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Case 1: Truly nil Interface
+   err1 == nil: true
+
+📊 Case 2: Interface with nil Pointer (GOTCHA!)
+   myErr == nil: true
+   err2 == nil:  false
+
+📊 Why the Difference?
+   err1: { type: nil,      data: nil } → nil interface
+   err2: { type: *MyError, data: nil } → NOT nil interface!
+   Interface is nil ONLY when both type AND data are nil
+
+📊 Common Mistake:
+   func getError() error {
+       var err *MyError = nil
+       return err  // Returns non-nil interface!
+   }
+
+   ✅ Correct way:
+   func getError() error {
+       return nil  // Returns nil interface
+   }
+
+📊 Safe Nil Check:
+   Interface holds nil pointer!
+```
+
 ---
 
 ## 🔄 Type Assertions Internals
@@ -210,6 +266,24 @@ func main() {
     fmt.Println("   Type switch: O(n) in worst case, but optimized")
     fmt.Println("   itabs are cached globally - fast lookup")
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           Type Assertions Internals                       ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Type Assertion (fast):
+   x is string: hello
+
+📊 Type Switch:
+   string: hello
+
+📊 Performance:
+   Type assertion: O(1) - just pointer comparison
+   Type switch: O(n) in worst case, but optimized
+   itabs are cached globally - fast lookup
 ```
 
 ---
@@ -266,6 +340,40 @@ func main() {
     fmt.Println("   • Profile before optimizing")
     fmt.Println("   • Interfaces at boundaries, concrete internally")
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           Interface Performance                           ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Performance Costs:
+
+   1. Allocation (Boxing):
+      var i interface{} = 42  // May allocate
+      Small values might be optimized (stored inline)
+
+   2. Indirect Method Call:
+      Concrete: direct function call
+      Interface: lookup method in itab, then call
+      ~few nanoseconds overhead
+
+   3. Can't Inline:
+      Concrete types: compiler can inline methods
+      Interfaces: can't inline (dynamic dispatch)
+
+📊 When to Use Interfaces:
+   ✅ Abstraction boundaries (package APIs)
+   ✅ Dependency injection
+   ✅ Testing (mock implementations)
+   ❌ Hot paths where nanoseconds matter
+   ❌ Simple value passing
+
+📊 Optimization Tips:
+   • Use concrete types in tight loops
+   • Profile before optimizing
+   • Interfaces at boundaries, concrete internally
 ```
 
 ---

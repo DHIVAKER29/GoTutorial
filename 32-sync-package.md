@@ -198,6 +198,39 @@ func main() {
 }
 ```
 
+**Output:**
+```
+(goroutine output order may vary)
+╔══════════════════════════════════════════════════════════╗
+║           SYNC.MUTEX - COMPLETE GUIDE                     ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Basic Lock/Unlock:
+   Lock acquired
+   Lock released
+
+📊 Thread-Safe Counter:
+   Final value: 1000 (expected 1000)
+
+⚠️ Mutex CANNOT be Copied:
+   type Counter struct { mu sync.Mutex; val int }
+   c1 := Counter{}
+   c2 := c1  // BAD! Copies the mutex!
+   
+   // Use pointer instead:
+   c2 := &c1  // Share the same counter
+
+📊 TryLock (Go 1.18+) - Non-blocking:
+   Lock is busy, doing something else...
+
+💡 Best Practices:
+   1. Always use defer mu.Unlock()
+   2. Keep critical sections SHORT
+   3. Don't copy mutex (use pointers)
+   4. Document what the mutex protects
+   5. Avoid holding mutex during I/O
+```
+
 ---
 
 ## 📖 sync.RWMutex - Read-Write Lock
@@ -346,6 +379,55 @@ func main() {
 }
 ```
 
+**Output:**
+```
+(goroutine output order may vary)
+╔══════════════════════════════════════════════════════════╗
+║           SYNC.RWMUTEX - READ-WRITE LOCK                  ║
+╚══════════════════════════════════════════════════════════╝
+
+   Writer: set key0
+   Reader 0: sees 1 keys
+   Reader 1: sees 1 keys
+   Reader 2: sees 1 keys
+   Writer: set key1
+   Reader 0: sees 2 keys
+   Reader 1: sees 2 keys
+   Reader 2: sees 2 keys
+   Writer: set key2
+   Reader 0: sees 3 keys
+   Reader 1: sees 3 keys
+   Reader 2: sees 3 keys
+   Writer: set key3
+   Reader 0: sees 4 keys
+   Reader 1: sees 4 keys
+   Reader 2: sees 4 keys
+   Writer: set key4
+   Reader 0: sees 5 keys
+   Reader 1: sees 5 keys
+   Reader 2: sees 5 keys
+   Reader 0: sees 5 keys
+   Reader 1: sees 5 keys
+   Reader 2: sees 5 keys
+   Reader 0: sees 5 keys
+   Reader 1: sees 5 keys
+   Reader 2: sees 5 keys
+   Reader 0: sees 5 keys
+
+📊 RWMutex Methods:
+   mu.Lock()      - Acquire write lock (exclusive)
+   mu.Unlock()    - Release write lock
+   mu.RLock()     - Acquire read lock (shared)
+   mu.RUnlock()   - Release read lock
+   mu.TryLock()   - Try write lock (Go 1.18+)
+   mu.TryRLock()  - Try read lock (Go 1.18+)
+
+⚠️ When NOT to Use RWMutex:
+   • Write-heavy workloads (use Mutex)
+   • Very fast read operations (overhead not worth it)
+   • When in doubt, benchmark!
+```
+
 ---
 
 ## 🔔 sync.Cond - Condition Variables
@@ -492,6 +574,47 @@ func main() {
 }
 ```
 
+**Output:**
+```
+(goroutine output order may vary)
+╔══════════════════════════════════════════════════════════╗
+║           SYNC.COND - CONDITION VARIABLES                 ║
+╚══════════════════════════════════════════════════════════╝
+
+   Produced: 1
+   Consumed: 1
+   Produced: 2
+   Produced: 3
+   Consumed: 2
+   Produced: 4
+   Consumed: 3
+   Produced: 5
+   Consumed: 4
+   Produced: 6
+   Consumed: 5
+   Produced: 7
+   Consumed: 6
+   Produced: 8
+   Consumed: 7
+   Produced: 9
+   Consumed: 8
+   Produced: 10
+   Consumed: 9
+   Consumed: 10
+
+📊 Cond Methods:
+   cond := sync.NewCond(&mu)  - Create with existing lock
+   cond.Wait()    - Release lock, wait, reacquire lock
+   cond.Signal()  - Wake ONE waiting goroutine
+   cond.Broadcast() - Wake ALL waiting goroutines
+
+💡 When to Use Cond:
+   • Complex waiting conditions
+   • Multiple goroutines waiting on same condition
+   • Bounded buffers/queues
+   • Often better: use channels instead!
+```
+
 ---
 
 ## 🏊 sync.Pool - Object Pooling
@@ -608,6 +731,37 @@ func main() {
 }
 ```
 
+**Output:**
+```
+(goroutine output order may vary)
+╔══════════════════════════════════════════════════════════╗
+║           SYNC.POOL - OBJECT POOLING                      ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Buffer Pool Example:
+   Creating new buffer
+   buf1: "Hello"
+   Returned buf1 to pool
+   buf2: "World" (reused!)
+
+📊 Concurrent Usage:
+   Creating new buffer
+   Creating new buffer
+   Creating new buffer
+
+💡 Best Practices:
+   1. Always reset objects before Put()
+   2. Don't hold references after Put()
+   3. Only for truly temporary objects
+   4. Benchmark to verify benefit!
+
+📊 Common Use Cases:
+   • bytes.Buffer pools
+   • JSON encoder/decoder pools
+   • Large byte slice pools
+   • Connection wrapper pools
+```
+
 ---
 
 ## ⚛️ sync/atomic - Lock-Free Operations
@@ -713,6 +867,41 @@ func main() {
     fmt.Println("   ❌ Complex invariants (use Mutex)")
     fmt.Println("   ❌ Multiple related variables (use Mutex)")
 }
+```
+
+**Output:**
+```
+(goroutine output order may vary)
+╔══════════════════════════════════════════════════════════╗
+║           SYNC/ATOMIC - LOCK-FREE OPERATIONS              ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Atomic Counter (int64):
+   Counter: 1000
+
+📊 Atomic Operations:
+   Load: 10
+   Store(20): 20
+   Add(5): 25
+   Add(-3): 22
+   Swap(100): old=22, new=100
+   CAS(100→200): success=true, val=200
+   CAS(100→300): success=false, val=200 (not 100!)
+
+📊 Atomic Boolean:
+   Flag is true
+
+📊 atomic.Value (any type):
+   Config: &{Server:localhost Port:8080}
+   Old config: &{Server:localhost Port:8080}
+   New config: &{Server:127.0.0.1 Port:9090}
+
+💡 When to Use Atomic:
+   ✅ Simple counters
+   ✅ Flags (bool as int32)
+   ✅ Lock-free data structures
+   ❌ Complex invariants (use Mutex)
+   ❌ Multiple related variables (use Mutex)
 ```
 
 ---
@@ -826,6 +1015,43 @@ func main() {
     fmt.Println("   Prints 'fatal error: all goroutines are asleep - deadlock!'")
     fmt.Println("   BUT: doesn't detect partial deadlocks")
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           DEADLOCK PREVENTION                             ║
+╚══════════════════════════════════════════════════════════╝
+
+❌ Deadlock Example (conceptual):
+   var mu1, mu2 sync.Mutex
+   go func() { mu1.Lock(); mu2.Lock(); ... }()
+   go func() { mu2.Lock(); mu1.Lock(); ... }()
+
+✅ Prevention 1: Consistent Lock Ordering
+   Always lock in same order: mu1 → mu2
+
+✅ Prevention 2: TryLock with Backoff
+   if !mu.TryLock() {
+       time.Sleep(backoff)
+       continue  // Retry
+   }
+
+✅ Prevention 3: Minimize Lock Scope
+   mu.Lock()
+   data := copy(sharedData)  // Copy
+   mu.Unlock()
+   processData(data)  // I/O outside lock!
+
+✅ Prevention 4: Use Channels Instead
+   ch <- request  // Send to worker goroutine
+   result := <-resultCh  // Wait for result
+   // No locks needed!
+
+📊 Go's Deadlock Detector:
+   Go detects when ALL goroutines are blocked
+   Prints 'fatal error: all goroutines are asleep - deadlock!'
+   BUT: doesn't detect partial deadlocks
 ```
 
 ---

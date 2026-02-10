@@ -105,6 +105,36 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           REFLECTION BASICS                               ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 reflect.TypeOf:
+   Type: int
+   Name: int
+   Kind: int
+
+📊 reflect.ValueOf:
+   Value: 42
+   Type: int
+   Kind: int
+   Int: 42
+
+📊 Kind vs Type:
+   Type: main.MyInt (custom type name)
+   Kind: int (underlying type)
+
+📊 Various Types:
+   42: Type=int, Kind=int
+   3.14: Type=float64, Kind=float64
+   hello: Type=string, Kind=string
+   true: Type=bool, Kind=bool
+   [1 2 3]: Type=[]int, Kind=slice
+   map[a:1]: Type=map[string]int, Kind=map
+```
+
 ---
 
 ## 🔍 Inspecting Structs
@@ -177,6 +207,47 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           INSPECTING STRUCTS                              ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Struct Info:
+   Type: main.User
+   NumField: 4
+
+📊 Iterating Fields:
+   Field 0:
+      Name: ID
+      Type: int
+      Exported: true
+      Value: 1
+      json tag: id
+   Field 1:
+      Name: Name
+      Type: string
+      Exported: true
+      Value: Alice
+      json tag: name
+      validate tag: required
+   Field 2:
+      Name: Email
+      Type: string
+      Exported: true
+      Value: alice@example.com
+      json tag: email
+      validate tag: email
+   Field 3:
+      Name: password
+      Type: string
+      Exported: false
+      Value: (unexported)
+
+📊 Get Field by Name:
+   Email field type: string
+```
+
 ---
 
 ## ✏️ Modifying Values
@@ -237,6 +308,26 @@ func main() {
     fmt.Println("   • Use .Elem() to get addressable value")
     fmt.Println("   • Field must be exported (uppercase)")
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           MODIFYING VALUES                                ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Modifying Simple Value:
+   Before: 10
+   After: 20
+
+📊 Modifying Struct Fields:
+   Before: {Host:localhost Port:8080}
+   After: {Host:0.0.0.0 Port:3000}
+
+📊 CanSet Rules:
+   • Must reflect on a POINTER
+   • Use .Elem() to get addressable value
+   • Field must be exported (uppercase)
 ```
 
 ---

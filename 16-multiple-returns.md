@@ -130,6 +130,30 @@ func divideInt(a, b int) (int, int) {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           MULTIPLE RETURN VALUES                          ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Standard Error Pattern:
+   10 / 2 = 5.00
+   Error: division by zero
+
+📊 Multiple Related Values:
+   Stats: min=1, max=9, avg=4.67
+
+📊 Value, Exists Pattern:
+   Alice's age: 25
+   Charlie not found
+
+📊 Type Assertion Pattern:
+   It's a string: "hello"
+
+📊 Ignoring Values with _:
+   17 / 5 = 3 (remainder ignored)
+```
+
 ---
 
 ## 🎯 Key Patterns

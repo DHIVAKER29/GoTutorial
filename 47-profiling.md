@@ -82,6 +82,13 @@ func main() {
     heavyComputation()
     fmt.Printf("Done in %v\n", time.Since(start))
 }
+```
+
+**Output:**
+```
+Running heavy computation...
+Done in 2.345s
+```
 
 /*
 Run and analyze:
@@ -179,6 +186,14 @@ func main() {
     fmt.Println("pprof at http://localhost:8080/debug/pprof/")
     http.ListenAndServe(":8080", nil)
 }
+```
+
+**Output:**
+```
+Server running on :8080
+pprof at http://localhost:8080/debug/pprof/
+(Server continues running and serving requests)
+```
 
 /*
 Profile running server:
@@ -284,6 +299,36 @@ func main() {
     
     _ = bytes.Buffer{}  // Suppress unused warning
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           PERFORMANCE TIPS                                ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 String Concatenation:
+   ❌ Slow: s += "x" (creates new string each time)
+   ✅ Fast: strings.Builder or bytes.Buffer
+
+📊 Slice Pre-allocation:
+   ❌ Slow: append grows slice multiple times
+   ✅ Fast: make([]T, 0, expectedSize)
+
+📊 Avoid interface{}:
+   ❌ Slow: func process(v interface{})
+   ✅ Fast: func process(v int) or generics
+
+📊 sync.Pool:
+   Use for frequently allocated/deallocated objects
+   Reduces GC pressure
+
+📊 Pointer vs Value:
+   Large structs: pass by pointer
+   Small structs (<64 bytes): pass by value
+
+📊 Buffered I/O:
+   Use bufio.Reader/Writer for file/network I/O
 ```
 
 ---

@@ -127,6 +127,31 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           COMPOSITION THROUGH EMBEDDING                   ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Using Composed Type:
+   Driving Tesla Model S
+   Engine starting: Electric (670 HP)
+   4 wheels rotating (21 inch)
+
+📊 Accessing Embedded Fields:
+   car.Brand = Tesla
+   car.Horsepower = 670 (from Engine)
+   car.Count = 4 (from Wheels)
+
+📊 Calling Promoted Methods:
+   Engine starting: Electric (670 HP)
+   Engine stopping
+   4 wheels rotating (21 inch)
+
+📊 Accessing Embedded Type Explicitly:
+   car.Engine.Type = Electric
+```
+
 ---
 
 ## 🔄 Method Overriding
@@ -188,6 +213,24 @@ func main() {
     fmt.Println("\n📊 Accessing 'Parent' Method:")
     fmt.Printf("   dog.Animal.Speak() = %q (original)\n", dog.Animal.Speak())
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           METHOD 'OVERRIDING'                             ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Method Override:
+   dog.Speak() = "Woof!" (overridden)
+   cat.Speak() = "Meow!" (overridden)
+
+📊 Promoted Method (not overridden):
+   dog.Info() = "I am Buddy" (from Animal)
+   cat.Info() = "I am Whiskers" (from Animal)
+
+📊 Accessing 'Parent' Method:
+   dog.Animal.Speak() = "..." (original)
 ```
 
 ---
@@ -261,6 +304,23 @@ func main() {
     fmt.Println("   • Interfaces give us polymorphism")
     fmt.Println("   • Together they replace inheritance!")
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           POLYMORPHISM WITH INTERFACES                    ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Polymorphic Behavior:
+   Woof!
+   Meow!
+   Tweet!
+
+💡 Key Insight:
+   • Composition gives us code reuse (embedded fields/methods)
+   • Interfaces give us polymorphism
+   • Together they replace inheritance!
 ```
 
 ---
@@ -346,6 +406,22 @@ func main() {
     order.Touch()  // From Timestamps
     fmt.Printf("   order.Touch() → UpdatedAt changed\n")
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           PRODUCTION COMPOSITION PATTERN                  ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 All Models Have ID and Timestamps:
+   user.ID = user-001
+   user.CreatedAt = 2026-02-10
+   order.ID = order-001
+   order.CreatedAt = 2026-02-10
+
+📊 Promoted Methods:
+   order.Touch() → UpdatedAt changed
 ```
 
 ---

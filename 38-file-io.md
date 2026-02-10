@@ -98,6 +98,32 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           READING FILES                                   ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Method 1: os.ReadFile (entire file):
+   Content:
+Line 1
+Line 2
+Line 3
+
+📊 Method 2: os.Open + Read:
+   Read 18 bytes
+
+📊 Method 3: bufio.Scanner (line by line):
+   Line 1: Line 1
+   Line 2: Line 2
+   Line 3: Line 3
+
+📊 Method 4: bufio.Reader:
+   Read: "Line 1\n"
+   Read: "Line 2\n"
+   Read: "Line 3\n"
+```
+
 ---
 
 ## ✍️ Writing Files
@@ -177,6 +203,30 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           WRITING FILES                                   ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Method 1: os.WriteFile (entire file):
+   Wrote output1.txt
+
+📊 Method 2: os.Create + Write:
+   Wrote output2.txt
+
+📊 Method 3: Append to File:
+   Appended to output2.txt
+
+📊 Method 4: Buffered Writer:
+   Wrote output3.txt with buffer
+
+📊 File Permissions (Unix):
+   0644 = rw-r--r-- (owner: rw, group: r, other: r)
+   0755 = rwxr-xr-x (owner: rwx, group: rx, other: rx)
+   0600 = rw------- (owner only)
+```
+
 ---
 
 ## 📁 Working with Directories
@@ -248,6 +298,34 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           WORKING WITH DIRECTORIES                        ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Create Directory:
+   Created testdir/
+
+📊 Create Directory:
+   Created testdir/sub1/sub2/
+
+📊 List Directory:
+   [Shows first 5 directory entries with their sizes]
+
+📊 Walk Directory Tree:
+   [DIR]  testdir
+   [DIR]  testdir/sub1
+   [DIR]  testdir/sub2
+
+📊 Current Directory:
+   [Shows current working directory path]
+   Home: [Shows home directory path]
+   Temp: [Shows temp directory path]
+```
+
+*Note: Directory listings and paths will vary based on your system.*
+
 ---
 
 ## 🛣️ File Paths
@@ -306,6 +384,37 @@ func min(a, b int) int {
     return b
 }
 ```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           FILE PATHS (filepath package)                   ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Path Components:
+   Full path: /home/user/documents/file.txt
+   Dir:       /home/user/documents
+   Base:      file.txt
+   Ext:       .txt
+
+📊 Join Paths:
+   filepath.Join: home/user/file.txt
+
+📊 Clean Path:
+   Before: /home/user/../user/./documents//file.txt
+   After:  /home/user/documents/file.txt
+
+📊 Absolute Path:
+   Absolute: [Shows absolute path based on current directory]
+
+📊 Glob Pattern Matching:
+   *.go files: [Shows first 3 .go files in current directory]
+
+📊 Split Path:
+   Dir: "/home/user/documents/", File: "file.txt"
+```
+
+*Note: Absolute paths and glob matches will vary based on your system.*
 
 ---
 

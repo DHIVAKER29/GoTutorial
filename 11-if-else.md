@@ -179,6 +179,44 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           IF-ELSE STATEMENTS IN GO                        ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Basic if:
+   Age 25: You are an adult
+
+📊 If-else:
+   Score 75: PASS ✅
+
+📊 If-else if-else (Grade Calculator):
+   Score 95 → Grade A
+   Score 82 → Grade B
+   Score 73 → Grade C
+   Score 65 → Grade D
+   Score 45 → Grade F
+
+📊 Multiple Conditions:
+   Perfect weather for a walk! 🚶
+
+📊 All Comparison Operators:
+   x = 10, y = 20
+   x == y : false
+   x != y : true
+   x < y  : true
+   x > y  : false
+   x <= y : true
+   x >= y : false
+
+📊 Logical Operators:
+   a = true, b = false
+   a && b : false (AND)
+   a || b : true (OR)
+   !a     : false (NOT)
+```
+
 ---
 
 ## ⭐ If with Initialization (Go's Unique Feature!)
@@ -277,6 +315,36 @@ func main() {
     fmt.Println("   3. Clear and concise")
     fmt.Println("   4. Error handling in one line")
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║       IF WITH INITIALIZATION (GO's SPECIAL FEATURE)       ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Basic Pattern:
+   x = 10 is greater than 5
+
+📊 Error Handling Pattern:
+   Parsed number: 42
+   Error parsing: strconv.Atoi: parsing "not-a-number": invalid syntax
+
+📊 File Operations Pattern:
+   File opened: /etc/hosts
+
+📊 Map Lookup Pattern:
+   Alice's age: 25
+   Charlie not found
+
+📊 Type Assertion Pattern:
+   It's a string: "hello"
+
+📊 Why This Pattern is Great:
+   1. Variable is scoped to if block only
+   2. No pollution of outer scope
+   3. Clear and concise
+   4. Error handling in one line
 ```
 
 ### Scope Comparison
@@ -426,6 +494,32 @@ func getConfig(key string) string {
     }
     return "default"
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           PRODUCTION IF-ELSE PATTERNS                     ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Pattern 1: Guard Clauses
+   User Alice is valid ✅
+
+📊 Pattern 2: Authorization Check
+   ✅ Admin: Admin access granted
+   ❌ User: Access denied
+
+📊 Pattern 3: Nil Check
+   No user provided
+   User name: Bob
+
+📊 Pattern 4: Default Values
+   Port config: 8080
+   Missing config: default
+
+📊 Pattern 5: Feature Flags
+   🌙 Dark mode enabled
+   🛒 Using legacy checkout
 ```
 
 ---

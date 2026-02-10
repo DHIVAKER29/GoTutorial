@@ -111,6 +111,30 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           JSON MARSHALING (Go → JSON)                     ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Basic Marshaling:
+   JSON: {"name":"Alice","age":30,"email":"alice@example.com","created_at":"2024-12-10T10:30:45.123456789Z"}
+
+📊 Pretty Print (MarshalIndent):
+{
+  "name": "Alice",
+  "age": 30,
+  "email": "alice@example.com",
+  "created_at": "2024-12-10T10:30:45.123456789Z"
+}
+
+📊 Map to JSON:
+   {"active":true,"age":25,"name":"Bob","scores":[85,90,95]}
+
+📊 Slice to JSON:
+   [{"name":"Alice","age":30,"email":"","created_at":"0001-01-01T00:00:00Z"},{"name":"Bob","age":25,"email":"","created_at":"0001-01-01T00:00:00Z"}]
+```
+
 ---
 
 ## 📥 Basic Unmarshaling (JSON → Go)
@@ -191,6 +215,33 @@ func main() {
     fmt.Printf("   User: %+v\n", u2)
     fmt.Printf("   Active: %t (zero value)\n", u2.Active)
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           JSON UNMARSHALING (JSON → Go)                   ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 JSON to Struct:
+   User: {ID:1 Name:Alice Email:alice@example.com Active:true Roles:[admin user]}
+   Name: Alice
+   Roles: [admin user]
+
+📊 JSON to Map (dynamic):
+   Map: map[active:true email:alice@example.com id:1 name:Alice roles:[admin user]]
+   Name: Alice
+
+📊 JSON Array to Slice:
+   User: Alice
+   User: Bob
+
+📊 Extra JSON Fields (ignored):
+   User: {ID:1 Name:Alice Email: Active:false Roles:[]} (unknown_field ignored)
+
+📊 Missing JSON Fields (zero values):
+   User: {ID:1 Name:Alice Email: Active:false Roles:[]}
+   Active: false (zero value)
 ```
 
 ---
@@ -283,6 +334,40 @@ func main() {
     jsonB, _ := json.Marshal(b)
     fmt.Printf("   Result: %s\n", jsonB)
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           STRUCT TAGS DEEP DIVE                           ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Tag Syntax:
+   `json:"field_name"`           - Custom JSON name
+   `json:"field_name,omitempty"` - Omit if zero
+   `json:"-"`                    - Always omit
+   `json:",omitempty"`           - Keep name, omit if zero
+   `json:"id,string"`            - Encode number as string
+
+📊 Omitempty Behavior:
+   With values:
+   {
+     "name": "Alice",
+     "user_age": 30,
+     "score": 95,
+     "id": "12345"
+   }
+
+   With zeros (omitempty in action):
+   {
+     "name": "Bob",
+     "user_age": 0
+   }
+
+📊 String Encoding (JavaScript big int issue):
+   Problem: JavaScript can't handle int64 precisely
+   Solution: `json:"id,string"` encodes as "12345"
+   Result: {"id":"9007199254740993"}
 ```
 
 ---
@@ -404,6 +489,31 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           CUSTOM JSON ENCODING                            ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Custom Marshaling:
+   {
+     "name": "Complete project",
+     "status": "active",
+     "due_date": "2024-12-10"
+   }
+
+📊 Custom Unmarshaling:
+   Task: {Name:Review code Status:0 DueDate:{Time:2024-12-31 00:00:00 +0000 UTC}}
+   Status int value: 0
+
+📊 Interfaces to Implement:
+   json.Marshaler:
+     MarshalJSON() ([]byte, error)
+
+   json.Unmarshaler:
+     UnmarshalJSON([]byte) error
+```
+
 ---
 
 ## 🌊 Streaming JSON (Large Data)
@@ -476,6 +586,41 @@ func main() {
     fmt.Println("   json.Marshal()    → returns []byte, allocates memory")
     fmt.Println("   encoder.Encode()  → writes to io.Writer, streams")
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           STREAMING JSON                                  ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 json.Encoder (write to stream):
+{
+  "id": 1,
+  "name": "Alice"
+}
+{
+  "id": 2,
+  "name": "Bob"
+}
+{
+  "id": 3,
+  "name": "Charlie"
+}
+📊 json.Decoder (read from stream):
+   Decoded: {ID:1 Name:Alice}
+   Decoded: {ID:2 Name:Bob}
+   Decoded: {ID:3 Name:Charlie}
+
+💡 When to Use Streaming:
+   • Large JSON files (won't fit in memory)
+   • HTTP request/response bodies
+   • Newline-delimited JSON (NDJSON)
+   • Processing JSON as it arrives
+
+📊 Encoder vs Marshal:
+   json.Marshal()    → returns []byte, allocates memory
+   encoder.Encode()  → writes to io.Writer, streams
 ```
 
 ---
@@ -566,6 +711,27 @@ func main() {
 import "strings"
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           DYNAMIC JSON                                    ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Unknown Structure (map[string]interface{}):
+   Name: Alice
+   Age: 30
+   City: NYC
+
+📊 json.RawMessage (delay parsing):
+   Type: user
+   Raw data: {"id": 1, "name": "Bob"}
+   Parsed user: {ID:1 Name:Bob}
+
+📊 json.Number (precise numbers):
+   Amount as string: 9007199254740993
+   Amount as int64: 9007199254740993
+```
+
 ---
 
 ## 🏭 Production Patterns
@@ -653,6 +819,46 @@ func main() {
     
     _ = http.NewRequest  // Suppress unused import
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           PRODUCTION JSON PATTERNS                        ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Pattern 1: API Response Wrapper
+   {
+     "success": true,
+     "data": {
+       "id": 1,
+       "name": "Alice",
+       "email": "alice@example.com"
+     }
+   }
+   {
+     "success": false,
+     "error": "User not found"
+   }
+
+📊 Pattern 2: Pointer for Optional vs Required
+   Age was not provided (optional)
+
+📊 Pattern 3: HTTP JSON Handler (conceptual)
+   func handler(w http.ResponseWriter, r *http.Request) {
+       // Decode request
+       var req RequestBody
+       if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+           http.Error(w, err.Error(), http.StatusBadRequest)
+           return
+       }
+
+       // Process...
+
+       // Encode response
+       w.Header().Set("Content-Type", "application/json")
+       json.NewEncoder(w).Encode(response)
+   }
 ```
 
 ---

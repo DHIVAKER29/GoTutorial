@@ -164,6 +164,22 @@ func rectangleInfo(width, height int) (area int, perimeter int) {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║              FUNCTIONS IN GO                              ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Calling Functions:
+   Hello from sayHello()!
+   Hello, Alice!
+   add(5, 3) = 8
+   multiply(4, 5) = 20
+   divide(17, 5) = 3 remainder 2
+   rectangleInfo(5, 3): area=15, perimeter=16
+   Area only (ignoring perimeter): 50
+```
+
 ---
 
 ## 🔀 Multiple Return Values
@@ -317,6 +333,28 @@ func findUser(id int) (string, bool, error) {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           MULTIPLE RETURN VALUES                          ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Two Return Values:
+   minMax(5,3,8,1,9,2): min=1, max=9
+
+📊 Error as Second Return (Go Pattern!):
+   safeDivide(10, 2) = 5.00
+   safeDivide(10, 0): Error - division by zero
+
+📊 Parsing with Error:
+   Parse "42": Success - 42
+   Parse "not-a-number": Error - strconv.Atoi: parsing "not-a-number": invalid syntax
+
+📊 Complex Operations:
+   Found user: Alice
+   User 99 not found
+```
+
 ---
 
 ## 🏷️ Named Return Values
@@ -440,6 +478,31 @@ func main() {
 func divide(a, b int) (int, int) {
     return a / b, a % b
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           THE BLANK IDENTIFIER _                          ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Ignoring Return Values:
+   Both values: quotient=3, remainder=2
+   Quotient only: 3
+   Remainder only: 2
+
+📊 In Range Loops:
+   Values only (ignore index):
+     apple
+     banana
+     cherry
+
+📊 Checking Success Only:
+   File check failed: open /nonexistent/file: no such file or directory
+
+📊 Import for Side Effects:
+   import _ "image/png"  // Registers PNG decoder
+   The _ means: import for side effects, don't use directly
 ```
 
 ---
@@ -586,6 +649,26 @@ func NewServer(opts ...ServerOption) *Server {
     
     return s
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           PRODUCTION FUNCTION PATTERNS                    ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Pattern 1: Constructor Function
+   Created: &{ID:1 Name:Alice Email:alice@example.com CreatedAt:2026-02-10 ...}
+
+📊 Pattern 2: Validation
+   User is valid ✅
+   Invalid user: invalid user ID
+
+📊 Pattern 3: Options Pattern
+   Starting server on localhost:8080 (timeout: 30s)
+
+📊 Pattern 4: Functional Options
+   Server: &{host:0.0.0.0 port:9000 timeout:60}
 ```
 
 ---

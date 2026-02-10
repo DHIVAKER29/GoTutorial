@@ -282,6 +282,55 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║              BYTES vs RUNES IN GO                         ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 ASCII String: "Hello"
+   len() = 5 bytes
+   Rune count = 5 characters
+   (Same! Each ASCII char is 1 byte)
+
+📊 Hindi String: "नमस्ते"
+   len() = 18 bytes
+   Rune count = 6 characters
+   (Different! Hindi chars use multiple bytes)
+
+📊 Emoji String: "👋🌍"
+   len() = 8 bytes
+   Rune count = 2 characters
+   (Emoji use 4 bytes each!)
+
+📊 Mixed String: "Hello中😀"
+   len() = 12 bytes
+   Rune count = 7 characters
+
+📊 Byte-by-byte view of "中":
+   Byte 0: 228 (0xE4)
+   Byte 1: 184 (0xB8)
+   Byte 2: 173 (0xAD)
+
+📊 Rune view of "中":
+   Index 0: '中' (U+4E2D, decimal 20013)
+
+⚠️ Danger: Indexing returns BYTES, not RUNES!
+   str[0] = 72 ('H') - OK for ASCII
+   str[5] = 228 (0xE4) - This is NOT '中'!
+   '中' starts at index 5 but spans bytes 5,6,7
+
+✅ Safe: Use range to iterate runes:
+   String: "Hello中😀"
+   Index 0: 'H' (U+0048)
+   Index 1: 'e' (U+0065)
+   Index 2: 'l' (U+006C)
+   Index 3: 'l' (U+006C)
+   Index 4: 'o' (U+006F)
+   Index 5: '中' (U+4E2D)
+   Index 8: '😀' (U+1F600)
+```
+
 ---
 
 ## 🔄 String Iteration: Two Ways
@@ -350,6 +399,55 @@ func reverseString(s string) string {
     }
     return string(runes)
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           STRING ITERATION IN GO                          ║
+╚══════════════════════════════════════════════════════════╝
+
+📝 String: "Go语言😀"
+   Bytes: 12, Runes: 5
+
+❌ Method 1: By Index (iterates BYTES)
+   This breaks for non-ASCII!
+   str[0] = 71 (0x47)
+   str[1] = 111 (0x6F)
+   str[2] = 232 (0xE8)
+   str[3] = 138 (0x8A)
+   str[4] = 154 (0x9A)
+   str[5] = 232 (0xE8)
+   str[6] = 167 (0xA7)
+   str[7] = 149 (0x95)
+   str[8] = 240 (0xF0)
+   str[9] = 159 (0x9F)
+   str[10] = 152 (0x98)
+   str[11] = 128 (0x80)
+
+✅ Method 2: Range (iterates RUNES)
+   This handles Unicode correctly!
+   Index  0: 'G' (U+0047, 1 bytes)
+   Index  1: 'o' (U+006F, 1 bytes)
+   Index  2: '语' (U+8BED, 3 bytes)
+   Index  5: '言' (U+8A00, 3 bytes)
+   Index  8: '😀' (U+1F600, 4 bytes)
+
+✅ Method 3: Convert to []rune for random access
+   []rune length: 5
+   runes[0] = 'G'
+   runes[1] = 'o'
+   runes[2] = '语'
+   runes[3] = '言'
+   runes[4] = '😀'
+
+💡 Getting the 3rd character:
+   str[2] = 232 - WRONG! Gets 3rd byte
+   []rune(str)[2] = '语' - CORRECT!
+
+💡 Practical: Reversing a Unicode string
+   Original: "Hello世界"
+   Reversed: "界世olleH"
 ```
 
 ---
@@ -428,6 +526,52 @@ func main() {
     fmt.Println("   []rune: Character-level processing, text manipulation")
     fmt.Println("   string: General text, display, JSON keys")
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           STRING CONVERSIONS IN GO                        ║
+╚══════════════════════════════════════════════════════════╝
+
+📝 Original string: "Hello世界"
+
+📊 String → []byte (UTF-8 bytes)
+   [72 101 108 108 111 228 184 150 231 149 140]
+   Length: 11 bytes
+
+📊 []byte → String
+   "Hello世界"
+
+📊 String → []rune (Unicode code points)
+   [72 101 108 108 111 19990 30028]
+   Length: 7 runes
+   Each rune:
+     [0] 'H' = 72 (U+0048)
+     [1] 'e' = 101 (U+0065)
+     [2] 'l' = 108 (U+006C)
+     [3] 'l' = 108 (U+006C)
+     [4] 'o' = 111 (U+006F)
+     [5] '世' = 19990 (U+4E16)
+     [6] '界' = 30028 (U+754C)
+
+📊 []rune → String
+   "Hello世界"
+
+📊 Single rune → String
+   rune '世' → string "世"
+
+📊 Integer → String (treats as code point)
+   int 19990 → string "世"
+
+📊 Modifying String (via []byte)
+   Original: "Hello"
+   Modified: "hello"
+
+💡 Practical Use Cases:
+   []byte: Reading files, network data, binary data
+   []rune: Character-level processing, text manipulation
+   string: General text, display, JSON keys
 ```
 
 ---
@@ -538,6 +682,25 @@ func main() {
             status, input, runeCount, byteLen)
     }
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           PRODUCTION PATTERNS                             ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Display Name Truncation:
+   John Doe              → John Do…
+   राहुल कुमार           → राहुल कु…
+   王小明很长的名字        → 王小明很长的名…
+   😀😀😀😀😀😀😀😀        → 😀😀😀😀😀😀😀…
+
+📊 Character Limit (10 chars max):
+   ✅ "Hello" (runes: 5, bytes: 5)
+   ✅ "HelloWorld" (runes: 10, bytes: 10)
+   ❌ "Hello World" (runes: 11, bytes: 11)
+   ✅ "你好世界" (runes: 4, bytes: 12)
 ```
 
 ---

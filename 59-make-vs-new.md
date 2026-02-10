@@ -101,6 +101,34 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           new() Function                                  ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 new with Basic Types:
+   new(int): 0xc0000120a8, value: 0
+   new(float64): 0xc0000120b0, value: 0.000000
+   new(bool): 0xc0000120b8, value: false
+   new(string): 0xc0000120c0, value: ""
+
+📊 new with Struct:
+   new(User): &{Name: Age:0 Email:}
+   After assignment: &{Name:Alice Age:30 Email:}
+
+📊 new with Slice (GOTCHA!):
+   new([]int): &[]
+   *slicePtr == nil: true
+
+📊 new vs &T{}:
+   new(User): &{Name: Age:0 Email:}
+   &User{}:   &{Name: Age:0 Email:}
+   Both are equivalent!
+```
+
+*Note: Pointer addresses vary on each run.*
+
 ---
 
 ## 🏗️ make() in Detail
@@ -169,6 +197,34 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           make() Function                                 ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 make Slice:
+   make([]int, 5):     len=5, cap=5, [0 0 0 0 0]
+   make([]int, 5, 10): len=5, cap=10, [0 0 0 0 0]
+   After s1[0]=100: [100 0 0 0 0]
+
+📊 make Map:
+   make(map[string]int): map[]
+   After m1["key"]=42: map[key:42]
+
+📊 make Channel:
+   make(chan int):    unbuffered, cap=0
+   make(chan int, 5): buffered,   cap=5
+   Received: 42
+
+📊 Why make is Necessary:
+   Slices, maps, channels have internal structures:
+   • Slice: pointer + length + capacity
+   • Map: hash table pointer
+   • Channel: circular buffer + locks
+   make() initializes these internal structures!
+```
+
 ---
 
 ## ⚠️ Common Mistakes
@@ -222,6 +278,31 @@ func main() {
 func modifySlice(s []int) {
     s[0] = 999
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           Common Mistakes                                 ║
+╚══════════════════════════════════════════════════════════╝
+
+❌ Mistake 1: new([]int)
+   Result: pointer to NIL slice!
+   *slicePtr == nil: true
+
+✅ Correct: make([]int, 5)
+   Result: [1 0 0 0 0]
+
+❌ Mistake 2: new(map[string]int)
+   Result: pointer to NIL map!
+
+✅ Correct: make(map[string]int)
+   Result: map[key:1]
+
+❌ Mistake 3: Thinking make returns pointer
+   Type of s: []int (not *[]int!)
+
+   After modify: [999 0 0 0 0]
 ```
 
 ---

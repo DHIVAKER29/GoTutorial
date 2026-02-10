@@ -38,7 +38,7 @@ Google engineers faced three major problems:
 │     ─────────────                                               │
 │     C++ projects took 45+ minutes to compile                    │
 │     Engineers spent hours waiting                               │
-│     Coffee breaks became very long ☕                            │
+│     Coffee breaks became very long ☕                           │
 │                                                                 │
 │  2. TOO COMPLEX                                                 │
 │     ────────────                                                │
@@ -188,36 +188,36 @@ They designed Go with these goals:
 │  INTERPRETED LANGUAGES (Python, JavaScript, Ruby):              │
 │  ─────────────────────────────────────────────────              │
 │                                                                 │
-│  ┌──────────┐    ┌──────────────┐    ┌──────────┐               │
-│  │  Code    │ ──►│  Interpreter │ ──►│  Output  │               │
-│  │  (.py)   │    │  (runtime)   │    │          │               │
-│  └──────────┘    └──────────────┘    └──────────┘               │
+│  ┌──────────┐    ┌──────────────┐    ┌──────────┐              │
+│  │  Code    │ ──►│  Interpreter │ ──►│  Output  │              │
+│  │  (.py)   │    │  (runtime)   │    │          │              │
+│  └──────────┘    └──────────────┘    └──────────┘              │
 │                        ↑                                        │
 │                  Needs interpreter installed!                   │
 │                  Runs slower (translates on the fly)            │
 │                                                                 │
-│  ═══════════════════════════════════════════════════════════    │
+│  ═══════════════════════════════════════════════════════════   │
 │                                                                 │
 │  COMPILED LANGUAGES (Go, C, Rust):                              │
 │  ─────────────────────────────────                              │
 │                                                                 │
-│  ┌──────────┐    ┌──────────┐    ┌──────────┐                   │
-│  │  Code    │ ──►│  Binary  │ ──►│  Output  │                   │
-│  │  (.go)   │    │  (exe)   │    │          │                   │
-│  └──────────┘    └──────────┘    └──────────┘                   │
+│  ┌──────────┐    ┌──────────┐    ┌──────────┐                  │
+│  │  Code    │ ──►│  Binary  │ ──►│  Output  │                  │
+│  │  (.go)   │    │  (exe)   │    │          │                  │
+│  └──────────┘    └──────────┘    └──────────┘                  │
 │                        ↑                                        │
 │                  Self-contained! No runtime needed!             │
 │                  Runs faster (already machine code)             │
 │                                                                 │
-│  ═══════════════════════════════════════════════════════════    │
+│  ═══════════════════════════════════════════════════════════   │
 │                                                                 │
 │  JAVA (Special Case - JIT Compiled):                            │
 │  ───────────────────────────────────                            │
 │                                                                 │
-│  ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌─────────┐    │
-│  │  Code    │ ──►│ Bytecode │ ──►│   JVM    │ ──►│ Output  │    │
-│  │  (.java) │    │ (.class) │    │(runtime) │    │         │    │
-│  └──────────┘    └──────────┘    └──────────┘    └─────────┘    │
+│  ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌─────────┐   │
+│  │  Code    │ ──►│ Bytecode │ ──►│   JVM    │ ──►│ Output  │   │
+│  │  (.java) │    │ (.class) │    │(runtime) │    │         │   │
+│  └──────────┘    └──────────┘    └──────────┘    └─────────┘   │
 │                        ↑              ↑                         │
 │             Platform neutral     Needs JVM installed            │
 │             "Write once,         JIT compiles to native         │
@@ -234,22 +234,22 @@ Even though Go is compiled, the binary includes a small **runtime**:
 ┌─────────────────────────────────────────────────────────────────┐
 │                    GO BINARY CONTENTS                           │
 │                                                                 │
-│  ┌─────────────────────────────────────────────────────────┐    │
-│  │                                                         │    │
-│  │   YOUR CODE                                             │    │
-│  │   (Compiled to machine code)                            │    │
-│  │                                                         │    │
-│  ├─────────────────────────────────────────────────────────┤    │
-│  │                                                         │    │
-│  │   GO RUNTIME (Included in binary)                       │    │
-│  │   ├── Garbage Collector                                 │    │
-│  │   ├── Goroutine Scheduler                               │    │
-│  │   ├── Memory Allocator                                  │    │
-│  │   └── Stack Management                                  │    │
-│  │                                                         │    │
-│  └─────────────────────────────────────────────────────────┘    │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │                                                         │   │
+│  │   YOUR CODE                                             │   │
+│  │   (Compiled to machine code)                            │   │
+│  │                                                         │   │
+│  ├─────────────────────────────────────────────────────────┤   │
+│  │                                                         │   │
+│  │   GO RUNTIME (Included in binary)                       │   │
+│  │   ├── Garbage Collector                                 │   │
+│  │   ├── Goroutine Scheduler                               │   │
+│  │   ├── Memory Allocator                                  │   │
+│  │   └── Stack Management                                  │   │
+│  │                                                         │   │
+│  └─────────────────────────────────────────────────────────┘   │
 │                                                                 │
-│  NOTE: This is MUCH smaller than JVM (~2MB vs ~200MB)           │
+│  NOTE: This is MUCH smaller than JVM (~2MB vs ~200MB)          │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -278,7 +278,7 @@ Even though Go is compiled, the binary includes a small **runtime**:
 │   Dog      Cat   ← Inheritance                                  │
 │  (class)  (class)                                               │
 │                                                                 │
-│  ═══════════════════════════════════════════════════════════    │
+│  ═══════════════════════════════════════════════════════════   │
 │                                                                 │
 │  GO = Procedural + Composition                                  │
 │  ─────────────────────────────                                  │
@@ -405,6 +405,11 @@ func main() {
     }
     dog.Speak()
 }
+```
+
+**Output:**
+```
+Buddy says: Woof!
 ```
 
 ### Key Differences Explained:
@@ -559,7 +564,7 @@ Benefit: Combine any blocks to make anything!
 | **Cloudflare** | Edge computing, DNS | Low latency requirements |
 | **PayPal** | Microservices | Developer productivity |
 | **American Express** | Payment processing | Reliability + Performance |
-| **Razorpay** | Payment gateway | Your codebase! |
+| **Razorpay** | Payment gateway (Catalyst!) | Your codebase! |
 
 ### Why They Choose Go
 

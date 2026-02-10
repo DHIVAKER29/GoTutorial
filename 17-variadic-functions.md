@@ -94,6 +94,34 @@ func greetAll(greeting string, names ...string) {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           VARIADIC FUNCTIONS                              ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Basic Variadic:
+   sum()        = 0
+   sum(1)       = 1
+   sum(1,2,3)   = 6
+   sum(1,2,3,4,5) = 15
+
+📊 Passing Slice with ...:
+   sum(numbers...) = 100
+
+📊 Mixed Parameters:
+   Hello, Alice!
+   Hello, Bob!
+   Hello, Charlie!
+
+📊 fmt.Println is Variadic:
+Multiple values separated by spaces
+
+📊 append() is Variadic:
+   append(slice, 3, 4, 5) = [1 2 3 4 5]
+   append(slice, more...) = [1 2 3 4 5 6 7 8]
+```
+
 ---
 
 ## 🎯 Key Points

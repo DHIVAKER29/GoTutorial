@@ -67,6 +67,29 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           Hashing                                         ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 MD5 (checksum only, NOT secure):
+   65a8e27d8879283831b664bd8b7f0ad4
+
+📊 SHA256:
+   dffd6021bb2bd5b0af676290809ec3a53191dd81c7f70a4b28688a362182986f
+
+📊 SHA512:
+   374d794a95cdcfd8b35993185fef9ba368f160d8daf432d08ba9f1ed1e5abe6cc69291e0fa2fe0006a52570ef18c19def4e617c33ce52ef0a6e5fbe318cb0387
+
+📊 Streaming Hash (for large data):
+   886b990fbdfdad666585bdd6634f87fb6e947fef240b88f6a7dd002cb2266f12
+
+📊 Secure Comparison:
+   Use crypto/subtle.ConstantTimeCompare
+   Prevents timing attacks
+```
+
 ---
 
 ## 🔑 HMAC (Message Authentication)
@@ -122,6 +145,22 @@ func main() {
         fmt.Println("   ❌ Invalid signature (tampering detected)")
     }
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           HMAC (Message Authentication)                   ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Create HMAC:
+   HMAC: 94f704b3c6c98b9d65e08428606855b05b0ae5db8a9dc4fd99078c9bf6ee76fe
+
+📊 Verify HMAC:
+   ✅ Valid signature!
+
+📊 Tampered Message:
+   ❌ Invalid signature (tampering detected)
 ```
 
 ---
@@ -184,6 +223,30 @@ Install: go get golang.org/x/crypto/bcrypt
 */
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           Password Hashing (bcrypt)                       ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Hash Password:
+   Hash: $2a$10$xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+📊 Verify Password:
+   ✅ Password correct!
+
+📊 Wrong Password:
+   ❌ Password incorrect!
+
+📊 Cost Levels:
+   bcrypt.MinCost     = 4  (fast, testing)
+   bcrypt.DefaultCost = 10 (balanced)
+   bcrypt.MaxCost     = 31 (very slow)
+   Higher = more secure but slower
+```
+
+*Note: The bcrypt hash value varies on each run (different salt).*
+
 ---
 
 ## 🎲 Secure Random Generation
@@ -242,6 +305,34 @@ func main() {
     fmt.Println("   • Any security-sensitive randomness")
 }
 ```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           Secure Random Generation                        ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Random Bytes:
+   Hex: a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456
+   Base64: obLD1OX2kJDRU2kQEkNWOJCq+9EjRlgK+9EjRg==
+
+📊 Random Token (URL-safe):
+   Token: xYz123AbC456...
+
+📊 Random Integer (0-99):
+   Number: 42
+
+📊 UUID v4:
+   UUID: a1b2c3d4-e5f6-4789-8123-456789abcdef
+
+⚠️ NEVER use math/rand for security!
+   Use crypto/rand for:
+   • Passwords, tokens, keys
+   • Session IDs
+   • Any security-sensitive randomness
+```
+
+*Note: Random bytes, token, integer, and UUID values vary on each run.*
 
 ---
 
@@ -319,6 +410,19 @@ func main() {
     fmt.Printf("   Decrypted: %s\n", decrypted)
 }
 ```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           AES Encryption                                  ║
+╚══════════════════════════════════════════════════════════╝
+
+   Plaintext: Secret message!
+   Encrypted: xYz123AbC456... (base64, varies each run)
+   Decrypted: Secret message!
+```
+
+*Note: Encrypted value varies each run due to random IV; decrypted always matches plaintext.*
 
 ---
 

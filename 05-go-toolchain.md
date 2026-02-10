@@ -84,11 +84,11 @@ go build -o bin/api ./cmd/api
 │                                                                 │
 │  go build ./cmd/api                                             │
 │                                                                 │
-│  ┌──────────┐    ┌──────────────┐    ┌──────────────┐           │
-│  │  Source  │    │   Compiler   │    │    Binary    │           │
-│  │   Files  │ ──►│   (fast!)    │ ──►│  (portable)  │           │
-│  │  .go     │    │              │    │   api        │           │
-│  └──────────┘    └──────────────┘    └──────────────┘           │
+│  ┌──────────┐    ┌──────────────┐    ┌──────────────┐          │
+│  │  Source  │    │   Compiler   │    │    Binary    │          │
+│  │   Files  │ ──►│   (fast!)    │ ──►│  (portable)  │          │
+│  │  .go     │    │              │    │   api        │          │
+│  └──────────┘    └──────────────┘    └──────────────┘          │
 │                                                                 │
 │  What goes INTO the binary:                                     │
 │  • Your compiled code                                           │
@@ -161,7 +161,7 @@ go run main.go arg1 arg2
 │  USE FOR: Quick testing during development                      │
 │  DON'T USE FOR: Production deployment                           │
 │                                                                 │
-│  ═══════════════════════════════════════════════════════════    │
+│  ═══════════════════════════════════════════════════════════   │
 │                                                                 │
 │  go build -o main main.go                                       │
 │  ─────────────────────────────                                  │

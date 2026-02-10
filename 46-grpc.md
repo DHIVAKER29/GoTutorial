@@ -204,6 +204,12 @@ func main() {
 }
 ```
 
+**Output:**
+```
+gRPC server running on :50051
+(Server continues listening for incoming requests)
+```
+
 ---
 
 ## 📱 Client Implementation
@@ -272,6 +278,13 @@ func main() {
         fmt.Printf("Streamed: %+v\n", user)
     }
 }
+```
+
+**Output:**
+```
+Created: id:1 name:"Alice" email:"alice@example.com" roles:""
+Got: id:1 name:"Alice" email:"alice@example.com" roles:""
+Streamed: id:1 name:"Alice" email:"alice@example.com" roles:""
 ```
 
 ---

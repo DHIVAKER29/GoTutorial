@@ -59,20 +59,20 @@ package main
 │                                                                 │
 │  Real-World Analogy: Departments in a Company                   │
 │                                                                 │
-│  ┌─────────────────────────────────────────────────────────┐    │
-│  │                    COMPANY                              │    │
-│  │                                                         │    │
-│  │   ┌──────────┐  ┌──────────┐  ┌──────────┐              │    │
-│  │   │ Finance  │  │   HR     │  │Engineering│             │    │
-│  │   │Department│  │Department│  │Department │             │    │
-│  │   └──────────┘  └──────────┘  └──────────┘              │    │
-│  │                                                         │    │
-│  │   Each department:                                      │    │
-│  │   • Has specific responsibilities                       │    │
-│  │   • Exposes only what others need                       │    │
-│  │   • Hides internal workings                             │    │
-│  │                                                         │    │
-│  └─────────────────────────────────────────────────────────┘    │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │                    COMPANY                              │   │
+│  │                                                         │   │
+│  │   ┌──────────┐  ┌──────────┐  ┌──────────┐             │   │
+│  │   │ Finance  │  │   HR     │  │Engineering│            │   │
+│  │   │Department│  │Department│  │Department │            │   │
+│  │   └──────────┘  └──────────┘  └──────────┘             │   │
+│  │                                                         │   │
+│  │   Each department:                                      │   │
+│  │   • Has specific responsibilities                       │   │
+│  │   • Exposes only what others need                       │   │
+│  │   • Hides internal workings                             │   │
+│  │                                                         │   │
+│  └─────────────────────────────────────────────────────────┘   │
 │                                                                 │
 │  In Go:                                                         │
 │  • "fmt" package = Formatting/printing department               │
@@ -148,28 +148,28 @@ import "fmt"
 │                                                                 │
 │  Real-World Analogy: Ordering Supplies                          │
 │                                                                 │
-│  ┌─────────────────────────────────────────────────────────┐    │
-│  │                                                         │    │
-│  │  Your Office (package main)                             │    │
-│  │  ┌────────────────────────────────────────┐             │    │
-│  │  │                                        │             │    │
-│  │  │  "I need printing supplies!"           │             │    │
-│  │  │        │                               │             │    │
-│  │  │        ▼                               │             │    │
-│  │  │  import "fmt" ← Order from fmt dept    │             │    │
-│  │  │                                        │             │    │
-│  │  └────────────────────────────────────────┘             │    │
-│  │         │                                               │    │
-│  │         ▼                                               │    │
-│  │  ┌────────────────────────────────────────┐             │    │
-│  │  │  fmt package delivers:                 │             │    │ 
-│  │  │  • Println() function                  │             │    │ 
-│  │  │  • Printf() function                   │             │    │
-│  │  │  • Sprintf() function                  │             │    │
-│  │  │  • ... and more                        │             │    │
-│  │  └────────────────────────────────────────┘             │    │
-│  │                                                         │    │
-│  └─────────────────────────────────────────────────────────┘    │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │                                                         │   │
+│  │  Your Office (package main)                             │   │
+│  │  ┌────────────────────────────────────────┐             │   │
+│  │  │                                        │             │   │
+│  │  │  "I need printing supplies!"           │             │   │
+│  │  │        │                               │             │   │
+│  │  │        ▼                               │             │   │
+│  │  │  import "fmt" ← Order from fmt dept    │             │   │
+│  │  │                                        │             │   │
+│  │  └────────────────────────────────────────┘             │   │
+│  │         │                                               │   │
+│  │         ▼                                               │   │
+│  │  ┌────────────────────────────────────────┐             │   │
+│  │  │  fmt package delivers:                 │             │   │
+│  │  │  • Println() function                  │             │   │
+│  │  │  • Printf() function                   │             │   │
+│  │  │  • Sprintf() function                  │             │   │
+│  │  │  • ... and more                        │             │   │
+│  │  └────────────────────────────────────────┘             │   │
+│  │                                                         │   │
+│  └─────────────────────────────────────────────────────────┘   │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -486,6 +486,11 @@ func main() {
 }
 ```
 
+**Output:**
+```
+Hello
+```
+
 ### Standard Program
 
 ```go
@@ -496,6 +501,11 @@ import "fmt"
 func main() {
     fmt.Println("Hello, World!")
 }
+```
+
+**Output:**
+```
+Hello, World!
 ```
 
 ### Real-World Program
@@ -535,6 +545,15 @@ func main() {
     fmt.Println("Started at:", startTime.Format(time.RFC3339))
 }
 ```
+
+**Output:**
+```
+Initializing MyApp
+Hello, World!
+Started at: 2026-02-10T12:34:56+07:00
+```
+
+*Note: When run with arguments (e.g., `go run main.go Alice`), output would be "Hello, Alice" instead. Timestamp will vary.*
 
 ---
 

@@ -163,6 +163,42 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           CREATING SLICES                                 ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Method 1: Slice Literal
+   s1 := []int{10, 20, 30, 40, 50}
+   s1 = [10 20 30 40 50], len=5, cap=5
+
+📊 Method 2: make([]T, length, capacity)
+   s2 := make([]int, 5)
+   s2 = [0 0 0 0 0], len=5, cap=5
+   s3 := make([]int, 3, 10)
+   s3 = [0 0 0], len=3, cap=10
+
+📊 Method 3: Slice from Array
+   arr := [6]int{10, 20, 30, 40, 50, 60}
+   s4 := arr[1:4] = [20 30 40], len=3, cap=5
+
+📊 Method 4: Slice from Slice
+   s5 := s1[1:3] = [20 30], len=2, cap=4
+
+📊 Method 5: Nil Slice (zero value)
+   var s6 []int
+   s6 = [], len=0, cap=0, nil=true
+
+📊 Method 6: Empty Slice (not nil)
+   s7 := []int{} → nil=false
+   s8 := make([]int, 0) → nil=false
+
+💡 Nil vs Empty: Same behavior!
+   len(nil slice) = 0
+   len(empty slice) = 0
+```
+
 ---
 
 ## 🔄 Slice Expressions
@@ -205,6 +241,33 @@ func main() {
     sub := s[3:6]
     fmt.Printf("   s[3:6] = %v, len=%d, cap=%d (10-3=7)\n", sub, len(sub), cap(sub))
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           SLICE EXPRESSIONS                               ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Original: s = [0 1 2 3 4 5 6 7 8 9]
+
+📊 Basic Slicing: s[low:high]
+   s[2:5] = [2 3 4] (indices 2, 3, 4)
+   s[0:3] = [0 1 2] (first 3)
+   s[7:10] = [7 8 9] (last 3)
+
+📊 Omitting Indices:
+   s[:5]  = [0 1 2 3 4] (first 5)
+   s[5:]  = [5 6 7 8 9] (from index 5 to end)
+   s[:]   = [0 1 2 3 4 5 6 7 8 9] (full slice, copy of header)
+
+📊 Full Slice Expression: s[low:high:max]
+   s[2:5:7] = [2 3 4], len=3, cap=5
+   (max limits capacity to prevent accidental sharing)
+
+📊 Capacity Calculation:
+   For s[low:high], cap = len(s) - low
+   s[3:6] = [3 4 5], len=3, cap=7 (10-3=7)
 ```
 
 ---
@@ -260,6 +323,42 @@ func main() {
     fmt.Println("   s = append(s, x)  ✅ Correct")
     fmt.Println("   append(s, x)      ❌ Result lost!")
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           THE APPEND FUNCTION                             ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Basic Append:
+   Before: s = [1 2 3], len=3, cap=3
+   After append(s, 4): s = [1 2 3 4], len=4, cap=6
+
+📊 Append Multiple Values:
+   append(s, 5, 6, 7) = [1 2 3 4 5 6 7]
+
+📊 Append Slice to Slice:
+   append(s, more...) = [1 2 3 4 5 6 7 8 9 10]
+
+📊 Capacity Growth (watch it double!):
+   len=1, cap=1
+   len=2, cap=2
+   len=3, cap=4
+   len=4, cap=4
+   len=5, cap=8
+   len=6, cap=8
+   len=7, cap=8
+   len=8, cap=8
+   len=9, cap=16
+   len=10, cap=16
+
+📊 Append to Nil Slice (works!):
+   nil slice after append: [1 2 3]
+
+⚠️ MUST Reassign Result of append:
+   s = append(s, x)  ✅ Correct
+   append(s, x)      ❌ Result lost!
 ```
 
 ---
@@ -332,6 +431,37 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║        ⚠️ SHARED BACKING ARRAY (GOTCHA!)                  ║
+╚══════════════════════════════════════════════════════════╝
+
+⚠️ The Problem:
+   original = [1 2 3 4 5]
+   sub = original[1:4] = [2 3 4]
+
+   After sub[0] = 999:
+   original = [1 999 3 4 5] (ALSO CHANGED!)
+   sub = [999 3 4]
+
+   Why? Both point to SAME underlying array!
+
+✅ Solution: Use copy()
+   original2 = [1 2 3 4 5] (unchanged!)
+   sub2 = [999 3 4]
+
+⚠️ Append Can Also Share:
+   base = [1 2 3]
+   slice1 = append(base, 4) = [1 2 3 4]
+   slice2 = append(base, 5) = [1 2 3 5]
+   Notice: slice1[3] was overwritten by slice2's append!
+
+✅ Prevention: Full Slice Expression
+   slice3 = [1 2 3 4]
+   slice4 = [1 2 3 5] (independent!)
+```
+
 ---
 
 ## 📋 The copy Function
@@ -377,6 +507,29 @@ func main() {
     copy(bytes, "Hello")
     fmt.Printf("   bytes = %v (%q)\n", bytes, bytes)
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           THE COPY FUNCTION                               ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Basic copy:
+   copy(dst, src) copied 5 elements
+   src = [1 2 3 4 5]
+   dst = [1 2 3 4 5] (independent copy)
+
+📊 Copy to Smaller Destination:
+   Copied 3 elements to smaller slice
+   small = [1 2 3]
+
+📊 Copy Overlapping (shift elements):
+   Before: [0 1 2 3 4 5]
+   After copy(s[0:], s[2:]): [2 3 4 5 4 5]
+
+📊 Copy String to []byte:
+   bytes = [72 101 108 108 111 0 0 0 0 0] ("Hello")
 ```
 
 ---
@@ -446,6 +599,33 @@ func main() {
     items = removeAt(items, 2)  // Remove "c"
     fmt.Printf("   After removeAt(2): %v\n", items)
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           PRODUCTION SLICE PATTERNS                       ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Pattern 1: Pre-allocate (avoid reallocations)
+   Pre-allocated: len=1000, cap=1000
+
+📊 Pattern 2: Filter in Place (no allocation)
+   Before filter: [1 -2 3 -4 5 -6 7]
+   After filter: [1 3 5 7]
+
+📊 Pattern 3: Stack (LIFO)
+   Stack after push 1,2,3: [1 2 3]
+   Popped: 3, Stack: [1 2]
+
+📊 Pattern 4: Queue (FIFO)
+   Queue after enqueue 1,2,3: [1 2 3]
+   Dequeued: 1, Queue: [2 3]
+
+📊 Pattern 5: Remove by Index
+   Before: [a b c d e]
+   After removeAt(2): [a b d e]
+```
 
 // Filter positive numbers in place
 func filterPositive(nums []int) []int {

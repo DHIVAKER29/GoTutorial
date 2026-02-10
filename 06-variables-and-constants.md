@@ -249,6 +249,41 @@ func main() {
 go run variables_demo.go
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           VARIABLE DECLARATIONS IN GO                     ║
+╚══════════════════════════════════════════════════════════╝
+
+📦 Method 1: var with type (zero values)
+  count = 0, message = "", active = false
+
+📦 Method 2: var with initialization
+  name = Alice, age = 25
+
+📦 Method 3: var with type inference
+  city = New York (type: string)
+  temp = 72.5 (type: float64)
+
+📦 Method 4: Short declaration :=
+  country = USA
+  population = 331000000
+  isLarge = true
+
+📦 Multiple variables at once
+  x, y, z = 1, 2, 3
+  Name: John Doe
+
+📦 Reassignment
+  count after modifications = 20
+
+📦 Package-level variables
+  appName = My App
+  version = 1.0.0
+  maxUsers = 0 (zero value)
+  debug = false
+```
+
 ---
 
 ## 🔢 Zero Values
@@ -389,6 +424,48 @@ func main() {
         fmt.Println("  Debug mode: disabled (default)")
     }
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║              ZERO VALUES IN GO                            ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Numeric Zero Values:
+  int     = 0
+  int8    = 0
+  int64   = 0
+  float64 = 0.000000
+
+🔘 Boolean Zero Value:
+  bool = false
+
+📝 String Zero Value:
+  string = "" (empty string)
+  length = 0
+
+👆 Pointer Zero Value:
+  *int = <nil> (nil)
+
+📋 Slice Zero Value:
+  []int = [] (nil slice)
+  length = 0, capacity = 0
+  is nil? true
+
+🗺️ Map Zero Value:
+  map[string]int = map[] (nil map)
+  is nil? true
+
+👤 Struct Zero Value:
+  Person = {Name: Age:0}
+  Name = "" (empty string)
+  Age = 0
+
+✅ Why Zero Values Are Useful:
+  Counter after 2 increments: 2
+  Middle name: (not provided)
+  Debug mode: disabled (default)
 ```
 
 ---
@@ -591,6 +668,49 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║              CONSTANTS IN GO                              ║
+╚══════════════════════════════════════════════════════════╝
+
+📌 Basic Constants:
+  AppName = My Application
+  Version = 1.0.0
+
+📌 Configuration Constants:
+  MaxRetries    = 3
+  TimeoutSecs   = 30 seconds
+  MaxUploadSize = 10485760 bytes (10 MB)
+
+📌 Typed Constants (Status):
+  Current status: active
+
+📌 Days of Week (iota):
+  Sunday    = 0
+  Monday    = 1
+  Tuesday   = 2
+  Wednesday = 3
+  Thursday  = 4
+  Friday    = 5
+  Saturday  = 6
+
+📌 File Sizes (iota with expressions):
+  KB = 1024 bytes
+  MB = 1048576 bytes
+  GB = 1073741824 bytes
+  TB = 1099511627776 bytes
+
+📌 Compile-time Computation:
+  Seconds in day  = 86400
+  Seconds in week = 604800
+
+⚠️ Constants Cannot Be Changed:
+  // const MaxRetries = 3
+  // MaxRetries = 5  ← COMPILE ERROR!
+  Variable retries = 5 (changed from constant)
+```
+
 ---
 
 ## 🔍 Visibility: Exported vs Unexported
@@ -680,6 +800,36 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║              VISIBILITY IN GO                             ║
+╚══════════════════════════════════════════════════════════╝
+
+📖 The Rule:
+  CAPITAL letter   → Exported (public)
+  lowercase letter → Unexported (private)
+
+📦 Variables:
+  MaxConnections = 100 (Exported - Capital M)
+  defaultTimeout = 30 (Unexported - lowercase d)
+
+📦 Constants:
+  AppVersion     = 2.0 (Exported - Capital A)
+  internalSecret = shhh (Unexported - lowercase i)
+
+📦 Struct Fields:
+  User.Name  = Alice (Exported)
+  User.Email = alice@example.com (Exported)
+  User.age   = 25 (Unexported - only accessible here)
+
+🆚 Java Comparison:
+  Java:   public String name;     →  Go: Name string
+  Java:   private int age;        →  Go: age int
+  Java:   public class User {}    →  Go: type User struct {}
+  Java:   private class Helper {} →  Go: type helper struct {}
+```
+
 ---
 
 ## ⚠️ Variable Shadowing
@@ -766,6 +916,34 @@ func demonstrateBuggyErrorHandling() {
 func someOperation() (string, error) {
     return "result", fmt.Errorf("some error")
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║              VARIABLE SHADOWING                           ║
+╚══════════════════════════════════════════════════════════╝
+
+📦 Global globalCount = 100
+📦 After shadowing, globalCount = 50
+📦 But global is still: 100 (use package.variable to check)
+
+⚠️ Dangerous shadowing in if:
+  Before if: message = "original"
+  Inside if: message = "inside if"
+  After if:  message = "original" (unchanged!)
+
+✅ Correct approach (no shadowing):
+  Before if: result = "original"
+  After if:  result = "modified" (changed!)
+
+🐛 Common bug: shadowing err
+  Initial err: <nil>
+  Inside if, err: some error
+  After if, err: <nil> (still nil! Bug!)
+
+  ✅ Fixed version:
+  After fix, err: some error
 ```
 
 ---

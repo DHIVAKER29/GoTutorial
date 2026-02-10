@@ -83,6 +83,51 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           strings Package                                 ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Searching:
+   Contains 'World': true
+   ContainsAny 'aeiou': true
+   HasPrefix 'Hello': true
+   HasSuffix '!': true
+   Index 'o': 4
+   LastIndex 'o': 8
+   Count 'l': 3
+
+📊 Case Conversion:
+   ToUpper: HELLO, WORLD!
+   ToLower: hello, world!
+   Title: HELLO WORLD
+
+📊 Trimming:
+   TrimSpace: "Hello  "
+   Trim: "hello"
+   TrimPrefix: "World"
+   TrimSuffix: "file"
+
+📊 Splitting:
+   Split: [a b c d]
+   SplitN (limit 2): [a b,c,d]
+   Fields: [a b c]
+
+📊 Joining:
+   Join: a-b-c
+
+📊 Replacing:
+   Replace: moo oink
+   ReplaceAll: moo moo
+
+📊 Repeating:
+   Repeat: ababab
+
+📊 Comparison:
+   EqualFold (case-insensitive): true
+```
+
 ---
 
 ## 🔧 strings.Builder (Efficient Concatenation)
@@ -135,6 +180,29 @@ func main() {
     fmt.Println("   strings.Builder:  ~1ms for 100k concatenations")
     fmt.Println("   1000x faster!")
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           strings.Builder                                 ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Problem with += :
+   s += "x"  // Creates new string each time!
+   O(n²) for n concatenations
+
+📊 Solution: strings.Builder
+   Result: Hello, World!🚀
+   Length: 18
+
+📊 Pre-allocation (for known size):
+   Result: item0 item1 item2 item3 item4 item5 item6 item7 item8 item9 
+
+📊 Performance:
+   += operator:      ~1000ms for 100k concatenations
+   strings.Builder:  ~1ms for 100k concatenations
+   1000x faster!
 ```
 
 ---
@@ -194,6 +262,31 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           bytes Package                                   ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 bytes Functions (same as strings):
+   Contains: true
+   ToUpper: HELLO, WORLD!
+   Split: [[72 101 108 108 111] [87 111 114 108 100 33]]
+
+📊 bytes.Buffer:
+   Contents: Hello World!
+   Bytes: [72 101 108 108 111 32 87 111 114 108 100 33]
+   Len: 12
+
+📊 Reading from Buffer:
+   Read 5 bytes: Hello
+   Remaining:  World!
+
+📊 bytes.Compare:
+   Equal(abc, abc): true
+   Compare(abc, abd): -1
+```
+
 ---
 
 ## 🔄 strings.Reader
@@ -235,6 +328,21 @@ func main() {
     all, _ := io.ReadAll(r)
     fmt.Printf("   ReadAll: %s\n", all)
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           strings.Reader                                  ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 strings.Reader:
+   Size: 13
+   Len (remaining): 13
+   Read 5 bytes: Hello
+   Remaining: 8
+   After Seek(0): Len=13
+   ReadAll: Hello, World!
 ```
 
 ---

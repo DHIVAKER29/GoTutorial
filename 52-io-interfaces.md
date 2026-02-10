@@ -106,6 +106,21 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           io.Reader and io.Writer                         ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 io.Reader Examples:
+   Read 19 bytes: Hello from string!
+   Read 19 bytes: Hello from buffer!
+
+📊 io.Writer Examples:
+   Written to stdout
+   Buffer: Hello World!
+```
+
 ---
 
 ## 🔄 io.Copy - The Universal Copier
@@ -153,6 +168,25 @@ func main() {
     io.CopyN(&limited, src, 5)
     fmt.Printf("   Result: %q\n", limited.String())
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           io.Copy - Universal Data Transfer               ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 io.Copy:
+Hello, io.Copy!
+   Copied 12 bytes to buffer: Data to copy
+
+📊 File Copy Pattern:
+   srcFile, _ := os.Open("source.txt")
+   dstFile, _ := os.Create("dest.txt")
+   io.Copy(dstFile, srcFile)
+
+📊 io.CopyN (with limit):
+   Result: "Only "
 ```
 
 ---
@@ -211,6 +245,24 @@ func main() {
     fmt.Println()
     fmt.Printf("   Also captured: %s\n", buf.String())
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           Composing Readers/Writers                       ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Writer Chain:
+   data → gzip compress → base64 encode → stdout
+H4sIAAAAAAAA//JIzcnJ11FIzs8tKEotLk5NUUjMS1FIzUvOT0lNUQQEAAD//7djX/4eAAAA
+
+📊 io.MultiReader (concatenate readers):
+First Second Third
+
+📊 io.TeeReader (read + copy):
+Data for two places
+   Also captured: Data for two places
 ```
 
 ---
@@ -290,6 +342,23 @@ TIP: Use `stringer` tool to auto-generate String() for enums:
 
 Then run: go generate ./...
 */
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           Stringer Interface                              ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Custom String():
+   User{1: Alice <alice@example.com>}
+   User{1: Alice <alice@example.com>}
+
+📊 Enum with String():
+   Status: ACTIVE
+
+📊 Useful for Logging:
+   Processing user: User{1: Alice <alice@example.com>} with status: ACTIVE
 ```
 
 ---

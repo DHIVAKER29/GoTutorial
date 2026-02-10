@@ -83,6 +83,37 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           ARITHMETIC OPERATORS                            ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Basic Arithmetic (a=17, b=5):
+   a + b = 22 (addition)
+   a - b = 12 (subtraction)
+   a * b = 85 (multiplication)
+   a / b = 3 (integer division)
+   a % b = 2 (modulo/remainder)
+
+📊 Float Division:
+   17.0 / 5.0 = 3.40
+
+📊 Increment/Decrement:
+   count = 10
+   count++ → 11
+   count-- → 10
+
+⚠️ Go Difference:
+   ❌ x = count++  (not allowed!)
+   ❌ ++count      (no prefix form!)
+   ✅ count++      (only postfix statement)
+
+📊 Unary Operators:
+   +num = 42 (positive)
+   -num = -42 (negation)
+```
+
 ---
 
 ## ⚖️ Comparison Operators
@@ -122,6 +153,32 @@ func main() {
     fmt.Println("   x == y  ❌ COMPILE ERROR! Different types")
     fmt.Println("   x == int(y) ✅ Must convert")
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           COMPARISON OPERATORS                            ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Numeric Comparison (a=10, b=20):
+   a == b : false (equal)
+   a != b : true (not equal)
+   a < b  : true (less than)
+   a > b  : false (greater than)
+   a <= b : true (less or equal)
+   a >= b : false (greater or equal)
+
+📊 String Comparison (lexicographic):
+   "apple" == "banana" : false
+   "apple" < "banana"  : true (a comes before b)
+   "apple" > "banana"  : false
+
+⚠️ Type Safety:
+   var x int = 5
+   var y int64 = 5
+   x == y  ❌ COMPILE ERROR! Different types
+   x == int(y) ✅ Must convert
 ```
 
 ---
@@ -183,6 +240,39 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           LOGICAL OPERATORS                               ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Logical Operations (a=true, b=false):
+   a && b : false (AND - both must be true)
+   a || b : true (OR - at least one true)
+   !a     : false (NOT - inverts)
+   !b     : true
+
+📊 AND Truth Table (&&):
+   true  && true  = true
+   true  && false = false
+   false && true  = false
+   false && false = false
+
+📊 OR Truth Table (||):
+   true  || true  = true
+   true  || false = true
+   false || true  = true
+   false || false = false
+
+📊 Short-Circuit Evaluation:
+   false && expensiveFunc() → expensiveFunc NOT called
+   true || expensiveFunc()  → expensiveFunc NOT called
+
+💡 Practical Example:
+   Can drive! ✅
+   Day off! 🎉
+```
+
 ---
 
 ## 🔢 Bitwise Operators
@@ -230,6 +320,30 @@ func main() {
     fmt.Printf("   Has Read? %t\n", hasRead)
     fmt.Printf("   Has Execute? %t\n", hasExecute)
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           BITWISE OPERATORS                               ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Bitwise Operations (a=12 [1100], b=10 [1010]):
+   a & b  =  8 [1000] (AND)
+   a | b  = 14 [1110] (OR)
+   a ^ b  =  6 [0110] (XOR)
+   a &^ b =  4 [0100] (AND NOT / bit clear)
+
+📊 Shift Operators:
+   x = 4 [0100]
+   x << 1 =  8 [1000] (left shift = multiply by 2)
+   x << 2 = 16 [10000] (left shift 2 = multiply by 4)
+   x >> 1 =  2 [0010] (right shift = divide by 2)
+
+💡 Practical: Permission Flags
+   Read|Write = 3 [011]
+   Has Read? true
+   Has Execute? false
 ```
 
 ---
@@ -287,6 +401,31 @@ func main() {
     b <<= 1
     fmt.Printf("   b <<= 1 → b = %d [%04b]\n", b, b)
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           ASSIGNMENT OPERATORS                            ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Basic Assignment:
+   x := 10 → x = 10
+   var y int = 20 → y = 20
+
+📊 Compound Assignment:
+   n = 10
+   n += 5  → n = 15
+   n -= 3  → n = 12
+   n *= 2  → n = 24
+   n /= 4  → n = 6
+   n %= 3  → n = 0
+
+📊 Bitwise Compound Assignment:
+   b = 12 [1100]
+   b &= 10 → b = 8 [1000]
+   b |= 1  → b = 9 [1001]
+   b <<= 1 → b = 18 [10010]
 ```
 
 ---

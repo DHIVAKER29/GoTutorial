@@ -112,6 +112,32 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           CREATING CONTEXTS                               ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 context.Background():
+   Root context: context.Background
+
+📊 context.TODO():
+   TODO context: context.TODO (use when unsure)
+
+📊 context.WithCancel():
+   Created cancellable context
+   After cancel: err = context canceled
+
+📊 context.WithTimeout():
+   Timeout: context deadline exceeded
+
+📊 context.WithDeadline():
+   Deadline reached: context deadline exceeded
+
+📊 context.WithValue():
+   UserID from context: user-123
+```
+
 ---
 
 ## 🔄 Context Propagation
@@ -164,6 +190,19 @@ func database(ctx context.Context) error {
         return ctx.Err()
     }
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           CONTEXT PROPAGATION                             ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Context Through Function Chain:
+   handler: starting
+   service: calling database
+   database: query cancelled!
+   Error: context deadline exceeded
 ```
 
 ---

@@ -61,6 +61,30 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           sort Package Basics                             ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Sort Ints:
+   Before: [5 2 8 1 9]
+   After:  [1 2 5 8 9]
+
+📊 Sort Strings:
+   Before: [banana apple cherry]
+   After:  [apple banana cherry]
+
+📊 Sort Float64s:
+   Sorted: [1.41 2.71 3.14]
+
+📊 Check if Sorted:
+   IntsAreSorted: true
+
+📊 Reverse Sort:
+   Reversed: [5 4 3 2 1]
+```
+
 ---
 
 ## 🔧 sort.Slice (Simple Custom Sorting)
@@ -121,6 +145,31 @@ func main() {
         fmt.Printf("   %s: %d\n", p.Name, p.Age)
     }
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           sort.Slice (Custom Sorting)                     ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Sort by Age:
+   Bob: 25
+   Diana: 25
+   Alice: 30
+   Charlie: 35
+
+📊 Sort by Name:
+   Alice: 30
+   Bob: 25
+   Charlie: 35
+   Diana: 25
+
+📊 Sort by Age, then Name (Stable):
+   Bob: 25
+   Diana: 25
+   Alice: 30
+   Charlie: 35
 ```
 
 ---
@@ -198,6 +247,27 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           sort.Interface                                  ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Sort using sort.Interface:
+   By Age:
+      Bob: 25
+      Alice: 30
+      Charlie: 35
+   By Name:
+      Alice: 30
+      Bob: 25
+      Charlie: 35
+   By Age (Descending):
+      Charlie: 35
+      Alice: 30
+      Bob: 25
+```
+
 ---
 
 ## 🔍 Searching
@@ -245,6 +315,23 @@ func main() {
         fmt.Printf("   %d not found\n", target)
     }
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           Searching Sorted Slices                         ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 sort.SearchInts:
+   Index of 5: 2
+   Index for 6 (not found, insertion point): 3
+
+📊 sort.SearchStrings:
+   Index of 'banana': 1
+
+📊 sort.Search (generic):
+   Found 7 at index 3
 ```
 
 ---

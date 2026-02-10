@@ -84,6 +84,20 @@ Then run:
 */
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           EMBEDDING SINGLE FILES                          ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 As String:
+   host=localhost
+   port=8080
+
+📊 As Bytes:
+   Length: 22 bytes
+```
+
 ---
 
 ## 📁 Embedding Directories
@@ -138,6 +152,21 @@ func main() {
         fmt.Printf("   Content length: %d\n", len(content))
     }
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           EMBEDDING DIRECTORIES                           ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 List Embedded Files:
+   static/index.html (256 bytes)
+   static/style.css (1024 bytes)
+
+📊 Read Embedded File:
+   Content length: 256
+```
 
 /*
 Directory structure:
@@ -182,6 +211,18 @@ func main() {
     fmt.Println("\nServer running on http://localhost:8080")
     http.ListenAndServe(":8080", nil)
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           WEB SERVER WITH EMBEDDED FILES                  ║
+╚══════════════════════════════════════════════════════════╝
+
+Server running on http://localhost:8080
+```
+
+(Server starts and serves embedded files. Access http://localhost:8080/ to see the embedded static files)
 
 /*
 With this structure:

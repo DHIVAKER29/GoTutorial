@@ -106,6 +106,22 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║              BASIC METHODS                                ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Calling Methods:
+   alice.Greet() = "Hello, I'm Alice"
+   alice.GreetWith("Hi") = "Hi, I'm Alice"
+   alice.Info() = "Alice", 25
+
+📊 Method is Syntactic Sugar:
+   alice.Greet() = "Hello, I'm Alice"
+   Person.Greet(alice) = "Hello, I'm Alice" (same thing!)
+```
+
 ---
 
 ## ⚡ Value Receiver vs Pointer Receiver
@@ -175,6 +191,34 @@ func main() {
     fmt.Println("   ptr.GetValue() works even though GetValue has value receiver")
     fmt.Println("   Go automatically does (*ptr).GetValue()")
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║        VALUE vs POINTER RECEIVERS                         ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Value Receiver (reading):
+   c.GetValue() = 10
+
+⚠️ Value Receiver (modifying - doesn't work!):
+   Before: c.Value = 10
+   Inside IncrementBad: 11
+   After: c.Value = 10 (unchanged!)
+
+✅ Pointer Receiver (modifying - works!):
+   Before: c.Value = 10
+   After: c.Value = 11 (incremented!)
+
+💡 Go Auto-Converts:
+   c.Increment() works even though c is not a pointer
+   Go automatically does (&c).Increment()
+
+💡 And Vice Versa:
+   ptr.GetValue() = 5
+   ptr.GetValue() works even though GetValue has value receiver
+   Go automatically does (*ptr).GetValue()
 ```
 
 ---
@@ -300,6 +344,31 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           METHODS ON NON-STRUCT TYPES                     ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Methods on Custom String Type:
+   s = "hello world"
+   s.Upper() = "HELLO WORLD"
+   s.Len() = 11
+
+📊 Methods on Custom Float Type:
+   100°C = 212°F
+   212°F = 100°C
+
+📊 Methods on Custom Slice Type:
+   nums = [5 2 8 1 9]
+   nums.Sum() = 25
+   nums.Max() = 9
+
+⚠️ Limitation:
+   Cannot define methods on built-in types directly
+   Must create a new type based on the built-in type
+```
+
 ---
 
 ## 🏭 Production Patterns
@@ -405,6 +474,22 @@ func main() {
     }
     fmt.Printf("   Can Cancel now: %t\n", order.CanCancel())
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           PRODUCTION METHOD PATTERNS                      ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Business Logic Methods:
+   Order{ID: ORD-001, Items: 3, Total: $109.97, Status: confirmed}
+   Total: $109.97
+   Can Cancel: true
+
+📊 State Transition:
+   Shipped! New status: shipped
+   Can Cancel now: false
 ```
 
 ---

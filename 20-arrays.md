@@ -153,6 +153,40 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           ARRAY DECLARATION & INITIALIZATION              ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Method 1: Declaration (zero values)
+   var arr1 [5]int = [0 0 0 0 0]
+   var arr2 [3]string = ["" "" ""]
+   var arr3 [2]bool = [false false]
+
+📊 Method 2: Declaration with values
+   var arr4 [3]int = [3]int{10, 20, 30} = [10 20 30]
+
+📊 Method 3: Short declaration
+   arr5 := [4]string{...} = [apple banana cherry date]
+
+📊 Method 4: Inferred length with ...
+   arr6 := [...]int{...} = [1 2 3 4 5 6 7] (len=7)
+
+📊 Method 5: Indexed initialization
+   arr7 := [5]int{0:100, 2:200, 4:300} = [100 0 200 0 300]
+
+📊 Method 6: Mixed initialization
+   arr8 := [5]int{1, 2, 4:99} = [1 2 0 0 99]
+
+📊 Method 7: Length from last index
+   arr9 := [...]int{9:100} = [0 0 0 0 0 0 0 0 0 100] (len=10)
+
+📊 Multi-dimensional Arrays:
+   matrix := [2][3]int = [[1 2 3] [4 5 6]]
+   matrix[1][2] = 6
+```
+
 ---
 
 ## 🔧 Array Operations
@@ -244,6 +278,60 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║              ARRAY OPERATIONS                             ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Accessing Elements:
+   arr = [10 20 30 40 50]
+   arr[0] = 10 (first element)
+   arr[4] = 50 (last element)
+   arr[len(arr)-1] = 50 (last element, dynamic)
+
+📊 Modifying Elements:
+   arr[2] = 300 → [10 20 300 40 50]
+
+📊 Length:
+   len(arr) = 5
+
+📊 Iteration - Classic for loop:
+   arr[0] = 10
+   arr[1] = 20
+   arr[2] = 300
+   arr[3] = 40
+   arr[4] = 50
+
+📊 Iteration - Range (preferred):
+   arr[0] = 10
+   arr[1] = 20
+   arr[2] = 300
+   arr[3] = 40
+   arr[4] = 50
+
+📊 Iteration - Index only:
+   Index: 0
+   Index: 1
+   Index: 2
+   Index: 3
+   Index: 4
+
+📊 Iteration - Value only:
+   Values: 10 20 300 40 50 
+
+📊 Comparing Arrays:
+   a = [1 2 3], b = [1 2 3], c = [1 2 4]
+   a == b : true
+   a == c : false
+
+📊 Finding Max Value:
+   Max of [10 20 300 40 50] = 300
+
+📊 Sum of Elements:
+   Sum of [10 20 300 40 50] = 420
+```
+
 ---
 
 ## ⚠️ Critical: Size is Part of the Type!
@@ -285,6 +373,29 @@ func main() {
     fmt.Println("\n💡 This is why SLICES are preferred!")
     fmt.Println("   Slices work with any length.")
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           ARRAY SIZE IS PART OF TYPE!                     ║
+╚══════════════════════════════════════════════════════════╝
+
+⚠️ [3]int and [4]int are DIFFERENT TYPES!
+   Type of a: [3]int
+   Type of b: [4]int
+
+📊 Why This Matters:
+   • Cannot assign [4]int to [3]int variable
+   • Cannot pass [3]int to function expecting [4]int
+   • Cannot compare [3]int with [4]int
+
+📊 Function Parameters:
+   Processing [3]int: [10 20 30]
+
+💡 This is why SLICES are preferred!
+   Slices work with any length.
+```
 
 func processArray3(arr [3]int) {  // Only accepts [3]int!
     fmt.Printf("   Processing [3]int: %v\n", arr)
@@ -338,6 +449,35 @@ func main() {
     fmt.Println("   [1000000]int = ~8MB copied each time!")
     fmt.Println("   Solution: Use pointers or slices")
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           ARRAYS ARE VALUES (COPIED!)                     ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Assignment Creates a Copy:
+   original = [1 2 3 4 5]
+   copy     = [1 2 3 4 5]
+
+📊 After modifying copy[0] = 100:
+   original = [1 2 3 4 5] (unchanged!)
+   copy     = [100 2 3 4 5] (changed)
+
+📊 Passing to Function (also copied!):
+   Before function: [10 20 30]
+   Inside function: [999 20 30]
+   After function:  [10 20 30] (unchanged!)
+
+📊 Using Pointer to Modify Original:
+   After function with pointer: [999 20 30] (changed!)
+
+⚠️ Performance Implication:
+   Large arrays copied on assignment/function call
+   [1000000]int = ~8MB copied each time!
+   Solution: Use pointers or slices
+```
 
 func modifyArray(arr [3]int) {  // Receives a COPY
     arr[0] = 999  // Modifies the copy, not original
@@ -453,6 +593,37 @@ func main() {
     fmt.Printf("   Days in February: %d\n", daysInMonth[2])
     fmt.Printf("   Days in December: %d\n", daysInMonth[12])
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           PRODUCTION USE CASES FOR ARRAYS                 ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Use Case 1: IP Address
+   IPv4: 192.168.1.1
+   net.IPv4: 192.168.1.1
+
+📊 Use Case 2: SHA256 Hash
+   Hash type: [32]uint8
+   Hash: 65a8e27d8879283831b664bd8b7f0ad4...
+
+📊 Use Case 3: RGB Color
+   Red:   RGB[255 0 0]
+   Green: RGB[0 255 0]
+   Blue:  RGB[0 0 255]
+
+📊 Use Case 4: Coordinates
+   2D Point: [3.5 4.5]
+   3D Point: [1 2 3]
+
+📊 Use Case 5: Fixed Buffer
+   Buffer (first 10 bytes): [72 101 108 108 111 0 0 0 0 0]
+
+📊 Use Case 6: Lookup Table (Days in Month)
+   Days in February: 28
+   Days in December: 31
 ```
 
 ---

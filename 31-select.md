@@ -109,6 +109,21 @@ func main() {
 }
 ```
 
+**Output:**
+```
+(goroutine output order may vary)
+╔══════════════════════════════════════════════════════════╗
+║           SELECT BASICS                                   ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Basic Select (first one wins):
+   Received: from channel 2
+
+📊 Select in Loop (receive both):
+   ch2: message 2
+   ch1: message 1
+```
+
 ---
 
 ## ⏱️ Timeouts with Select
@@ -187,6 +202,22 @@ func fetchWithTimeout(timeout time.Duration) (string, error) {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           TIMEOUTS WITH SELECT                            ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Timeout Pattern:
+   Timeout! Took too long
+
+📊 Response Before Timeout:
+   Received: fast response
+
+📊 Production: Fetch with Timeout
+   Error: operation timed out after 50ms
+```
+
 ---
 
 ## 🚫 Non-Blocking with Default
@@ -241,6 +272,24 @@ func main() {
         }
     }
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           NON-BLOCKING WITH DEFAULT                       ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Non-Blocking Receive:
+   No value ready (would have blocked)
+
+📊 Non-Blocking Send:
+   Channel full, send would block
+
+📊 Polling Pattern (try until success):
+   Attempt 1: no value yet
+   Received: 10
+   Attempt 3: no value yet
 ```
 
 ---
@@ -369,6 +418,37 @@ func multipleEvents() {
         }
     }
 }
+```
+
+**Output:**
+```
+(goroutine output order may vary)
+╔══════════════════════════════════════════════════════════╗
+║           PRODUCTION SELECT PATTERNS                      ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Pattern 1: Graceful Shutdown
+   worker: tick at 15:04:05.123
+   worker: tick at 15:04:05.173
+   worker: tick at 15:04:05.223
+   worker: shutting down gracefully
+
+📊 Pattern 2: Context Cancellation
+   worker: working...
+   worker: working...
+   worker: working...
+   worker: stopped (context deadline exceeded)
+
+📊 Pattern 3: Ticker with Shutdown
+   tick: 15:04:05.123
+   tick: 15:04:05.163
+   tick: 15:04:05.203
+   ticker: stopped
+
+📊 Pattern 4: Multiple Event Sources
+   User event: button clicked
+   Network event: data received
+   Event loop ended
 ```
 
 ---

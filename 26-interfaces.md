@@ -143,6 +143,26 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║              INTERFACE BASICS                             ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Same Interface, Different Types:
+   Rectangle:
+   Area: 50.00, Perimeter: 30.00
+   Circle:
+   Area: 153.94, Perimeter: 43.98
+
+📊 Slice of Interface (polymorphism):
+   Total area of all shapes: 203.94
+
+📊 Interface Variable:
+   s = rect → main.Rectangle, Area: 50.00
+   s = circle → main.Circle, Area: 153.94
+```
+
 ---
 
 ## 🦆 Duck Typing
@@ -225,6 +245,31 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║              EMPTY INTERFACE (any)                        ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Empty Interface (interface{} or 'any'):
+   anything = 42 → Type: int, Value: 42
+   anything = "hello" → Type: string, Value: hello
+   anything = []int{1,2,3} → Type: []int, Value: [1 2 3]
+
+📊 'any' Keyword (Go 1.18+):
+   var x any = ... → Type: string
+
+📊 Slice of any:
+   [0] Type: int, Value: 1
+   [1] Type: string, Value: two
+   [2] Type: float64, Value: 3
+   [3] Type: bool, Value: true
+
+💡 fmt.Println signature:
+   func Println(a ...interface{}) (n int, err error)
+   That's why it accepts any type!
+```
+
 ---
 
 ## 🔍 Type Assertions
@@ -289,6 +334,30 @@ func describeType(i interface{}) {
         fmt.Printf("   Unknown type: %T\n", v)
     }
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║              TYPE ASSERTIONS                              ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Basic Type Assertion:
+   i.(string) = "hello"
+
+⚠️ Wrong Type = PANIC:
+   n := i.(int)  // Would panic!
+
+✅ Safe Type Assertion (comma-ok):
+   i is a string: "hello"
+   i is not an int
+
+📊 Type Switch:
+   Integer: 42 (doubled: 84)
+   String: "hello" (length: 5)
+   Float: 3.14
+   Unknown type: []int
+   Boolean: true
 ```
 
 ---
@@ -374,6 +443,25 @@ func main() {
     fmt.Println("   io.ReadWriter = Reader + Writer")
     fmt.Println("   io.ReadWriteCloser = Reader + Writer + Closer")
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           INTERFACE COMPOSITION                           ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 File satisfies multiple interfaces:
+   Reading from data.txt
+   Writing to data.txt
+   Reading from data.txt
+   Writing to data.txt
+   Closing data.txt
+
+💡 Go's io Package Uses This Pattern:
+   io.Reader, io.Writer, io.Closer
+   io.ReadWriter = Reader + Writer
+   io.ReadWriteCloser = Reader + Writer + Closer
 ```
 
 ---
@@ -480,6 +568,26 @@ func main() {
     fmt.Println("   • Keep interfaces small (1-3 methods)")
     fmt.Println("   • Define interfaces where they're used, not implemented")
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           PRODUCTION PATTERNS                             ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Pattern 1: Dependency Injection
+   Production: &{ID:1 Name:From Postgres}
+   Testing: &{ID:1 Name:Test User}
+
+📊 Pattern 2: Accept Interface, Return Concrete
+[LOG] Processing: hello
+   Result: HELLO
+
+💡 Key Principles:
+   • Accept interfaces, return concrete types
+   • Keep interfaces small (1-3 methods)
+   • Define interfaces where they're used, not implemented
 ```
 
 ---

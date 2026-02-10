@@ -63,6 +63,37 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           TIME BASICS                                     ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Current Time:
+   Now: 2026-02-10 [current time with nanoseconds]
+   UTC: 2026-02-10 [UTC time]
+
+📊 Time Components:
+   Year:   2026
+   Month:  February (2)
+   Day:    10
+   Hour:   [current hour]
+   Minute: [current minute]
+   Second: [current second]
+   Weekday: [current weekday]
+
+📊 Create Specific Time:
+   Birthday: 1990-01-15 12:00:00 +0000 UTC
+
+📊 Unix Timestamp:
+   Unix seconds: [current Unix timestamp]
+   Unix milliseconds: [current Unix milliseconds]
+   Unix nanoseconds: [current Unix nanoseconds]
+   From Unix: 2021-01-01 00:00:00 +0000 UTC
+```
+
+*Note: Current time values will vary based on when the program runs.*
+
 ---
 
 ## 📅 Formatting and Parsing
@@ -124,6 +155,38 @@ func main() {
     fmt.Println("   time.UnixDate    = Mon Jan _2 15:04:05 MST 2006")
 }
 ```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           TIME FORMATTING & PARSING                       ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Go's Magic Reference Time:
+   Mon Jan 2 15:04:05 MST 2006
+   (Month=1, Day=2, Hour=3PM=15, Min=4, Sec=5, Year=6)
+
+📊 Formatting (Time → String):
+   RFC3339:    2026-02-10T[time]Z
+   Kitchen:    [time in 12-hour format]
+   Date:       2026-02-10
+   DateTime:   2026-02-10 [time]
+   US Format:  02/10/2026
+   Full:       [day], [month] [day], [year]
+   12-hour:    [time in 12-hour format]
+
+📊 Parsing (String → Time):
+   Parsed "2024-12-25": 2024-12-25 00:00:00 +0000 UTC
+   With timezone: 2024-12-25 14:30:00 -0500 EST
+
+📊 Predefined Formats:
+   time.RFC3339     = 2006-01-02T15:04:05Z07:00
+   time.RFC1123     = Mon, 02 Jan 2006 15:04:05 MST
+   time.Kitchen     = 3:04PM
+   time.UnixDate    = Mon Jan _2 15:04:05 MST 2006
+```
+
+*Note: Time formatting output will vary based on when the program runs.*
 
 ---
 
@@ -195,6 +258,43 @@ func main() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           DURATION & ARITHMETIC                           ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Duration Constants:
+   Nanosecond:  1ns
+   Microsecond: 1µs
+   Millisecond: 1ms
+   Second:      1s
+   Minute:      1m0s
+   Hour:        1h0m0s
+
+📊 Creating Durations:
+   5 seconds: 5s
+   2h30m: 2h30m0s
+   Parsed: 1h30m45s
+
+📊 Time Arithmetic:
+   Tomorrow: [tomorrow's date]
+   Next week: [date 7 days from now]
+   Next month: [date 1 month from now]
+
+📊 Time Difference:
+   Since 2020-01-01: [duration since 2020-01-01]
+   In hours: [number of hours]
+   In days: [number of days]
+
+📊 Time Comparison:
+   t1.Before(t2): true
+   t1.After(t2):  false
+   t1.Equal(t1):  true
+```
+
+*Note: Time arithmetic and difference values will vary based on when the program runs.*
+
 ---
 
 ## ⏲️ Timers and Tickers
@@ -257,6 +357,34 @@ func main() {
     }
 }
 ```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           TIMERS & TICKERS                                ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Sleep:
+   Sleeping for 100ms...
+   Awake!
+
+📊 Timer (one-shot):
+   Timer started, waiting...
+   Timer fired!
+
+📊 AfterFunc (callback):
+   Callback executed!
+
+📊 Ticker (repeating):
+   Tick 1 at [time]
+   Tick 2 at [time]
+   Tick 3 at [time]
+
+📊 time.After (convenience):
+   time.After fired!
+```
+
+*Note: Timestamps in ticker output will show actual times when ticks occur.*
 
 ---
 

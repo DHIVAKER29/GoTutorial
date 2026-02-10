@@ -141,6 +141,40 @@ func loopDefer() {
 }
 ```
 
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║                    DEFER IN GO                            ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Basic Defer:
+   Start of function
+   End of function
+   This is deferred (runs last)
+
+📊 LIFO Order (Stack):
+   Main code
+   3rd deferred (runs 1st)
+   2nd deferred (runs 2nd)
+   1st deferred (runs 3rd)
+
+📊 File Handling Pattern:
+   Created and will cleanup: /tmp/example...
+
+📊 Arguments Evaluated Immediately:
+   Current value of x: 20
+   Deferred value of x: 10
+
+📊 Modifying Named Return Values:
+   Result: 15
+
+📊 Defer in Loop (Careful!):
+   After loop, before function ends
+   Deferred 2
+   Deferred 1
+   Deferred 0
+```
+
 ### Common Defer Patterns
 
 ```
@@ -335,6 +369,30 @@ func main() {
     
     fmt.Println("\n✅ All panics were recovered!")
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║                   RECOVER IN GO                           ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 Basic Recovery Pattern:
+   Normal function executed
+   Result: Success
+   Result: Recovered: something went wrong!
+
+📊 Convert Panic to Error:
+   Error: panic recovered: internal error
+
+📊 HTTP Handler Pattern:
+   Handled request: good-request
+   Handler panic recovered: bad request handling
+   Returning 500 Internal Server Error
+   Handled request: another-good
+
+✅ All panics were recovered!
+```
 
 func normalFunc() {
     fmt.Println("   Normal function executed")
@@ -427,6 +485,28 @@ func main() {
     
     fmt.Println("\n✅ Server continues running after panics!")
 }
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════════════════════╗
+║           PRODUCTION PANIC HANDLING                       ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 gRPC Interceptor Pattern:
+   ✅ Handled: ValidRequest
+   🚨 PANIC RECOVERED: simulated panic in handler
+   Stack trace:
+   goroutine 1 [running]:
+runtime/debug.Stack(...)
+   .../main.go:442...
+   → Returning: Internal Server Error
+   → Incrementing panic metric counter
+   → Sending alert to on-call team
+   ✅ Handled: AnotherRequest
+
+✅ Server continues running after panics!
+```
 
 // This pattern is similar to grpc_recovery interceptor in production
 func simulateGRPCHandler(request string) {
