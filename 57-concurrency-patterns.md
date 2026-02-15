@@ -16,143 +16,52 @@
 
 ## 👷 Worker Pool Pattern
 
+**Purpose:** Limit concurrency, control resource usage (DB connections, API rate limits), backpressure handling.
+
 ```go
-// worker_pool.go
-package main
-
-import (
-    "fmt"
-    "sync"
-    "time"
-)
-
-/*
-WORKER POOL PATTERN
-
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  ┌───────┐                                                      │
-│  │ Job 1 │──┐                                                   │
-│  ├───────┤  │    ┌──────────┐   ┌──────────┐                   │
-│  │ Job 2 │──┼──► │ Worker 1 │──►│          │                   │
-│  ├───────┤  │    ├──────────┤   │ Results  │                   │
-│  │ Job 3 │──┼──► │ Worker 2 │──►│ Channel  │                   │
-│  ├───────┤  │    ├──────────┤   │          │                   │
-│  │ Job 4 │──┼──► │ Worker 3 │──►│          │                   │
-│  └───────┘  │    └──────────┘   └──────────┘                   │
-│  Jobs Chan  │    (Fixed # of workers)                          │
-│                                                                 │
-│  WHY?                                                           │
-│  • Limit concurrency (don't spawn 10000 goroutines)             │
-│  • Control resource usage (DB connections, API rate limits)     │
-│  • Backpressure handling                                        │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-*/
-
-type Job struct {
-    ID   int
-    Data string
-}
-
-type Result struct {
-    JobID  int
-    Output string
-}
-
 func worker(id int, jobs <-chan Job, results chan<- Result, wg *sync.WaitGroup) {
     defer wg.Done()
     for job := range jobs {
-        // Simulate work
         time.Sleep(100 * time.Millisecond)
-        results <- Result{
-            JobID:  job.ID,
-            Output: fmt.Sprintf("Worker %d processed: %s", id, job.Data),
-        }
+        results <- Result{JobID: job.ID, Output: fmt.Sprintf("Worker %d: %s", id, job.Data)}
     }
 }
 
 func main() {
-    fmt.Println("╔══════════════════════════════════════════════════════════╗")
-    fmt.Println("║           Worker Pool Pattern                             ║")
-    fmt.Println("╚══════════════════════════════════════════════════════════╝")
-    
-    const numJobs = 10
-    const numWorkers = 3
-    
-    jobs := make(chan Job, numJobs)
-    results := make(chan Result, numJobs)
-    
-    // Start workers
+    jobs := make(chan Job, 10)
+    results := make(chan Result, 10)
     var wg sync.WaitGroup
-    for w := 1; w <= numWorkers; w++ {
+
+    for w := 1; w <= 3; w++ {
         wg.Add(1)
         go worker(w, jobs, results, &wg)
     }
-    
-    // Send jobs
-    for j := 1; j <= numJobs; j++ {
+
+    for j := 1; j <= 10; j++ {
         jobs <- Job{ID: j, Data: fmt.Sprintf("Job-%d", j)}
     }
     close(jobs)
-    
-    // Wait for workers and close results
+
     go func() {
         wg.Wait()
         close(results)
     }()
-    
-    // Collect results
-    fmt.Println("\n📊 Results:")
-    for result := range results {
-        fmt.Printf("   %s\n", result.Output)
+
+    for r := range results {
+        fmt.Println(r.Output)
     }
 }
+// Output: Worker 1/2/3 processed jobs (order varies)
 ```
-
-**Output:**
-```
-╔══════════════════════════════════════════════════════════╗
-║           Worker Pool Pattern                             ║
-╚══════════════════════════════════════════════════════════╝
-
-📊 Results:
-   Worker 1 processed: Job-1
-   Worker 2 processed: Job-2
-   Worker 3 processed: Job-3
-   Worker 1 processed: Job-4
-   Worker 2 processed: Job-5
-   ...
-```
-
-*Note: Output order may vary due to concurrent execution.*
 
 ---
 
 ## 📤📥 Fan-Out / Fan-In Pattern
 
+**Fan-out:** One source → Multiple processors  
+**Fan-in:** Multiple sources → One destination
+
 ```go
-// fan_out_fan_in.go
-package main
-
-import (
-    "fmt"
-    "sync"
-    "time"
-)
-
-/*
-FAN-OUT: One source → Multiple processors
-FAN-IN:  Multiple sources → One destination
-
-┌────────┐                                    ┌────────┐
-│        │──► Worker 1 ──┐                    │        │
-│ Source │──► Worker 2 ──┼──► Merged Output ─►│ Sink   │
-│        │──► Worker 3 ──┘                    │        │
-└────────┘                                    └────────┘
-   Fan-Out                 Fan-In
-*/
-
 func source(nums ...int) <-chan int {
     out := make(chan int)
     go func() {
@@ -168,7 +77,6 @@ func square(in <-chan int) <-chan int {
     out := make(chan int)
     go func() {
         for n := range in {
-            time.Sleep(50 * time.Millisecond)  // Simulate work
             out <- n * n
         }
         close(out)
@@ -179,8 +87,6 @@ func square(in <-chan int) <-chan int {
 func fanIn(channels ...<-chan int) <-chan int {
     out := make(chan int)
     var wg sync.WaitGroup
-    
-    // Start goroutine for each input channel
     for _, ch := range channels {
         wg.Add(1)
         go func(c <-chan int) {
@@ -190,84 +96,26 @@ func fanIn(channels ...<-chan int) <-chan int {
             }
         }(ch)
     }
-    
-    // Close output when all inputs are done
     go func() {
         wg.Wait()
         close(out)
     }()
-    
     return out
 }
 
-func main() {
-    fmt.Println("╔══════════════════════════════════════════════════════════╗")
-    fmt.Println("║           Fan-Out / Fan-In Pattern                        ║")
-    fmt.Println("╚══════════════════════════════════════════════════════════╝")
-    
-    // Source
-    nums := source(1, 2, 3, 4, 5, 6, 7, 8)
-    
-    // Fan-out: distribute to multiple workers
-    c1 := square(nums)
-    c2 := square(nums)
-    c3 := square(nums)
-    
-    // Fan-in: merge results
-    merged := fanIn(c1, c2, c3)
-    
-    // Consume results
-    fmt.Println("\n📊 Squared Results:")
-    for n := range merged {
-        fmt.Printf("   %d\n", n)
-    }
-}
+// Usage: nums := source(1,2,3,4,5,6,7,8)
+// c1, c2, c3 := square(nums), square(nums), square(nums)
+// merged := fanIn(c1, c2, c3)
+// Output: 1, 4, 9, 16, 25, 36, 49, 64 (order varies)
 ```
-
-**Output:**
-```
-╔══════════════════════════════════════════════════════════╗
-║           Fan-Out / Fan-In Pattern                        ║
-╚══════════════════════════════════════════════════════════╝
-
-📊 Squared Results:
-   1
-   4
-   9
-   16
-   25
-   36
-   49
-   64
-```
-
-*Note: Output order may vary due to concurrent fan-in.*
 
 ---
 
 ## 🔗 Pipeline Pattern
 
+**Each stage:** Receives from upstream → Performs operation → Sends to downstream
+
 ```go
-// pipeline.go
-package main
-
-import "fmt"
-
-/*
-PIPELINE PATTERN
-
-Each stage:
-1. Receives from upstream via inbound channel
-2. Performs some operation
-3. Sends to downstream via outbound channel
-
-┌───────┐   ┌──────────┐   ┌──────────┐   ┌───────┐
-│ Source│──►│ Stage 1  │──►│ Stage 2  │──►│ Sink  │
-│       │   │ (filter) │   │(transform)│  │       │
-└───────┘   └──────────┘   └──────────┘   └───────┘
-*/
-
-// Generate numbers
 func generate(nums ...int) <-chan int {
     out := make(chan int)
     go func() {
@@ -279,7 +127,6 @@ func generate(nums ...int) <-chan int {
     return out
 }
 
-// Filter even numbers
 func filterEven(in <-chan int) <-chan int {
     out := make(chan int)
     go func() {
@@ -293,7 +140,6 @@ func filterEven(in <-chan int) <-chan int {
     return out
 }
 
-// Double values
 func double(in <-chan int) <-chan int {
     out := make(chan int)
     go func() {
@@ -305,270 +151,91 @@ func double(in <-chan int) <-chan int {
     return out
 }
 
-// Add prefix
-func format(in <-chan int) <-chan string {
-    out := make(chan string)
-    go func() {
-        for n := range in {
-            out <- fmt.Sprintf("Value: %d", n)
-        }
-        close(out)
-    }()
-    return out
-}
-
-func main() {
-    fmt.Println("╔══════════════════════════════════════════════════════════╗")
-    fmt.Println("║           Pipeline Pattern                                ║")
-    fmt.Println("╚══════════════════════════════════════════════════════════╝")
-    
-    // Build pipeline: generate → filter even → double → format
-    nums := generate(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
-    evens := filterEven(nums)
-    doubled := double(evens)
-    formatted := format(doubled)
-    
-    // Consume
-    fmt.Println("\n📊 Pipeline Output:")
-    for s := range formatted {
-        fmt.Printf("   %s\n", s)
-    }
-}
-```
-
-**Output:**
-```
-╔══════════════════════════════════════════════════════════╗
-║           Pipeline Pattern                                ║
-╚══════════════════════════════════════════════════════════╝
-
-📊 Pipeline Output:
-   Value: 4
-   Value: 8
-   Value: 12
-   Value: 16
-   Value: 20
+// Pipeline: generate → filterEven → double
+nums := generate(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+evens := filterEven(nums)
+doubled := double(evens)
+// Output: 4, 8, 12, 16, 20
 ```
 
 ---
 
 ## 🚦 Semaphore Pattern
 
+**Limit concurrent operations** using a buffered channel.
+
 ```go
-// semaphore.go
-package main
-
-import (
-    "fmt"
-    "sync"
-    "time"
-)
-
-/*
-SEMAPHORE PATTERN
-
-Limit concurrent operations using a buffered channel.
-
-Buffered channel of size N = max N concurrent operations
-*/
-
 type Semaphore chan struct{}
 
 func NewSemaphore(max int) Semaphore {
     return make(Semaphore, max)
 }
 
-func (s Semaphore) Acquire() {
-    s <- struct{}{}
+func (s Semaphore) Acquire() { s <- struct{}{} }
+func (s Semaphore) Release() { <-s }
+
+sem := NewSemaphore(3)
+var wg sync.WaitGroup
+for i := 1; i <= 10; i++ {
+    wg.Add(1)
+    go func(id int) {
+        defer wg.Done()
+        sem.Acquire()
+        defer sem.Release()
+        // Do work (max 3 concurrent)
+        time.Sleep(200 * time.Millisecond)
+    }(i)
 }
-
-func (s Semaphore) Release() {
-    <-s
-}
-
-func main() {
-    fmt.Println("╔══════════════════════════════════════════════════════════╗")
-    fmt.Println("║           Semaphore Pattern                               ║")
-    fmt.Println("╚══════════════════════════════════════════════════════════╝")
-    
-    // Limit to 3 concurrent operations
-    sem := NewSemaphore(3)
-    var wg sync.WaitGroup
-    
-    fmt.Println("\n📊 Processing (max 3 concurrent):")
-    
-    for i := 1; i <= 10; i++ {
-        wg.Add(1)
-        go func(id int) {
-            defer wg.Done()
-            
-            sem.Acquire()
-            defer sem.Release()
-            
-            fmt.Printf("   [%s] Task %d started\n", 
-                time.Now().Format("15:04:05.000"), id)
-            time.Sleep(200 * time.Millisecond)
-            fmt.Printf("   [%s] Task %d done\n", 
-                time.Now().Format("15:04:05.000"), id)
-        }(i)
-    }
-    
-    wg.Wait()
-    fmt.Println("   All tasks completed!")
-}
+wg.Wait()
+// Output: Max 3 tasks run at a time
 ```
-
-**Output:**
-```
-╔══════════════════════════════════════════════════════════╗
-║           Semaphore Pattern                               ║
-╚══════════════════════════════════════════════════════════╝
-
-📊 Processing (max 3 concurrent):
-   [12:00:00.123] Task 1 started
-   [12:00:00.124] Task 2 started
-   [12:00:00.125] Task 3 started
-   [12:00:00.323] Task 1 done
-   [12:00:00.324] Task 4 started
-   ...
-   All tasks completed!
-```
-
-*Note: Timestamps and task order may vary due to concurrency.*
 
 ---
 
 ## ⚠️ errgroup Pattern
 
+**Like WaitGroup but:** Returns first error, cancels others on error, uses context.
+
 ```go
-// errgroup_pattern.go
-package main
+g, ctx := errgroup.WithContext(context.Background())
 
-import (
-    "context"
-    "errors"
-    "fmt"
-    "time"
-    
-    "golang.org/x/sync/errgroup"
-)
-
-/*
-ERRGROUP PATTERN
-
-Like WaitGroup but:
-- Returns first error
-- Cancels other goroutines on error
-- Uses context for cancellation
-*/
-
-func main() {
-    fmt.Println("╔══════════════════════════════════════════════════════════╗")
-    fmt.Println("║           errgroup Pattern                                ║")
-    fmt.Println("╚══════════════════════════════════════════════════════════╝")
-    
-    ctx := context.Background()
-    g, ctx := errgroup.WithContext(ctx)
-    
-    // Task 1: Success
-    g.Go(func() error {
-        fmt.Println("   Task 1: Starting...")
-        time.Sleep(100 * time.Millisecond)
-        fmt.Println("   Task 1: Done")
+g.Go(func() error {
+    time.Sleep(100 * time.Millisecond)
+    return nil
+})
+g.Go(func() error {
+    time.Sleep(50 * time.Millisecond)
+    return errors.New("task 2 failed")
+})
+g.Go(func() error {
+    select {
+    case <-ctx.Done():
+        return ctx.Err()
+    case <-time.After(200 * time.Millisecond):
         return nil
-    })
-    
-    // Task 2: Fails
-    g.Go(func() error {
-        fmt.Println("   Task 2: Starting...")
-        time.Sleep(50 * time.Millisecond)
-        fmt.Println("   Task 2: Error!")
-        return errors.New("task 2 failed")
-    })
-    
-    // Task 3: Checks context
-    g.Go(func() error {
-        fmt.Println("   Task 3: Starting...")
-        select {
-        case <-ctx.Done():
-            fmt.Println("   Task 3: Cancelled!")
-            return ctx.Err()
-        case <-time.After(200 * time.Millisecond):
-            fmt.Println("   Task 3: Done")
-            return nil
-        }
-    })
-    
-    // Wait for all and get first error
-    if err := g.Wait(); err != nil {
-        fmt.Printf("\n   Error: %v\n", err)
     }
+})
+
+if err := g.Wait(); err != nil {
+    fmt.Println("Error:", err)
 }
-
-/*
-Install: go get golang.org/x/sync/errgroup
-*/
+// Output: Task 2 fails, Task 3 is cancelled
 ```
-
-**Output:**
-```
-╔══════════════════════════════════════════════════════════╗
-║           errgroup Pattern                                ║
-╚══════════════════════════════════════════════════════════╝
-
-   Task 1: Starting...
-   Task 2: Starting...
-   Task 3: Starting...
-   Task 2: Error!
-   Task 1: Done
-   Task 3: Cancelled!
-
-   Error: task 2 failed
-```
-
-*Note: Output order may vary; Task 3 is cancelled when Task 2 fails.*
 
 ---
 
 ## 🎯 Pattern Selection Guide
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│  WHEN TO USE WHICH PATTERN                                      │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  WORKER POOL                                                    │
-│    • Fixed number of concurrent workers                         │
-│    • Rate limiting / throttling                                 │
-│    • Database connection pool                                   │
-│    • API rate limits                                            │
-│                                                                 │
-│  FAN-OUT / FAN-IN                                               │
-│    • Parallelize independent operations                         │
-│    • Aggregate results from multiple sources                    │
-│    • Map-reduce style processing                                │
-│                                                                 │
-│  PIPELINE                                                       │
-│    • Multi-stage processing                                     │
-│    • Data transformation chains                                 │
-│    • ETL operations                                             │
-│                                                                 │
-│  SEMAPHORE                                                      │
-│    • Simple concurrency limiting                                │
-│    • Resource access control                                    │
-│    • When you don't need full worker pool                       │
-│                                                                 │
-│  ERRGROUP                                                       │
-│    • Multiple concurrent tasks                                  │
-│    • Need error handling                                        │
-│    • Want cancellation on first error                           │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+| Pattern | Use When |
+|---------|----------|
+| **Worker Pool** | Fixed workers, rate limiting, DB connection pool |
+| **Fan-Out/Fan-In** | Parallelize independent ops, aggregate from multiple sources |
+| **Pipeline** | Multi-stage processing, data transformation chains |
+| **Semaphore** | Simple concurrency limiting, resource access control |
+| **errgroup** | Multiple tasks, need error handling, cancel on first error |
 
 ---
 
 ## ➡️ Next Steps
 
 **Next Topic:** [58 - Cryptography Basics](./58-crypto.md)
-

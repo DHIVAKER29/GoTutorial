@@ -16,40 +16,55 @@
 
 ## 🤔 What is Context?
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  CONTEXT = REQUEST SCOPE CARRIER                                │
-│                                                                 │
-│  HTTP Request ──► Handler ──► Service ──► Database              │
-│       │              │            │            │                │
-│       └──────────────┴────────────┴────────────┘                │
-│                      Context flows through                      │
-│                                                                 │
-│  Context carries:                                               │
-│  • Cancellation signal ("stop working, client disconnected")    │
-│  • Deadline/timeout ("must finish by X")                        │
-│  • Request-scoped values (user ID, trace ID)                    │
-│                                                                 │
-│  WITHOUT CONTEXT:                                               │
-│  • How do you tell a goroutine to stop?                         │
-│  • How do you timeout a slow database call?                     │
-│  • How do you pass request metadata?                            │
-│                                                                 │
-│  WITH CONTEXT:                                                  │
-│  • Parent cancels → all children automatically cancelled        │
-│  • Timeout expires → all operations stop                        │
-│  • Request ID flows through all layers                          │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+- **Context = request scope carrier** — flows through Handler → Service → Database
+- **Context carries:**
+  - Cancellation signal ("stop working, client disconnected")
+  - Deadline/timeout ("must finish by X")
+  - Request-scoped values (user ID, trace ID)
+- **Without context:** How to stop goroutines? Timeout slow calls? Pass request metadata?
+- **With context:** Parent cancels → all children cancelled. Timeout expires → all operations stop.
 
 ---
 
 ## 📝 Creating Contexts
 
+### Background and TODO
+
 ```go
-// context_creation.go
+ctx := context.Background()  // Root, never cancelled
+todo := context.TODO()      // Placeholder during development
+// Output: (no output)
+```
+
+### WithCancel
+
+```go
+ctx, cancel := context.WithCancel(context.Background())
+cancel()
+fmt.Println(ctx.Err())  // context canceled
+```
+
+### WithTimeout
+
+```go
+ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+defer cancel()
+<-ctx.Done()
+fmt.Println(ctx.Err())  // context deadline exceeded
+```
+
+### WithValue
+
+```go
+type key string
+ctx := context.WithValue(context.Background(), key("userID"), "user-123")
+id := ctx.Value(key("userID")).(string)
+// Output: id is "user-123"
+```
+
+### Complete Example: Creating Contexts
+
+```go
 package main
 
 import (
@@ -59,91 +74,60 @@ import (
 )
 
 func main() {
-    fmt.Println("╔══════════════════════════════════════════════════════════╗")
-    fmt.Println("║           CREATING CONTEXTS                               ║")
-    fmt.Println("╚══════════════════════════════════════════════════════════╝")
-    
-    // Background context (root, never cancelled)
-    fmt.Println("\n📊 context.Background():")
     ctx := context.Background()
-    fmt.Printf("   Root context: %v\n", ctx)
-    
-    // TODO context (placeholder during development)
-    fmt.Println("\n📊 context.TODO():")
-    todo := context.TODO()
-    fmt.Printf("   TODO context: %v (use when unsure)\n", todo)
-    
-    // WithCancel - manual cancellation
-    fmt.Println("\n📊 context.WithCancel():")
+    fmt.Println("Root:", ctx)
+
     ctx, cancel := context.WithCancel(context.Background())
-    fmt.Println("   Created cancellable context")
-    cancel()  // Cancel it
-    fmt.Printf("   After cancel: err = %v\n", ctx.Err())
-    
-    // WithTimeout - auto-cancel after duration
-    fmt.Println("\n📊 context.WithTimeout():")
-    ctx, cancel = context.WithTimeout(context.Background(), 100*time.Millisecond)
-    defer cancel()  // Always defer cancel!
-    
-    select {
-    case <-time.After(200 * time.Millisecond):
-        fmt.Println("   Work completed")
-    case <-ctx.Done():
-        fmt.Printf("   Timeout: %v\n", ctx.Err())
-    }
-    
-    // WithDeadline - cancel at specific time
-    fmt.Println("\n📊 context.WithDeadline():")
-    deadline := time.Now().Add(50 * time.Millisecond)
-    ctx, cancel = context.WithDeadline(context.Background(), deadline)
+    cancel()
+    fmt.Println("After cancel:", ctx.Err())
+
+    ctx, cancel = context.WithTimeout(context.Background(), 50*time.Millisecond)
     defer cancel()
-    
     <-ctx.Done()
-    fmt.Printf("   Deadline reached: %v\n", ctx.Err())
-    
-    // WithValue - store request-scoped values
-    fmt.Println("\n📊 context.WithValue():")
+    fmt.Println("Timeout:", ctx.Err())
+
     type key string
     ctx = context.WithValue(context.Background(), key("userID"), "user-123")
-    
     if id, ok := ctx.Value(key("userID")).(string); ok {
-        fmt.Printf("   UserID from context: %s\n", id)
+        fmt.Println("UserID:", id)
     }
 }
 ```
 
 **Output:**
 ```
-╔══════════════════════════════════════════════════════════╗
-║           CREATING CONTEXTS                               ║
-╚══════════════════════════════════════════════════════════╝
-
-📊 context.Background():
-   Root context: context.Background
-
-📊 context.TODO():
-   TODO context: context.TODO (use when unsure)
-
-📊 context.WithCancel():
-   Created cancellable context
-   After cancel: err = context canceled
-
-📊 context.WithTimeout():
-   Timeout: context deadline exceeded
-
-📊 context.WithDeadline():
-   Deadline reached: context deadline exceeded
-
-📊 context.WithValue():
-   UserID from context: user-123
+Root: context.Background
+After cancel: context canceled
+Timeout: context deadline exceeded
+UserID: user-123
 ```
 
 ---
 
 ## 🔄 Context Propagation
 
+### Passing Through Function Chain
+
 ```go
-// context_propagation.go
+func handler(ctx context.Context) error {
+    return service(ctx)
+}
+func service(ctx context.Context) error {
+    return database(ctx)
+}
+func database(ctx context.Context) error {
+    select {
+    case <-time.After(300 * time.Millisecond):
+        return nil
+    case <-ctx.Done():
+        return ctx.Err()
+    }
+}
+```
+
+### Complete Example: Context Propagation
+
+```go
 package main
 
 import (
@@ -153,40 +137,30 @@ import (
 )
 
 func main() {
-    fmt.Println("╔══════════════════════════════════════════════════════════╗")
-    fmt.Println("║           CONTEXT PROPAGATION                             ║")
-    fmt.Println("╚══════════════════════════════════════════════════════════╝")
-    
-    // Create context with timeout
     ctx, cancel := context.WithTimeout(context.Background(), 200*time.Millisecond)
     defer cancel()
-    
-    // Pass through function chain
-    fmt.Println("\n📊 Context Through Function Chain:")
+
     err := handler(ctx)
     if err != nil {
-        fmt.Printf("   Error: %v\n", err)
+        fmt.Println("Error:", err)
     }
 }
 
 func handler(ctx context.Context) error {
-    fmt.Println("   handler: starting")
     return service(ctx)
 }
 
 func service(ctx context.Context) error {
-    fmt.Println("   service: calling database")
     return database(ctx)
 }
 
 func database(ctx context.Context) error {
-    // Simulate slow query
     select {
     case <-time.After(300 * time.Millisecond):
-        fmt.Println("   database: query completed")
+        fmt.Println("Query completed")
         return nil
     case <-ctx.Done():
-        fmt.Println("   database: query cancelled!")
+        fmt.Println("Query cancelled")
         return ctx.Err()
     }
 }
@@ -194,23 +168,42 @@ func database(ctx context.Context) error {
 
 **Output:**
 ```
-╔══════════════════════════════════════════════════════════╗
-║           CONTEXT PROPAGATION                             ║
-╚══════════════════════════════════════════════════════════╝
-
-📊 Context Through Function Chain:
-   handler: starting
-   service: calling database
-   database: query cancelled!
-   Error: context deadline exceeded
+Query cancelled
+Error: context deadline exceeded
 ```
 
 ---
 
 ## 🏭 Production Patterns
 
+### Request Context with Values
+
 ```go
-// context_production.go
+type contextKey string
+ctx := context.WithValue(ctx, contextKey("requestID"), "req-123")
+ctx = context.WithValue(ctx, contextKey("userID"), "user-456")
+```
+
+### External Call with Timeout
+
+```go
+ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+defer cancel()
+result, err := callExternalAPI(ctx)
+```
+
+### Graceful Shutdown
+
+```go
+ctx, cancel := context.WithCancel(context.Background())
+go worker(ctx, "worker-1")
+// ... later ...
+cancel()
+```
+
+### Complete Example: Production Patterns
+
+```go
 package main
 
 import (
@@ -219,123 +212,80 @@ import (
     "time"
 )
 
-// Key type for context values (avoids collisions)
 type contextKey string
 
-const (
-    requestIDKey contextKey = "requestID"
-    userIDKey    contextKey = "userID"
-)
-
 func main() {
-    fmt.Println("╔══════════════════════════════════════════════════════════╗")
-    fmt.Println("║           PRODUCTION CONTEXT PATTERNS                     ║")
-    fmt.Println("╚══════════════════════════════════════════════════════════╝")
-    
-    // Pattern 1: HTTP handler context
-    fmt.Println("\n📊 Pattern 1: Request Context")
     ctx := context.Background()
-    ctx = context.WithValue(ctx, requestIDKey, "req-abc-123")
-    ctx = context.WithValue(ctx, userIDKey, "user-456")
-    
+    ctx = context.WithValue(ctx, contextKey("requestID"), "req-abc")
+    ctx = context.WithValue(ctx, contextKey("userID"), "user-456")
     handleRequest(ctx)
-    
-    // Pattern 2: Timeout for external calls
-    fmt.Println("\n📊 Pattern 2: External Call Timeout")
+
     ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
     defer cancel()
-    
     result, err := callExternalAPI(ctx)
     if err != nil {
-        fmt.Printf("   API call failed: %v\n", err)
+        fmt.Println("API error:", err)
     } else {
-        fmt.Printf("   API result: %s\n", result)
+        fmt.Println("API result:", result)
     }
-    
-    // Pattern 3: Graceful shutdown
-    fmt.Println("\n📊 Pattern 3: Graceful Shutdown")
+
     ctx, cancel = context.WithCancel(context.Background())
-    
-    go worker(ctx, "background-worker")
-    
+    go worker(ctx)
     time.Sleep(100 * time.Millisecond)
-    cancel()  // Signal shutdown
+    cancel()
     time.Sleep(50 * time.Millisecond)
 }
 
 func handleRequest(ctx context.Context) {
-    reqID := ctx.Value(requestIDKey).(string)
-    userID := ctx.Value(userIDKey).(string)
-    
-    fmt.Printf("   Processing request=%s for user=%s\n", reqID, userID)
-    
-    // Pass context to downstream calls
-    processOrder(ctx)
-}
-
-func processOrder(ctx context.Context) {
-    reqID := ctx.Value(requestIDKey).(string)
-    fmt.Printf("   Order processing (request=%s)\n", reqID)
+    reqID := ctx.Value(contextKey("requestID")).(string)
+    userID := ctx.Value(contextKey("userID")).(string)
+    fmt.Printf("Processing request=%s for user=%s\n", reqID, userID)
 }
 
 func callExternalAPI(ctx context.Context) (string, error) {
-    // Simulate slow external call
     select {
     case <-time.After(200 * time.Millisecond):
         return "success", nil
     case <-ctx.Done():
-        return "", fmt.Errorf("api timeout: %w", ctx.Err())
+        return "", fmt.Errorf("timeout: %w", ctx.Err())
     }
 }
 
-func worker(ctx context.Context, name string) {
+func worker(ctx context.Context) {
     for {
         select {
         case <-ctx.Done():
-            fmt.Printf("   %s: shutting down\n", name)
+            fmt.Println("worker: shutting down")
             return
         default:
-            fmt.Printf("   %s: working...\n", name)
+            fmt.Println("worker: working...")
             time.Sleep(30 * time.Millisecond)
         }
     }
 }
 ```
 
+**Output:**
+```
+Processing request=req-abc for user=user-456
+API error: timeout: context deadline exceeded
+worker: working...
+worker: working...
+worker: shutting down
+```
+
 ---
 
-## 📋 Context Rules
+## 📋 Context Best Practices
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  CONTEXT BEST PRACTICES                                         │
-│                                                                 │
-│  1. Context should be the FIRST parameter:                      │
-│     func DoSomething(ctx context.Context, arg string)           │
-│                                                                 │
-│  2. Never store context in a struct:                            │
-│     ❌ type Server struct { ctx context.Context }               │
-│     ✅ Pass through function parameters                         │
-│                                                                 │
-│  3. Always call cancel() when done:                             │
-│     ctx, cancel := context.WithTimeout(...)                     │
-│     defer cancel()  // Always!                                  │
-│                                                                 │
-│  4. Don't pass nil context:                                     │
-│     ❌ doWork(nil, data)                                        │
-│     ✅ doWork(context.Background(), data)                       │
-│                                                                 │
-│  5. Use custom types for context keys:                          │
-│     type myKey string                                           │
-│     ctx = context.WithValue(ctx, myKey("id"), "123")            │
-│                                                                 │
-│  6. Context values are for request-scoped data:                 │
-│     ✅ Request ID, User ID, Trace ID                            │
-│     ❌ Database connections, Config, Optional parameters        │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+| Rule | Description |
+|------|-------------|
+| First parameter | `func DoSomething(ctx context.Context, arg string)` |
+| Never store in struct | Pass through function parameters |
+| Always call cancel | `defer cancel()` when using WithCancel/WithTimeout |
+| Don't pass nil | Use `context.Background()` instead |
+| Custom key types | `type myKey string` to avoid collisions |
+| Request-scoped only | Request ID, User ID, Trace ID — not config or connections |
 
 ---
 
@@ -354,4 +304,3 @@ func worker(ctx context.Context, name string) {
 ## ➡️ Next Steps
 
 **Next Topic:** [34 - JSON](./34-json.md)
-

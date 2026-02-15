@@ -22,99 +22,45 @@
 
 > A **struct** (structure) is a composite data type that groups together zero or more values of different types under a single name.
 
-### The Java Developer's Mental Model
+### Java vs Go Mental Model
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  FROM JAVA CLASSES TO GO STRUCTS                                │
-│                                                                 │
-│  JAVA (class = data + behavior bundled)                         │
-│  ┌─────────────────────────────────────┐                       │
-│  │  class Person {                     │                       │
-│  │      String name;                   │ ← Data (fields)       │
-│  │      int age;                       │                       │
-│  │                                     │                       │
-│  │      void greet() { ... }           │ ← Behavior (methods)  │
-│  │      int getAge() { ... }           │                       │
-│  │  }                                  │                       │
-│  └─────────────────────────────────────┘                       │
-│                                                                 │
-│  GO (data and behavior are SEPARATE)                            │
-│  ┌─────────────────────────────────────┐                       │
-│  │  type Person struct {               │                       │
-│  │      Name string                    │ ← Just data           │
-│  │      Age  int                       │                       │
-│  │  }                                  │                       │
-│  └─────────────────────────────────────┘                       │
-│                                                                 │
-│  ┌─────────────────────────────────────┐                       │
-│  │  func (p Person) Greet() { ... }    │ ← Behavior attached   │
-│  │  func (p Person) GetAge() { ... }   │   via methods         │
-│  └─────────────────────────────────────┘                       │
-│                                                                 │
-│  KEY INSIGHT: In Go, you define data first, then attach         │
-│  behavior. This is more flexible than bundling everything.      │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+- **Java**: Class bundles data + behavior (fields + methods)
+- **Go**: Data and behavior are separate. Define struct (data first), then attach methods
+- **Key insight**: In Go, you define data first, then attach behavior. More flexible than bundling everything.
 
 ---
 
 ## 📊 Struct Memory Layout
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  type Person struct {                                           │
-│      Name string  // 16 bytes (pointer + length)                │
-│      Age  int     // 8 bytes                                    │
-│      Active bool  // 1 byte + padding                           │
-│  }                                                              │
-│                                                                 │
-│  Memory Layout:                                                 │
-│  ┌────────────────────────────────────────────────────────────┐│
-│  │ Name (string)      │ Age (int) │ Active│ Padding │          ││
-│  │ pointer + length   │           │       │         │          ││
-│  │ 16 bytes           │ 8 bytes   │ 1 byte│ 7 bytes │          ││
-│  └────────────────────────────────────────────────────────────┘│
-│                                                                 │
-│  • Fields are stored CONTIGUOUSLY                               │
-│  • Compiler may add PADDING for alignment                       │
-│  • Total size depends on field order (memory efficiency)        │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+- Fields are stored **contiguously** in memory
+- Compiler may add **padding** for alignment
+- Total size depends on field order (affects memory efficiency)
+- Example: `Person{Name string, Age int, Active bool}` — string is 16 bytes, int 8 bytes, bool 1 byte + padding
 
 ---
 
 ## 📝 Defining Structs
 
 ```go
-// struct_definition.go
-package main
-
-import "fmt"
-
-// Simple struct
 type Person struct {
-    Name    string
-    Age     int
-    Email   string
-    Active  bool
+    Name   string
+    Age    int
+    Email  string
+    Active bool
 }
+```
 
-// Struct with same-type fields grouped
+```go
 type Rectangle struct {
-    Width, Height float64  // Both are float64
+    Width, Height float64  // Grouped same-type fields
 }
+```
 
-// Nested struct
+```go
 type Address struct {
     Street  string
     City    string
     Country string
-    ZipCode string
 }
 
 type Employee struct {
@@ -123,67 +69,61 @@ type Employee struct {
     Address Address  // Nested struct
     Salary  float64
 }
+```
 
-// Empty struct (zero size!)
-type Empty struct{}
+```go
+type Empty struct{}  // Zero size! Use for sets: map[string]struct{}
+```
+
+### Complete Example: Defining Structs
+
+```go
+package main
+
+import (
+    "fmt"
+    "unsafe"
+)
+
+type Person struct {
+    Name   string
+    Age    int
+    Email  string
+}
+
+type Employee struct {
+    ID      int
+    Name    string
+    Address struct {
+        Street string
+        City   string
+    }
+}
 
 func main() {
-    fmt.Println("╔══════════════════════════════════════════════════════════╗")
-    fmt.Println("║              DEFINING STRUCTS                             ║")
-    fmt.Println("╚══════════════════════════════════════════════════════════╝")
-    
-    fmt.Println("\n📊 Simple Struct:")
     var p Person
-    fmt.Printf("   Zero value: %+v\n", p)
-    
-    fmt.Println("\n📊 Grouped Fields:")
-    r := Rectangle{Width: 10, Height: 5}
-    fmt.Printf("   Rectangle: %+v\n", r)
-    
-    fmt.Println("\n📊 Nested Struct:")
+    fmt.Printf("Zero value: %+v\n", p)
+
     emp := Employee{
         ID:   1,
         Name: "Alice",
-        Address: Address{
-            Street:  "123 Main St",
-            City:    "NYC",
-            Country: "USA",
-            ZipCode: "10001",
-        },
-        Salary: 75000,
+        Address: struct {
+            Street string
+            City   string
+        }{Street: "123 Main", City: "NYC"},
     }
-    fmt.Printf("   Employee: %+v\n", emp)
-    
-    fmt.Println("\n📊 Empty Struct (size = 0 bytes!):")
-    var e Empty
-    fmt.Printf("   Empty struct size: %d bytes\n", unsafe_Sizeof(e))
-    fmt.Println("   Use case: Sets (map[string]struct{})")
-}
+    fmt.Printf("Employee: %+v\n", emp)
 
-// Simulating unsafe.Sizeof for demo
-func unsafe_Sizeof(x interface{}) int {
-    return 0  // Would use unsafe.Sizeof in real code
+    var e struct{}
+    fmt.Printf("Empty struct size: %d bytes\n", unsafe.Sizeof(e))
 }
 ```
 
 **Output:**
 ```
-╔══════════════════════════════════════════════════════════╗
-║              DEFINING STRUCTS                             ║
-╚══════════════════════════════════════════════════════════╝
-
-📊 Simple Struct:
-   Zero value: {Name: Age:0 Email: Active:false}
-
-📊 Grouped Fields:
-   Rectangle: {Width:10 Height:5}
-
-📊 Nested Struct:
-   Employee: {ID:1 Name:Alice Address:{Street:123 Main St City:NYC Country:USA ZipCode:10001} Salary:75000}
-
-📊 Empty Struct (size = 0 bytes!):
-   Empty struct size: 0 bytes
-   Use case: Sets (map[string]struct{})
+Zero value: {Name: Age:0 Email: }
+Employee: {ID:1 Name:Alice Address:{Street:123 Main City:NYC}}
+Empty struct size: 0 bytes
 ```
 
 ---
@@ -191,7 +131,44 @@ func unsafe_Sizeof(x interface{}) int {
 ## 🏗️ Creating Struct Instances
 
 ```go
-// struct_creation.go
+var p1 Person  // Zero value
+```
+
+```go
+p2 := Person{
+    Name:  "Alice",
+    Age:   25,
+    Email: "alice@example.com",
+}
+```
+
+```go
+p3 := Person{"Bob", 30, "bob@example.com"}  // Positional (fragile!)
+```
+
+```go
+p4 := Person{Name: "Charlie"}  // Partial; Age=0, Email=""
+```
+
+```go
+p5 := &Person{Name: "Diana", Age: 28}  // Pointer
+```
+
+```go
+p6 := new(Person)  // Returns pointer to zero value
+p6.Name = "Eve"
+```
+
+```go
+func NewPerson(name string, age int, email string) *Person {
+    return &Person{Name: name, Age: age, Email: email}
+}
+p7 := NewPerson("Frank", 35, "frank@example.com")
+```
+
+### Complete Example: Creating Structs
+
+```go
 package main
 
 import "fmt"
@@ -203,96 +180,21 @@ type Person struct {
 }
 
 func main() {
-    fmt.Println("╔══════════════════════════════════════════════════════════╗")
-    fmt.Println("║              CREATING STRUCT INSTANCES                    ║")
-    fmt.Println("╚══════════════════════════════════════════════════════════╝")
-    
-    // Method 1: Zero value
-    fmt.Println("\n📊 Method 1: Zero Value (var)")
     var p1 Person
-    fmt.Printf("   var p1 Person = %+v\n", p1)
-    
-    // Method 2: Named fields (RECOMMENDED)
-    fmt.Println("\n📊 Method 2: Named Fields (recommended)")
-    p2 := Person{
-        Name:  "Alice",
-        Age:   25,
-        Email: "alice@example.com",
-    }
-    fmt.Printf("   p2 = %+v\n", p2)
-    
-    // Method 3: Positional (fragile, not recommended)
-    fmt.Println("\n📊 Method 3: Positional (not recommended)")
-    p3 := Person{"Bob", 30, "bob@example.com"}
-    fmt.Printf("   p3 = %+v\n", p3)
-    fmt.Println("   ⚠️ Warning: Breaks if field order changes!")
-    
-    // Method 4: Partial initialization
-    fmt.Println("\n📊 Method 4: Partial (others get zero values)")
-    p4 := Person{Name: "Charlie"}
-    fmt.Printf("   p4 = %+v\n", p4)
-    
-    // Method 5: Pointer with &
-    fmt.Println("\n📊 Method 5: Pointer with &")
-    p5 := &Person{Name: "Diana", Age: 28}
-    fmt.Printf("   p5 (pointer) = %+v\n", p5)
-    fmt.Printf("   *p5 (value) = %+v\n", *p5)
-    
-    // Method 6: new() function
-    fmt.Println("\n📊 Method 6: new() - returns pointer to zero value")
-    p6 := new(Person)
-    p6.Name = "Eve"
-    p6.Age = 22
-    fmt.Printf("   p6 = %+v\n", p6)
-    
-    // Method 7: Constructor function (idiomatic Go)
-    fmt.Println("\n📊 Method 7: Constructor Function (idiomatic)")
-    p7 := NewPerson("Frank", 35, "frank@example.com")
-    fmt.Printf("   p7 = %+v\n", p7)
-}
+    p2 := Person{Name: "Alice", Age: 25, Email: "alice@example.com"}
+    p3 := &Person{Name: "Bob", Age: 30}
 
-// Constructor function - returns pointer
-func NewPerson(name string, age int, email string) *Person {
-    // Can add validation here
-    if age < 0 {
-        age = 0
-    }
-    return &Person{
-        Name:  name,
-        Age:   age,
-        Email: email,
-    }
+    fmt.Printf("p1: %+v\n", p1)
+    fmt.Printf("p2: %+v\n", p2)
+    fmt.Printf("p3: %+v\n", p3)
 }
 ```
 
 **Output:**
 ```
-╔══════════════════════════════════════════════════════════╗
-║              CREATING STRUCT INSTANCES                    ║
-╚══════════════════════════════════════════════════════════╝
-
-📊 Method 1: Zero Value (var)
-   var p1 Person = {Name: Age:0 Email:}
-
-📊 Method 2: Named Fields (recommended)
-   p2 = {Name:Alice Age:25 Email:alice@example.com}
-
-📊 Method 3: Positional (not recommended)
-   p3 = {Name:Bob Age:30 Email:bob@example.com}
-   ⚠️ Warning: Breaks if field order changes!
-
-📊 Method 4: Partial (others get zero values)
-   p4 = {Name:Charlie Age:0 Email:}
-
-📊 Method 5: Pointer with &
-   p5 (pointer) = &{Name:Diana Age:28 Email:}
-   *p5 (value) = {Name:Diana Age:28 Email:}
-
-📊 Method 6: new() - returns pointer to zero value
-   p6 = &{Name:Eve Age:22 Email:}
-
-📊 Method 7: Constructor Function (idiomatic)
-   p7 = &{Name:Frank Age:35 Email:frank@example.com}
+p1: {Name: Age:0 Email:}
+p2: {Name:Alice Age:25 Email:alice@example.com}
+p3: &{Name:Bob Age:30 Email:}
 ```
 
 ---
@@ -300,7 +202,28 @@ func NewPerson(name string, age int, email string) *Person {
 ## 🔧 Accessing and Modifying Fields
 
 ```go
-// struct_fields.go
+p := Person{Name: "Alice", Age: 25}
+fmt.Println(p.Name, p.Age)  // Output: Alice 25
+p.Age = 26
+```
+
+```go
+ptr := &p
+fmt.Println((*ptr).Name)  // Explicit dereference
+fmt.Println(ptr.Name)     // Automatic dereference (same)
+ptr.Age = 27  // Modifies original
+```
+
+```go
+original := Person{Name: "Bob", Age: 30}
+copy := original
+copy.Age = 31
+fmt.Println(original.Age)  // Output: 30 (unchanged - structs are values!)
+```
+
+### Complete Example: Field Access
+
+```go
 package main
 
 import "fmt"
@@ -312,186 +235,107 @@ type Person struct {
 }
 
 func main() {
-    fmt.Println("╔══════════════════════════════════════════════════════════╗")
-    fmt.Println("║           ACCESSING AND MODIFYING FIELDS                  ║")
-    fmt.Println("╚══════════════════════════════════════════════════════════╝")
-    
-    p := Person{Name: "Alice", Age: 25, Email: "alice@example.com"}
-    
-    // Accessing fields
-    fmt.Println("\n📊 Accessing Fields:")
-    fmt.Printf("   p.Name = %q\n", p.Name)
-    fmt.Printf("   p.Age = %d\n", p.Age)
-    fmt.Printf("   p.Email = %q\n", p.Email)
-    
-    // Modifying fields
-    fmt.Println("\n📊 Modifying Fields:")
+    p := Person{Name: "Alice", Age: 25}
     p.Age = 26
-    fmt.Printf("   After p.Age = 26: %+v\n", p)
-    
-    // Pointer to struct
-    fmt.Println("\n📊 Pointer to Struct:")
+
     ptr := &p
-    
-    // These are EQUIVALENT:
-    fmt.Printf("   (*ptr).Name = %q\n", (*ptr).Name)
-    fmt.Printf("   ptr.Name = %q (automatic dereference!)\n", ptr.Name)
-    
-    // Modify through pointer
-    ptr.Age = 27  // Modifies original!
-    fmt.Printf("   After ptr.Age = 27: p = %+v\n", p)
-    
-    // Structs are values (copied!)
-    fmt.Println("\n⚠️ Structs are Values (copied!):")
-    original := Person{Name: "Bob", Age: 30}
-    copy := original  // COPY!
-    copy.Age = 31
-    fmt.Printf("   original = %+v\n", original)
-    fmt.Printf("   copy = %+v (independent)\n", copy)
+    ptr.Age = 27
+    fmt.Printf("p = %+v\n", p)
 }
 ```
 
 **Output:**
 ```
-╔══════════════════════════════════════════════════════════╗
-║           ACCESSING AND MODIFYING FIELDS                  ║
-╚══════════════════════════════════════════════════════════╝
-
-📊 Accessing Fields:
-   p.Name = "Alice"
-   p.Age = 25
-   p.Email = "alice@example.com"
-
-📊 Modifying Fields:
-   After p.Age = 26: {Name:Alice Age:26 Email:alice@example.com}
-
-📊 Pointer to Struct:
-   (*ptr).Name = "Alice"
-   ptr.Name = "Alice" (automatic dereference!)
-
-📊 Modifying Through Pointer:
-   After ptr.Age = 27: p = {Name:Alice Age:27 Email:alice@example.com}
-
-⚠️ Structs are Values (copied!):
-   original = {Name:Bob Age:30 Email:}
-   copy = {Name:Bob Age:31 Email:} (independent)
+p = {Name:Alice Age:27 Email:}
 ```
 
 ---
 
 ## 🧩 Struct Embedding (Composition)
 
+Embedding promotes fields to the outer struct. Access embedded fields directly or via the type name.
+
 ```go
-// struct_embedding.go
-package main
-
-import "fmt"
-
-// Base "component"
 type Address struct {
     Street  string
     City    string
     Country string
 }
 
-// Another "component"
-type ContactInfo struct {
-    Email string
-    Phone string
-}
-
-// Embedding (composition, not inheritance!)
 type Person struct {
-    Name string
-    Age  int
-    Address     // Embedded - no field name!
-    ContactInfo // Embedded
-}
-
-// Traditional nesting (for comparison)
-type PersonNested struct {
     Name    string
     Age     int
-    Address Address
-    Contact ContactInfo
+    Address  // Embedded - no field name!
+}
+
+p := Person{
+    Name: "Alice",
+    Address: Address{Street: "123 Main", City: "NYC", Country: "USA"},
+}
+fmt.Println(p.City)          // Output: NYC (promoted!)
+fmt.Println(p.Address.City)  // Also valid
+```
+
+**Embedding = composition + field promotion**. Go has no inheritance.
+
+### Complete Example: Struct Embedding
+
+```go
+package main
+
+import "fmt"
+
+type Address struct {
+    Street  string
+    City    string
+}
+
+type Person struct {
+    Name    string
+    Age     int
+    Address
 }
 
 func main() {
-    fmt.Println("╔══════════════════════════════════════════════════════════╗")
-    fmt.Println("║              STRUCT EMBEDDING                             ║")
-    fmt.Println("╚══════════════════════════════════════════════════════════╝")
-    
-    // With embedding
-    fmt.Println("\n📊 With Embedding:")
     p := Person{
-        Name: "Alice",
-        Age:  25,
-        Address: Address{
-            Street:  "123 Main St",
-            City:    "NYC",
-            Country: "USA",
-        },
-        ContactInfo: ContactInfo{
-            Email: "alice@example.com",
-            Phone: "555-0101",
-        },
+        Name:    "Alice",
+        Age:     25,
+        Address: Address{Street: "123 Main", City: "NYC"},
     }
-    
-    // PROMOTED FIELDS - access directly!
-    fmt.Printf("   p.Name = %q\n", p.Name)
-    fmt.Printf("   p.City = %q (promoted from Address!)\n", p.City)
-    fmt.Printf("   p.Email = %q (promoted from ContactInfo!)\n", p.Email)
-    
-    // Can still access via embedded type
-    fmt.Printf("   p.Address.City = %q\n", p.Address.City)
-    
-    // Without embedding (nested)
-    fmt.Println("\n📊 Without Embedding (nested):")
-    pn := PersonNested{
-        Name: "Bob",
-        Age:  30,
-        Address: Address{
-            City: "LA",
-        },
-        Contact: ContactInfo{
-            Email: "bob@example.com",
-        },
-    }
-    
-    // Must access through field name
-    fmt.Printf("   pn.Address.City = %q (must use field name)\n", pn.Address.City)
-    // fmt.Printf("   pn.City = ...  // ❌ Won't work!
-    
-    fmt.Println("\n💡 Embedding = Composition + Field Promotion")
-    fmt.Println("   Not inheritance! Go has no inheritance.")
+    fmt.Println(p.Name, p.City, p.Address.City)
 }
 ```
 
 **Output:**
 ```
-╔══════════════════════════════════════════════════════════╗
-║              STRUCT EMBEDDING                             ║
-╚══════════════════════════════════════════════════════════╝
-
-📊 With Embedding:
-   p.Name = "Alice"
-   p.City = "NYC" (promoted from Address!)
-   p.Email = "alice@example.com" (promoted from ContactInfo!)
-   p.Address.City = "NYC"
-
-📊 Without Embedding (nested):
-   pn.Address.City = "LA" (must use field name)
-
-💡 Embedding = Composition + Field Promotion
-   Not inheritance! Go has no inheritance.
+Alice NYC NYC
 ```
 
 ---
 
 ## 🏷️ Struct Tags
 
+Tags provide metadata for JSON, databases, validation, etc.
+
 ```go
-// struct_tags.go
+type User struct {
+    ID        int    `json:"id"`
+    FirstName string `json:"first_name"`
+    Email     string `json:"email,omitempty"`
+    Password  string `json:"-"`  // Never include in JSON
+}
+```
+
+```go
+type DBUser struct {
+    ID   int    `json:"id" db:"user_id" validate:"required"`
+    Name string `json:"name" db:"user_name"`
+}
+```
+
+### Complete Example: Struct Tags
+
+```go
 package main
 
 import (
@@ -499,95 +343,76 @@ import (
     "fmt"
 )
 
-// Struct with tags for JSON
 type User struct {
     ID        int    `json:"id"`
     FirstName string `json:"first_name"`
     LastName  string `json:"last_name"`
-    Email     string `json:"email,omitempty"`  // Omit if empty
-    Password  string `json:"-"`                 // Never include
-    Age       int    `json:"age,omitempty"`
-}
-
-// Multiple tags
-type DBUser struct {
-    ID   int    `json:"id" db:"user_id" validate:"required"`
-    Name string `json:"name" db:"user_name" validate:"min=2,max=50"`
+    Password  string `json:"-"`
 }
 
 func main() {
-    fmt.Println("╔══════════════════════════════════════════════════════════╗")
-    fmt.Println("║              STRUCT TAGS                                  ║")
-    fmt.Println("╚══════════════════════════════════════════════════════════╝")
-    
-    // JSON serialization
-    fmt.Println("\n📊 JSON Serialization:")
     user := User{
         ID:        1,
         FirstName: "Alice",
         LastName:  "Smith",
-        Email:     "alice@example.com",
-        Password:  "secret123",  // Won't appear in JSON!
-        Age:       0,            // Will be omitted (omitempty)
+        Password:  "secret",
     }
-    
-    jsonBytes, _ := json.MarshalIndent(user, "   ", "  ")
-    fmt.Println("   " + string(jsonBytes))
-    
-    // JSON deserialization
-    fmt.Println("\n📊 JSON Deserialization:")
-    jsonStr := `{"id": 2, "first_name": "Bob", "last_name": "Jones"}`
-    var user2 User
-    json.Unmarshal([]byte(jsonStr), &user2)
-    fmt.Printf("   Parsed: %+v\n", user2)
-    
-    // Tag syntax
-    fmt.Println("\n📊 Tag Syntax:")
-    fmt.Println("   `key:\"value\" key2:\"value2\"`")
-    fmt.Println("")
-    fmt.Println("   Common tags:")
-    fmt.Println("   • json:\"field_name\"        - JSON field name")
-    fmt.Println("   • json:\"-\"                 - Exclude from JSON")
-    fmt.Println("   • json:\",omitempty\"        - Omit if zero value")
-    fmt.Println("   • db:\"column_name\"         - Database column")
-    fmt.Println("   • validate:\"required,min=1\" - Validation rules")
+    jsonBytes, _ := json.MarshalIndent(user, "", "  ")
+    fmt.Println(string(jsonBytes))
 }
 ```
 
 **Output:**
-```
-╔══════════════════════════════════════════════════════════╗
-║              STRUCT TAGS                                  ║
-╚══════════════════════════════════════════════════════════╝
-
-📊 JSON Serialization:
-   {
-     "id": 1,
-     "first_name": "Alice",
-     "last_name": "Smith",
-     "email": "alice@example.com"
-   }
-
-📊 JSON Deserialization:
-   Parsed: {ID:2 FirstName:Bob LastName:Jones Email: Age:0}
-
-📊 Tag Syntax:
-   `key:"value" key2:"value2"`
-
-   Common tags:
-   • json:"field_name"        - JSON field name
-   • json:"-"                 - Exclude from JSON
-   • json:",omitempty"        - Omit if zero value
-   • db:"column_name"         - Database column
-   • validate:"required,min=1" - Validation rules
+```json
+{
+  "id": 1,
+  "first_name": "Alice",
+  "last_name": "Smith"
+}
 ```
 
 ---
 
 ## 📋 Anonymous Structs
 
+Use for one-off data structures: quick JSON parsing, table-driven tests.
+
 ```go
-// anonymous_structs.go
+person := struct {
+    Name string
+    Age  int
+}{
+    Name: "Alice",
+    Age:  25,
+}
+fmt.Printf("%+v\n", person)
+```
+
+```go
+var response struct {
+    Status string `json:"status"`
+    Data   struct {
+        ID   int    `json:"id"`
+        Name string `json:"name"`
+    } `json:"data"`
+}
+json.Unmarshal([]byte(`{"status":"ok","data":{"id":1,"name":"Widget"}}`), &response)
+fmt.Println(response.Status, response.Data.Name)
+```
+
+```go
+testCases := []struct {
+    input    int
+    expected int
+}{
+    {1, 2},
+    {2, 4},
+}
+```
+
+### Complete Example: Anonymous Structs
+
+```go
 package main
 
 import (
@@ -596,116 +421,40 @@ import (
 )
 
 func main() {
-    fmt.Println("╔══════════════════════════════════════════════════════════╗")
-    fmt.Println("║              ANONYMOUS STRUCTS                            ║")
-    fmt.Println("╚══════════════════════════════════════════════════════════╝")
-    
-    // Inline anonymous struct
-    fmt.Println("\n📊 Inline Anonymous Struct:")
     person := struct {
         Name string
         Age  int
-    }{
-        Name: "Alice",
-        Age:  25,
-    }
-    fmt.Printf("   person = %+v\n", person)
-    
-    // Useful for one-off data structures
-    fmt.Println("\n📊 Use Case: Quick JSON Parsing")
-    jsonStr := `{"status": "success", "data": {"id": 1, "name": "Widget"}}`
-    
+    }{Name: "Alice", Age: 25}
+    fmt.Printf("%+v\n", person)
+
     var response struct {
         Status string `json:"status"`
-        Data   struct {
-            ID   int    `json:"id"`
-            Name string `json:"name"`
-        } `json:"data"`
+        ID     int    `json:"id"`
     }
-    
-    json.Unmarshal([]byte(jsonStr), &response)
-    fmt.Printf("   Status: %s\n", response.Status)
-    fmt.Printf("   Data.Name: %s\n", response.Data.Name)
-    
-    // Useful in tests
-    fmt.Println("\n📊 Use Case: Table-Driven Tests")
-    testCases := []struct {
-        input    int
-        expected int
-    }{
-        {1, 2},
-        {2, 4},
-        {3, 6},
-    }
-    
-    for _, tc := range testCases {
-        result := tc.input * 2
-        if result == tc.expected {
-            fmt.Printf("   ✅ double(%d) = %d\n", tc.input, result)
-        }
-    }
+    json.Unmarshal([]byte(`{"status":"success","id":42}`), &response)
+    fmt.Println(response.Status, response.ID)
 }
 ```
 
 **Output:**
 ```
-╔══════════════════════════════════════════════════════════╗
-║              ANONYMOUS STRUCTS                            ║
-╚══════════════════════════════════════════════════════════╝
-
-📊 Inline Anonymous Struct:
-   person = {Name:Alice Age:25}
-
-📊 Use Case: Quick JSON Parsing
-   Status: success
-   Data.Name: Widget
-
-📊 Use Case: Table-Driven Tests
-   ✅ double(1) = 2
-   ✅ double(2) = 4
-   ✅ double(3) = 6
+{Name:Alice Age:25}
+success 42
 ```
 
 ---
 
 ## 🆚 Java Comparison
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  JAVA                              GO                           │
-│  ────                              ──                           │
-│                                                                 │
-│  class Person {                    type Person struct {         │
-│      String name;                      Name string              │
-│      int age;                          Age  int                 │
-│  }                                 }                            │
-│                                                                 │
-│  Person p = new Person();          p := Person{}                │
-│                                    // or                        │
-│  // Must use new                   p := Person{Name: "Alice"}   │
-│                                                                 │
-│  p.name = "Alice";                 p.Name = "Alice"             │
-│                                                                 │
-│  // Inheritance                    // COMPOSITION (embedding)   │
-│  class Employee extends Person     type Employee struct {       │
-│                                        Person  // embedded      │
-│                                        Salary float64           │
-│                                    }                            │
-│                                                                 │
-│  // Private by default             // Lowercase = private       │
-│  private String name;              name string                  │
-│  // Public with modifier           // Uppercase = public        │
-│  public String name;               Name string                  │
-│                                                                 │
-│  // Getters/Setters               // Just access directly!     │
-│  getName(), setName(...)           p.Name                       │
-│                                                                 │
-│  // Annotations                    // Struct tags               │
-│  @JsonProperty("name")             `json:"name"`                │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+| Java | Go |
+|------|-----|
+| `class Person { String name; int age; }` | `type Person struct { Name string; Age int }` |
+| `Person p = new Person();` | `p := Person{}` or `p := Person{Name: "Alice"}` |
+| `p.name = "Alice";` | `p.Name = "Alice"` |
+| Inheritance: `class Employee extends Person` | Composition: `type Employee struct { Person; Salary float64 }` |
+| `private String name;` / `public String name;` | `name` (private) / `Name` (public) |
+| `getName()`, `setName()` | Direct access: `p.Name` |
+| `@JsonProperty("name")` | `` `json:"name"` `` |
 
 ---
 
@@ -725,4 +474,3 @@ func main() {
 ## ➡️ Next Steps
 
 **Next Topic:** [24 - Methods](./24-methods.md)
-

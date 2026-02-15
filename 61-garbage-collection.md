@@ -16,194 +16,50 @@
 
 ## 🗑️ How Go's GC Works
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  GO'S GARBAGE COLLECTOR                                         │
-│                                                                 │
-│  TYPE: Concurrent, Tri-color, Mark-and-Sweep                    │
-│                                                                 │
-│  GOALS:                                                         │
-│  • Low latency (short pauses)                                   │
-│  • Concurrent with application                                  │
-│  • Simple and predictable                                       │
-│                                                                 │
-│  PHASES:                                                        │
-│  ┌───────────────────────────────────────────────────────────┐ │
-│  │  1. MARK SETUP (STW ~10-30μs)                             │ │
-│  │     Stop-the-world, enable write barrier                  │ │
-│  │                                                           │ │
-│  │  2. MARKING (Concurrent)                                  │ │
-│  │     Mark live objects while app runs                      │ │
-│  │     Uses ~25% CPU                                         │ │
-│  │                                                           │ │
-│  │  3. MARK TERMINATION (STW ~10-30μs)                       │ │
-│  │     Stop-the-world, finish marking, disable barrier       │ │
-│  │                                                           │ │
-│  │  4. SWEEPING (Concurrent)                                 │ │
-│  │     Reclaim unmarked memory while app runs                │ │
-│  └───────────────────────────────────────────────────────────┘ │
-│                                                                 │
-│  STW = Stop-The-World (all goroutines paused)                   │
-│  Modern Go: STW pauses typically < 1ms                          │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+**Type:** Concurrent, tri-color, mark-and-sweep
+
+**Phases:**
+1. **Mark setup** (STW ~10-30μs) - Enable write barrier
+2. **Marking** (concurrent) - Mark live objects while app runs
+3. **Mark termination** (STW ~10-30μs) - Finish marking
+4. **Sweeping** (concurrent) - Reclaim unmarked memory
+
+**STW pauses typically < 1ms** in modern Go.
 
 ---
 
 ## 🎨 Tri-Color Algorithm
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  TRI-COLOR MARKING                                              │
-│                                                                 │
-│  ⚪ WHITE: Not yet visited (potentially garbage)                │
-│  ⬛ BLACK: Visited and all children visited (definitely alive)  │
-│  🔘 GRAY:  Visited but children not yet visited                 │
-│                                                                 │
-│  ALGORITHM:                                                     │
-│  1. Start: All objects WHITE                                    │
-│  2. Mark roots (stack, globals) as GRAY                         │
-│  3. Loop:                                                       │
-│     • Pick GRAY object                                          │
-│     • Mark its references GRAY                                  │
-│     • Mark the object BLACK                                     │
-│  4. When no GRAY left:                                          │
-│     • BLACK = alive                                             │
-│     • WHITE = garbage (sweep)                                   │
-│                                                                 │
-│  ┌─────┐      ┌─────┐      ┌─────┐                             │
-│  │Root │─────►│  A  │─────►│  B  │                             │
-│  └─────┘      └──┬──┘      └─────┘                             │
-│                  │                                              │
-│                  ▼                                              │
-│               ┌─────┐                                           │
-│               │  C  │                                           │
-│               └─────┘                                           │
-│                                                                 │
-│  If reachable from root → BLACK (alive)                         │
-│  If not reachable → WHITE (garbage)                             │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+| Color | Meaning |
+|-------|---------|
+| **White** | Not yet visited (potentially garbage) |
+| **Gray** | Visited, children not yet visited |
+| **Black** | Visited, all children visited (alive) |
+
+**Algorithm:** Start all white → Mark roots gray → Process gray to black → White = garbage (sweep)
 
 ---
 
 ## 🔧 Controlling GC
 
 ```go
-// gc_control.go
-package main
+var m runtime.MemStats
+runtime.ReadMemStats(&m)
+// m.Alloc, m.TotalAlloc, m.NumGC
 
-import (
-    "fmt"
-    "runtime"
-    "runtime/debug"
-)
+runtime.GC()  // Force GC (usually not recommended)
 
-func main() {
-    fmt.Println("╔══════════════════════════════════════════════════════════╗")
-    fmt.Println("║           Controlling GC                                  ║")
-    fmt.Println("╚══════════════════════════════════════════════════════════╝")
-    
-    // Get current memory stats
-    var m runtime.MemStats
-    runtime.ReadMemStats(&m)
-    
-    fmt.Println("\n📊 Memory Stats:")
-    fmt.Printf("   Alloc:      %d MB (currently allocated)\n", m.Alloc/1024/1024)
-    fmt.Printf("   TotalAlloc: %d MB (total allocated ever)\n", m.TotalAlloc/1024/1024)
-    fmt.Printf("   Sys:        %d MB (obtained from OS)\n", m.Sys/1024/1024)
-    fmt.Printf("   NumGC:      %d (number of GC cycles)\n", m.NumGC)
-    
-    // Force GC (usually not recommended)
-    fmt.Println("\n📊 Force GC:")
-    runtime.GC()
-    fmt.Println("   GC triggered manually")
-    
-    // GOGC setting (default 100)
-    fmt.Println("\n📊 GOGC:")
-    fmt.Printf("   Current: %d%%\n", debug.SetGCPercent(-1))
-    debug.SetGCPercent(100)  // Reset to default
-    fmt.Println("   GOGC=100 means: GC when heap doubles")
-    fmt.Println("   GOGC=50  means: GC when heap grows 50%")
-    fmt.Println("   GOGC=200 means: GC when heap triples")
-    
-    // Memory limit (Go 1.19+)
-    fmt.Println("\n📊 Memory Limit (Go 1.19+):")
-    fmt.Println("   debug.SetMemoryLimit(1 << 30)  // 1GB limit")
-    
-    // Free OS memory
-    fmt.Println("\n📊 Free Memory to OS:")
-    debug.FreeOSMemory()
-    fmt.Println("   Released unused memory to OS")
-}
+debug.SetGCPercent(100)  // Default: GC when heap doubles
+// GOGC=50: more frequent, GOGC=200: less frequent
+
+debug.SetMemoryLimit(1 << 30)  // 1GB limit (Go 1.19+)
+debug.FreeOSMemory()
 ```
-
-**Output:**
-```
-╔══════════════════════════════════════════════════════════╗
-║           Controlling GC                                  ║
-╚══════════════════════════════════════════════════════════╝
-
-📊 Memory Stats:
-   Alloc:      0 MB (currently allocated)
-   TotalAlloc: 0 MB (total allocated ever)
-   Sys:        0 MB (obtained from OS)
-   NumGC:      0 (number of GC cycles)
-
-📊 Force GC:
-   GC triggered manually
-
-📊 GOGC:
-   Current: 100%
-   GOGC=100 means: GC when heap doubles
-   GOGC=50  means: GC when heap grows 50%
-   GOGC=200 means: GC when heap triples
-
-📊 Memory Limit (Go 1.19+):
-   debug.SetMemoryLimit(1 << 30)  // 1GB limit
-
-📊 Free Memory to OS:
-   Released unused memory to OS
-```
-
-*Note: Actual memory values may vary based on runtime state.*
 
 ```bash
-# Environment variables
-
-# GOGC: GC trigger threshold (default 100)
-GOGC=50 ./myapp   # More frequent GC
-GOGC=200 ./myapp  # Less frequent GC
-GOGC=off ./myapp  # Disable GC (dangerous!)
-
-# GOMEMLIMIT (Go 1.19+): Soft memory limit
+GOGC=50 ./myapp
 GOMEMLIMIT=1GiB ./myapp
-
-# GODEBUG: GC tracing
 GODEBUG=gctrace=1 ./myapp
-```
-
----
-
-## 📊 Reading GC Trace
-
-```bash
-$ GODEBUG=gctrace=1 ./myapp
-
-gc 1 @0.012s 2%: 0.026+0.23+0.004 ms clock, 0.21+0.12/0.31/0.52+0.036 ms cpu, 4->4->0 MB, 5 MB goal, 8 P
-│    │       │   │                │                                      │         │         │
-│    │       │   │                │                                      │         │         └─ # of processors
-│    │       │   │                │                                      │         └─ heap goal
-│    │       │   │                │                                      └─ heap: before->after->live
-│    │       │   │                └─ CPU time (assist/background/idle)
-│    │       │   └─ Wall clock time (STW1 + concurrent + STW2)
-│    │       └─ % of time in GC
-│    └─ Elapsed since start
-└─ GC cycle number
 ```
 
 ---
@@ -211,74 +67,27 @@ gc 1 @0.012s 2%: 0.026+0.23+0.004 ms clock, 0.21+0.12/0.31/0.52+0.036 ms cpu, 4-
 ## 💡 Reducing GC Pressure
 
 ```go
-// reduce_gc.go
-package main
-
-import (
-    "sync"
-)
-
-// TIP 1: Reuse objects with sync.Pool
+// sync.Pool for object reuse
 var bufferPool = sync.Pool{
-    New: func() interface{} {
-        return make([]byte, 1024)
-    },
+    New: func() interface{} { return make([]byte, 1024) },
 }
 
-func ProcessWithPool() {
-    buf := bufferPool.Get().([]byte)
-    defer bufferPool.Put(buf)
-    
-    // Use buf...
+// Pre-allocate slices
+result := make([]int, 0, n)
+
+// Avoid unnecessary pointers
+type Good struct { Data [100]byte }
+type Bad struct { Data *[100]byte }
+
+// Use value types for small data
+func ByValue(x int) int { return x * 2 }
+
+// Batch allocations
+allData := make([]byte, 100*1000)
+for i := 0; i < 1000; i++ {
+    data := allData[i*100 : (i+1)*100]
+    process(data)
 }
-
-// TIP 2: Pre-allocate slices
-func GoodSlice(n int) []int {
-    result := make([]int, 0, n)  // Pre-allocate!
-    for i := 0; i < n; i++ {
-        result = append(result, i)
-    }
-    return result
-}
-
-// TIP 3: Avoid unnecessary pointers
-type Good struct {
-    Data [100]byte  // Embedded, one allocation
-}
-
-type Bad struct {
-    Data *[100]byte  // Pointer, extra allocation
-}
-
-// TIP 4: Use value types for small data
-func ByValue(x int) int {
-    return x * 2  // No allocation
-}
-
-func ByPointer(x *int) *int {
-    result := *x * 2  // Allocation!
-    return &result
-}
-
-// TIP 5: Batch allocations
-func BatchAlloc() {
-    // Bad: 1000 small allocations
-    // for i := 0; i < 1000; i++ {
-    //     data := make([]byte, 100)
-    //     process(data)
-    // }
-    
-    // Good: 1 large allocation
-    allData := make([]byte, 100*1000)
-    for i := 0; i < 1000; i++ {
-        data := allData[i*100 : (i+1)*100]
-        process(data)
-    }
-}
-
-func process(data []byte) {}
-
-func main() {}
 ```
 
 ---
@@ -299,4 +108,3 @@ func main() {}
 ## ➡️ Next Steps
 
 **Next Topic:** [62 - Interface Internals](./62-interface-internals.md)
-

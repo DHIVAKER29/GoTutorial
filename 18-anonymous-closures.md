@@ -15,126 +15,65 @@
 
 ## 📦 Functions as Values
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  IN GO, FUNCTIONS ARE VALUES                                    │
-│                                                                 │
-│  • Assign to variables                                          │
-│  • Pass as arguments                                            │
-│  • Return from functions                                        │
-│  • Store in data structures                                     │
-│                                                                 │
-│  var fn func(int) int   // fn is a function variable           │
-│  fn = double            // Assign a function                    │
-│  result := fn(5)        // Call it: result = 10                 │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
+In Go, functions are first-class values. You can:
+
+- Assign them to variables
+- Pass them as arguments
+- Return them from functions
+- Store them in data structures
+
+```go
+var fn func(int) int   // fn is a function variable
+fn = func(x int) int { return x * 2 }
+result := fn(5)        // Call it: result = 10
 ```
 
 ---
 
-## 📝 Sample Program
+## 📝 Function as Variable
 
 ```go
-// closures.go
-package main
-
-import (
-    "fmt"
-    "time"
-)
-
-func main() {
-    fmt.Println("╔══════════════════════════════════════════════════════════╗")
-    fmt.Println("║        ANONYMOUS FUNCTIONS & CLOSURES                     ║")
-    fmt.Println("╚══════════════════════════════════════════════════════════╝")
-    
-    // Function as variable
-    fmt.Println("\n📊 Function as Variable:")
-    double := func(x int) int {
-        return x * 2
-    }
-    fmt.Printf("   double(5) = %d\n", double(5))
-    
-    // Anonymous function (immediately invoked)
-    fmt.Println("\n📊 Immediately Invoked:")
-    result := func(a, b int) int {
-        return a + b
-    }(3, 4)  // Called immediately!
-    fmt.Printf("   Result: %d\n", result)
-    
-    // Closure - captures outer variable
-    fmt.Println("\n📊 Closure (captures counter):")
-    counter := makeCounter()
-    fmt.Printf("   counter() = %d\n", counter())
-    fmt.Printf("   counter() = %d\n", counter())
-    fmt.Printf("   counter() = %d\n", counter())
-    
-    // Each closure has its own state
-    counter2 := makeCounter()
-    fmt.Printf("   counter2() = %d (separate state)\n", counter2())
-    
-    // Passing function as argument
-    fmt.Println("\n📊 Function as Argument:")
-    nums := []int{1, 2, 3, 4, 5}
-    doubled := mapInts(nums, func(x int) int {
-        return x * 2
-    })
-    fmt.Printf("   Doubled: %v\n", doubled)
-    
-    // Deferred anonymous function
-    fmt.Println("\n📊 Deferred Anonymous Function:")
-    deferDemo()
-    
-    // Practical: Timer callback
-    fmt.Println("\n📊 Timer Callback:")
-    time.AfterFunc(100*time.Millisecond, func() {
-        fmt.Println("   Timer fired!")
-    })
-    time.Sleep(200 * time.Millisecond)
+double := func(x int) int {
+    return x * 2
 }
+fmt.Println(double(5))  // 10
 ```
 
-**Output:**
-```
-╔══════════════════════════════════════════════════════════╗
-║        ANONYMOUS FUNCTIONS & CLOSURES                     ║
-╚══════════════════════════════════════════════════════════╝
+---
 
-📊 Function as Variable:
-   double(5) = 10
+## 📝 Immediately Invoked Function
 
-📊 Immediately Invoked:
-   Result: 7
-
-📊 Closure (captures counter):
-   counter() = 1
-   counter() = 2
-   counter() = 3
-   counter2() = 1 (separate state)
-
-📊 Function as Argument:
-   Doubled: [2 4 6 8 10]
-
-📊 Deferred Anonymous Function:
-   Current: modified
-   Deferred sees: modified
-
-📊 Timer Callback:
-   Timer fired!
+```go
+result := func(a, b int) int {
+    return a + b
+}(3, 4)  // Called immediately!
+fmt.Println(result)  // 7
 ```
 
-// Returns a function (closure)
+---
+
+## 📝 Closures (Captured Variables)
+
+```go
 func makeCounter() func() int {
-    count := 0  // This is captured!
+    count := 0  // Captured by closure
     return func() int {
         count++
         return count
     }
 }
 
-// Higher-order function
+counter := makeCounter()
+fmt.Println(counter(), counter(), counter())  // 1 2 3
+counter2 := makeCounter()
+fmt.Println(counter2())  // 1 (separate state)
+```
+
+---
+
+## 📝 Function as Argument (Higher-Order)
+
+```go
 func mapInts(nums []int, fn func(int) int) []int {
     result := make([]int, len(nums))
     for i, n := range nums {
@@ -143,16 +82,67 @@ func mapInts(nums []int, fn func(int) int) []int {
     return result
 }
 
+nums := []int{1, 2, 3, 4, 5}
+doubled := mapInts(nums, func(x int) int { return x * 2 })
+// doubled = [2 4 6 8 10]
+```
+
+---
+
+## 📝 Deferred Anonymous Function
+
+```go
 func deferDemo() {
     message := "initial"
-    
     defer func() {
-        fmt.Printf("   Deferred sees: %s\n", message)
+        fmt.Printf("Deferred sees: %s\n", message)
     }()
-    
     message = "modified"
-    fmt.Printf("   Current: %s\n", message)
+    fmt.Printf("Current: %s\n", message)
 }
+// Output: Current: modified
+// Output: Deferred sees: modified
+```
+
+---
+
+## 📝 Complete Example
+
+```go
+package main
+
+import (
+    "fmt"
+    "time"
+)
+
+func makeCounter() func() int {
+    count := 0
+    return func() int {
+        count++
+        return count
+    }
+}
+
+func main() {
+    double := func(x int) int { return x * 2 }
+    fmt.Println(double(5))
+
+    counter := makeCounter()
+    fmt.Println(counter(), counter(), counter())
+
+    time.AfterFunc(100*time.Millisecond, func() {
+        fmt.Println("Timer fired!")
+    })
+    time.Sleep(200 * time.Millisecond)
+}
+```
+
+**Output:**
+```
+10
+1 2 3
+Timer fired!
 ```
 
 ---

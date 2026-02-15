@@ -15,8 +15,45 @@
 
 ## 📝 Regex Basics
 
+**Compile pattern:**
 ```go
-// regex_basics.go
+re, err := regexp.Compile(`\d+`)
+// MustCompile panics on error — use for known patterns
+reEmail := regexp.MustCompile(`[\w.]+@[\w.]+\.\w+`)
+```
+
+**MatchString (returns bool):**
+```go
+text := "Order #12345 confirmed"
+re.MatchString(text)  // true
+// Output: true
+```
+
+**FindString (first match):**
+```go
+match := re.FindString(text)
+fmt.Printf("%q\n", match)
+// Output: "12345"
+```
+
+**FindAllString (all matches):**
+```go
+text2 := "Items: 10, 20, 30"
+matches := re.FindAllString(text2, -1)  // -1 = all
+fmt.Printf("%v\n", matches)
+// Output: [10 20 30]
+```
+
+**FindStringIndex (position):**
+```go
+loc := re.FindStringIndex(text)
+fmt.Printf("Found at %d-%d\n", loc[0], loc[1])
+// Output: Found at 7-12
+```
+
+### Complete Example: Regex Basics
+
+```go
 package main
 
 import (
@@ -25,95 +62,65 @@ import (
 )
 
 func main() {
-    fmt.Println("╔══════════════════════════════════════════════════════════╗")
-    fmt.Println("║           REGULAR EXPRESSIONS                             ║")
-    fmt.Println("╚══════════════════════════════════════════════════════════╝")
-    
-    // Compile pattern
-    fmt.Println("\n📊 Compile Pattern:")
-    pattern := `\d+`  // One or more digits
-    re, err := regexp.Compile(pattern)
-    if err != nil {
-        fmt.Printf("   Error: %v\n", err)
-        return
-    }
-    fmt.Printf("   Compiled: %s\n", pattern)
-    
-    // MustCompile (panics on error - use for known patterns)
-    reEmail := regexp.MustCompile(`[\w.]+@[\w.]+\.\w+`)
-    fmt.Printf("   Email pattern compiled\n")
-    
-    // Match (returns bool)
-    fmt.Println("\n📊 MatchString (bool):")
+    re := regexp.MustCompile(`\d+`)
     text := "Order #12345 confirmed"
-    fmt.Printf("   Text: %q\n", text)
-    fmt.Printf("   Has digits: %t\n", re.MatchString(text))
-    
-    // Find (returns first match)
-    fmt.Println("\n📊 FindString (first match):")
-    match := re.FindString(text)
-    fmt.Printf("   First digits: %q\n", match)
-    
-    // FindAll (returns all matches)
-    fmt.Println("\n📊 FindAllString (all matches):")
+    fmt.Printf("Has digits: %t\n", re.MatchString(text))
+    fmt.Printf("First match: %q\n", re.FindString(text))
+
     text2 := "Items: 10, 20, 30"
-    matches := re.FindAllString(text2, -1)  // -1 = all
-    fmt.Printf("   All digits: %v\n", matches)
-    
-    // FindStringIndex (position)
-    fmt.Println("\n📊 FindStringIndex (position):")
-    loc := re.FindStringIndex(text)
-    fmt.Printf("   Found at index %d-%d\n", loc[0], loc[1])
-    
-    // Email matching
-    fmt.Println("\n📊 Email Matching:")
-    emails := []string{
-        "user@example.com",
-        "invalid-email",
-        "test.user@company.org",
-    }
-    for _, email := range emails {
-        valid := reEmail.MatchString(email)
-        fmt.Printf("   %s: %t\n", email, valid)
-    }
+    matches := re.FindAllString(text2, -1)
+    fmt.Printf("All matches: %v\n", matches)
 }
 ```
 
 **Output:**
 ```
-╔══════════════════════════════════════════════════════════╗
-║           REGULAR EXPRESSIONS                             ║
-╚══════════════════════════════════════════════════════════╝
-
-📊 Compile Pattern:
-   Compiled: \d+
-   Email pattern compiled
-
-📊 MatchString (bool):
-   Text: "Order #12345 confirmed"
-   Has digits: true
-
-📊 FindString (first match):
-   First digits: "12345"
-
-📊 FindAllString (all matches):
-   All digits: [10 20 30]
-
-📊 FindStringIndex (position):
-   Found at index 7-12
-
-📊 Email Matching:
-   user@example.com: true
-   invalid-email: false
-   test.user@company.org: true
+Has digits: true
+First match: "12345"
+All matches: [10 20 30]
 ```
 
 ---
 
 ## 🔄 Replace and Split
 
+**ReplaceAllString:**
 ```go
-// regex_replace.go
+re := regexp.MustCompile(`\d+`)
+text := "Order 123 and Order 456"
+replaced := re.ReplaceAllString(text, "XXX")
+fmt.Println(replaced)
+// Output: Order XXX and Order XXX
+```
+
+**ReplaceAllStringFunc:**
+```go
+doubled := re.ReplaceAllStringFunc(text, func(s string) string {
+    var n int
+    fmt.Sscanf(s, "%d", &n)
+    return fmt.Sprintf("%d", n*2)
+})
+// Output: Order 246 and Order 912
+```
+
+**Replace with capture groups:**
+```go
+reDate := regexp.MustCompile(`(\d{4})-(\d{2})-(\d{2})`)
+date := "Date: 2024-12-25"
+newFormat := reDate.ReplaceAllString(date, "$2/$3/$1")  // MM/DD/YYYY
+// Output: Date: 12/25/2024
+```
+
+**Split:**
+```go
+reSep := regexp.MustCompile(`[,;]\s*`)
+parts := reSep.Split("apple, banana; cherry", -1)
+// Output: [apple banana cherry]
+```
+
+### Complete Example: Replace and Split
+
+```go
 package main
 
 import (
@@ -122,71 +129,50 @@ import (
 )
 
 func main() {
-    fmt.Println("╔══════════════════════════════════════════════════════════╗")
-    fmt.Println("║           REPLACE & SPLIT                                 ║")
-    fmt.Println("╚══════════════════════════════════════════════════════════╝")
-    
-    // Replace
-    fmt.Println("\n📊 ReplaceAllString:")
     re := regexp.MustCompile(`\d+`)
     text := "Order 123 and Order 456"
-    replaced := re.ReplaceAllString(text, "XXX")
-    fmt.Printf("   Before: %s\n", text)
-    fmt.Printf("   After:  %s\n", replaced)
-    
-    // Replace with function
-    fmt.Println("\n📊 ReplaceAllStringFunc:")
-    doubled := re.ReplaceAllStringFunc(text, func(s string) string {
-        var n int
-        fmt.Sscanf(s, "%d", &n)
-        return fmt.Sprintf("%d", n*2)
-    })
-    fmt.Printf("   Doubled: %s\n", doubled)
-    
-    // Replace with capture groups
-    fmt.Println("\n📊 Replace with Groups:")
+    fmt.Printf("Replace: %s\n", re.ReplaceAllString(text, "XXX"))
+
     reDate := regexp.MustCompile(`(\d{4})-(\d{2})-(\d{2})`)
     date := "Date: 2024-12-25"
-    newFormat := reDate.ReplaceAllString(date, "$2/$3/$1")  // MM/DD/YYYY
-    fmt.Printf("   Before: %s\n", date)
-    fmt.Printf("   After:  %s\n", newFormat)
-    
-    // Split
-    fmt.Println("\n📊 Split:")
+    fmt.Printf("Reformat: %s\n", reDate.ReplaceAllString(date, "$2/$3/$1"))
+
     reSep := regexp.MustCompile(`[,;]\s*`)
-    items := "apple, banana; cherry, date"
-    parts := reSep.Split(items, -1)
-    fmt.Printf("   Split: %v\n", parts)
+    parts := reSep.Split("apple, banana; cherry", -1)
+    fmt.Printf("Split: %v\n", parts)
 }
 ```
 
 **Output:**
 ```
-╔══════════════════════════════════════════════════════════╗
-║           REPLACE & SPLIT                                 ║
-╚══════════════════════════════════════════════════════════╝
-
-📊 ReplaceAllString:
-   Before: Order 123 and Order 456
-   After:  Order XXX and Order XXX
-
-📊 ReplaceAllStringFunc:
-   Doubled: Order 246 and Order 912
-
-📊 Replace with Groups:
-   Before: Date: 2024-12-25
-   After:  Date: 12/25/2024
-
-📊 Split:
-   Split: [apple banana cherry date]
+Replace: Order XXX and Order XXX
+Reformat: Date: 12/25/2024
+Split: [apple banana cherry]
 ```
 
 ---
 
 ## 📦 Capture Groups
 
+**Named groups:**
 ```go
-// regex_groups.go
+re := regexp.MustCompile(`(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})`)
+match := re.FindStringSubmatch("Date: 2024-12-25")
+// match[0]=full, match[1]=year, match[2]=month, match[3]=day
+```
+
+**All matches with groups:**
+```go
+reLog := regexp.MustCompile(`\[(\w+)\] (.+)`)
+allMatches := reLog.FindAllStringSubmatch(logs, -1)
+for _, m := range allMatches {
+    level, message := m[1], m[2]
+}
+```
+
+### Complete Example: Capture Groups
+
+```go
 package main
 
 import (
@@ -195,55 +181,27 @@ import (
 )
 
 func main() {
-    fmt.Println("╔══════════════════════════════════════════════════════════╗")
-    fmt.Println("║           CAPTURE GROUPS                                  ║")
-    fmt.Println("╚══════════════════════════════════════════════════════════╝")
-    
-    // Named groups
-    fmt.Println("\n📊 Named Capture Groups:")
     re := regexp.MustCompile(`(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})`)
     text := "Date: 2024-12-25"
-    
     match := re.FindStringSubmatch(text)
     if match != nil {
-        fmt.Printf("   Full match: %s\n", match[0])
-        for i, name := range re.SubexpNames() {
-            if i > 0 && name != "" {
-                fmt.Printf("   %s: %s\n", name, match[i])
-            }
-        }
+        fmt.Printf("Full: %s, year=%s, month=%s, day=%s\n",
+            match[0], match[1], match[2], match[3])
     }
-    
-    // Multiple matches with groups
-    fmt.Println("\n📊 All Matches with Groups:")
+
     reLog := regexp.MustCompile(`\[(\w+)\] (.+)`)
-    logs := `[INFO] Server started
-[ERROR] Connection failed
-[WARN] Slow response`
-    
-    allMatches := reLog.FindAllStringSubmatch(logs, -1)
-    for _, m := range allMatches {
-        fmt.Printf("   Level: %-5s  Message: %s\n", m[1], m[2])
+    logs := "[INFO] Server started\n[ERROR] Connection failed"
+    for _, m := range reLog.FindAllStringSubmatch(logs, -1) {
+        fmt.Printf("Level: %-5s Message: %s\n", m[1], m[2])
     }
 }
 ```
 
 **Output:**
 ```
-╔══════════════════════════════════════════════════════════╗
-║           CAPTURE GROUPS                                  ║
-╚══════════════════════════════════════════════════════════╝
-
-📊 Named Capture Groups:
-   Full match: 2024-12-25
-   year: 2024
-   month: 12
-   day: 25
-
-📊 All Matches with Groups:
-   Level: INFO   Message: Server started
-   Level: ERROR  Message: Connection failed
-   Level: WARN   Message: Slow response
+Full: 2024-12-25, year=2024, month=12, day=25
+Level: INFO  Message: Server started
+Level: ERROR Message: Connection failed
 ```
 
 ---
@@ -262,4 +220,3 @@ func main() {
 ## ➡️ Next Steps
 
 **Next Topic:** [41 - Command Line Tools](./41-cli.md)
-

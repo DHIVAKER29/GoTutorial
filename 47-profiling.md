@@ -16,30 +16,12 @@
 
 ## 📊 pprof Basics
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  GO PROFILING TOOLS                                             │
-│                                                                 │
-│  pprof:                                                         │
-│  • CPU profiling (where time is spent)                          │
-│  • Memory profiling (allocations)                               │
-│  • Goroutine profiling (blocking)                               │
-│                                                                 │
-│  trace:                                                         │
-│  • Execution tracer (goroutine scheduling)                      │
-│  • GC events                                                    │
-│  • System calls                                                 │
-│                                                                 │
-│  PROFILING WORKFLOW:                                            │
-│  1. Collect profile data                                        │
-│  2. Analyze with go tool pprof                                  │
-│  3. Identify hotspots                                           │
-│  4. Optimize                                                    │
-│  5. Measure again (verify improvement)                          │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+| Tool | Purpose |
+|------|---------|
+| **pprof** | CPU, memory, goroutine profiling |
+| **trace** | Execution tracer, GC events, system calls |
+
+**Workflow:** 1. Collect profile → 2. Analyze with `go tool pprof` → 3. Identify hotspots → 4. Optimize → 5. Measure again
 
 ---
 
@@ -50,10 +32,8 @@
 package main
 
 import (
-    "fmt"
     "os"
     "runtime/pprof"
-    "time"
 )
 
 func heavyComputation() {
@@ -65,43 +45,20 @@ func heavyComputation() {
 }
 
 func main() {
-    // Create CPU profile file
-    f, err := os.Create("cpu.prof")
-    if err != nil {
-        panic(err)
-    }
+    f, _ := os.Create("cpu.prof")
     defer f.Close()
-    
-    // Start CPU profiling
     pprof.StartCPUProfile(f)
     defer pprof.StopCPUProfile()
-    
-    // Your application code
-    fmt.Println("Running heavy computation...")
-    start := time.Now()
+
     heavyComputation()
-    fmt.Printf("Done in %v\n", time.Since(start))
 }
+// Output: Creates cpu.prof file
 ```
 
-**Output:**
-```
-Running heavy computation...
-Done in 2.345s
-```
-
-/*
-Run and analyze:
-    go run cpu_profile.go
-    go tool pprof cpu.prof
-    
-pprof commands:
-    top        - Show top functions by CPU time
-    top10      - Top 10 functions
-    list func  - Show source code for function
-    web        - Open interactive graph in browser
-    svg        - Generate SVG graph
-*/
+```bash
+go run cpu_profile.go
+go tool pprof cpu.prof
+# Commands: top, top10, list func, web, svg
 ```
 
 ---
@@ -110,48 +67,28 @@ pprof commands:
 
 ```go
 // memory_profile.go
-package main
-
-import (
-    "os"
-    "runtime"
-    "runtime/pprof"
-)
-
 func allocateMemory() [][]byte {
     slices := make([][]byte, 1000)
     for i := range slices {
-        slices[i] = make([]byte, 10000)  // 10KB each
+        slices[i] = make([]byte, 10000)
     }
     return slices
 }
 
 func main() {
-    // Allocate memory
     data := allocateMemory()
-    
-    // Force GC
     runtime.GC()
-    
-    // Create heap profile
     f, _ := os.Create("mem.prof")
     defer f.Close()
-    
     pprof.WriteHeapProfile(f)
-    
-    // Keep data alive
     _ = data
 }
+// Output: Creates mem.prof file
+```
 
-/*
-Analyze:
-    go tool pprof mem.prof
-    
-Commands:
-    top        - Top memory consumers
-    allocs     - Show allocations
-    inuse      - Show in-use memory
-*/
+```bash
+go tool pprof mem.prof
+# Commands: top, allocs, inuse
 ```
 
 ---
@@ -159,53 +96,20 @@ Commands:
 ## 🌐 HTTP Server Profiling
 
 ```go
-// http_pprof.go
-package main
-
-import (
-    "fmt"
-    "net/http"
-    _ "net/http/pprof"  // Import for side effects!
-)
+import _ "net/http/pprof"
 
 func main() {
-    // pprof endpoints automatically registered:
-    // /debug/pprof/
-    // /debug/pprof/cmdline
-    // /debug/pprof/profile
-    // /debug/pprof/symbol
-    // /debug/pprof/trace
-    // /debug/pprof/heap
-    // /debug/pprof/goroutine
-    
     http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
         fmt.Fprintf(w, "Hello!")
     })
-    
-    fmt.Println("Server running on :8080")
-    fmt.Println("pprof at http://localhost:8080/debug/pprof/")
     http.ListenAndServe(":8080", nil)
 }
+// pprof endpoints: /debug/pprof/, /debug/pprof/profile, /debug/pprof/heap, etc.
 ```
 
-**Output:**
-```
-Server running on :8080
-pprof at http://localhost:8080/debug/pprof/
-(Server continues running and serving requests)
-```
-
-/*
-Profile running server:
-    # CPU profile (30 seconds)
-    go tool pprof http://localhost:8080/debug/pprof/profile?seconds=30
-    
-    # Heap profile
-    go tool pprof http://localhost:8080/debug/pprof/heap
-    
-    # Goroutine profile
-    go tool pprof http://localhost:8080/debug/pprof/goroutine
-*/
+```bash
+go tool pprof http://localhost:8080/debug/pprof/profile?seconds=30
+go tool pprof http://localhost:8080/debug/pprof/heap
 ```
 
 ---
@@ -213,11 +117,6 @@ Profile running server:
 ## 📈 Benchmark Profiling
 
 ```go
-// bench_test.go
-package main
-
-import "testing"
-
 func BenchmarkStringConcat(b *testing.B) {
     for i := 0; i < b.N; i++ {
         s := ""
@@ -226,109 +125,35 @@ func BenchmarkStringConcat(b *testing.B) {
         }
     }
 }
+```
 
-/*
-Run with profiling:
-    go test -bench=. -cpuprofile=cpu.prof
-    go test -bench=. -memprofile=mem.prof
-    go test -bench=. -benchmem
-    
-Analyze:
-    go tool pprof cpu.prof
-*/
+```bash
+go test -bench=. -cpuprofile=cpu.prof
+go test -bench=. -memprofile=mem.prof
+go test -bench=. -benchmem
 ```
 
 ---
 
 ## ⚡ Performance Tips
 
+| Tip | Avoid | Prefer |
+|-----|-------|--------|
+| String concat | `s += "x"` | `strings.Builder` or `bytes.Buffer` |
+| Slices | `append` without pre-alloc | `make([]T, 0, expectedSize)` |
+| Types | `func process(v interface{})` | `func process(v int)` or generics |
+| Objects | Frequent alloc/dealloc | `sync.Pool` |
+| Structs | Large by value | Pass by pointer |
+| I/O | Unbuffered | `bufio.Reader/Writer` |
+
 ```go
-// performance_tips.go
-package main
-
-import (
-    "bytes"
-    "fmt"
-    "strings"
-)
-
-func main() {
-    fmt.Println("╔══════════════════════════════════════════════════════════╗")
-    fmt.Println("║           PERFORMANCE TIPS                                ║")
-    fmt.Println("╚══════════════════════════════════════════════════════════╝")
-    
-    // 1. String concatenation
-    fmt.Println("\n📊 String Concatenation:")
-    fmt.Println("   ❌ Slow: s += \"x\" (creates new string each time)")
-    fmt.Println("   ✅ Fast: strings.Builder or bytes.Buffer")
-    
-    var builder strings.Builder
-    for i := 0; i < 100; i++ {
-        builder.WriteString("x")
-    }
-    _ = builder.String()
-    
-    // 2. Pre-allocate slices
-    fmt.Println("\n📊 Slice Pre-allocation:")
-    fmt.Println("   ❌ Slow: append grows slice multiple times")
-    fmt.Println("   ✅ Fast: make([]T, 0, expectedSize)")
-    
-    data := make([]int, 0, 1000)  // Pre-allocate capacity
-    for i := 0; i < 1000; i++ {
-        data = append(data, i)
-    }
-    
-    // 3. Avoid interface{} when possible
-    fmt.Println("\n📊 Avoid interface{}:")
-    fmt.Println("   ❌ Slow: func process(v interface{})")
-    fmt.Println("   ✅ Fast: func process(v int) or generics")
-    
-    // 4. sync.Pool for frequently allocated objects
-    fmt.Println("\n📊 sync.Pool:")
-    fmt.Println("   Use for frequently allocated/deallocated objects")
-    fmt.Println("   Reduces GC pressure")
-    
-    // 5. Avoid copying large structs
-    fmt.Println("\n📊 Pointer vs Value:")
-    fmt.Println("   Large structs: pass by pointer")
-    fmt.Println("   Small structs (<64 bytes): pass by value")
-    
-    // 6. Use buffered I/O
-    fmt.Println("\n📊 Buffered I/O:")
-    fmt.Println("   Use bufio.Reader/Writer for file/network I/O")
-    
-    _ = bytes.Buffer{}  // Suppress unused warning
+// strings.Builder example
+var builder strings.Builder
+for i := 0; i < 100; i++ {
+    builder.WriteString("x")
 }
-```
-
-**Output:**
-```
-╔══════════════════════════════════════════════════════════╗
-║           PERFORMANCE TIPS                                ║
-╚══════════════════════════════════════════════════════════╝
-
-📊 String Concatenation:
-   ❌ Slow: s += "x" (creates new string each time)
-   ✅ Fast: strings.Builder or bytes.Buffer
-
-📊 Slice Pre-allocation:
-   ❌ Slow: append grows slice multiple times
-   ✅ Fast: make([]T, 0, expectedSize)
-
-📊 Avoid interface{}:
-   ❌ Slow: func process(v interface{})
-   ✅ Fast: func process(v int) or generics
-
-📊 sync.Pool:
-   Use for frequently allocated/deallocated objects
-   Reduces GC pressure
-
-📊 Pointer vs Value:
-   Large structs: pass by pointer
-   Small structs (<64 bytes): pass by value
-
-📊 Buffered I/O:
-   Use bufio.Reader/Writer for file/network I/O
+result := builder.String()
+// Output: Efficient concatenation
 ```
 
 ---
@@ -348,4 +173,3 @@ func main() {
 ## ➡️ Next Steps
 
 **Next Topic:** [48 - Build Constraints](./48-build-constraints.md)
-

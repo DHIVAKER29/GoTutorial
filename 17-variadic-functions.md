@@ -15,69 +15,87 @@
 
 ## 🔢 Variadic Basics
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  VARIADIC = "Variable number of arguments"                      │
-│                                                                 │
-│  func sum(nums ...int) int {                                    │
-│           ↑                                                     │
-│           nums becomes []int inside function                    │
-│  }                                                              │
-│                                                                 │
-│  sum(1, 2, 3)        // Works!                                  │
-│  sum(1, 2, 3, 4, 5)  // Works!                                  │
-│  sum()               // Works! (empty slice)                    │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
+**VARIADIC** = "Variable number of arguments"
+
+- The `...T` syntax makes the last parameter accept zero or more values of type `T`
+- Inside the function, it becomes a slice `[]T`
+- Examples: `sum(1, 2, 3)`, `sum(1, 2, 3, 4, 5)`, and `sum()` (empty slice) all work
+
+```go
+func sum(nums ...int) int {
+    // nums is []int inside the function
+    total := 0
+    for _, n := range nums {
+        total += n
+    }
+    return total
+}
+// sum(1, 2, 3) → 6
+// sum() → 0
 ```
 
 ---
 
-## 📝 Sample Program
+## 📝 Basic Variadic Examples
 
 ```go
-// variadic.go
+fmt.Printf("sum() = %d\n", sum())           // 0
+fmt.Printf("sum(1) = %d\n", sum(1))          // 1
+fmt.Printf("sum(1,2,3) = %d\n", sum(1, 2, 3))  // 6
+// Output: sum() = 0
+// Output: sum(1) = 1
+// Output: sum(1,2,3) = 6
+```
+
+---
+
+## 📝 Passing Slice with ...
+
+```go
+numbers := []int{10, 20, 30, 40}
+fmt.Printf("sum(numbers...) = %d\n", sum(numbers...))
+// Output: sum(numbers...) = 100
+```
+
+---
+
+## 📝 Mixed Parameters
+
+```go
+func greetAll(greeting string, names ...string) {
+    for _, name := range names {
+        fmt.Printf("%s, %s!\n", greeting, name)
+    }
+}
+greetAll("Hello", "Alice", "Bob", "Charlie")
+// Output: Hello, Alice!
+// Output: Hello, Bob!
+// Output: Hello, Charlie!
+```
+
+---
+
+## 📝 fmt.Println and append are Variadic
+
+```go
+fmt.Println("Multiple", "values", "separated", "by", "spaces")
+// Output: Multiple values separated by spaces
+
+slice := []int{1, 2}
+slice = append(slice, 3, 4, 5)
+more := []int{6, 7, 8}
+slice = append(slice, more...)  // Spread with ...
+// slice is now [1 2 3 4 5 6 7 8]
+```
+
+---
+
+## 📝 Complete Example
+
+```go
 package main
 
 import "fmt"
-
-func main() {
-    fmt.Println("╔══════════════════════════════════════════════════════════╗")
-    fmt.Println("║           VARIADIC FUNCTIONS                              ║")
-    fmt.Println("╚══════════════════════════════════════════════════════════╝")
-    
-    // Basic variadic
-    fmt.Println("\n📊 Basic Variadic:")
-    fmt.Printf("   sum()        = %d\n", sum())
-    fmt.Printf("   sum(1)       = %d\n", sum(1))
-    fmt.Printf("   sum(1,2,3)   = %d\n", sum(1, 2, 3))
-    fmt.Printf("   sum(1,2,3,4,5) = %d\n", sum(1, 2, 3, 4, 5))
-    
-    // Passing slice with ...
-    fmt.Println("\n📊 Passing Slice with ...:")
-    numbers := []int{10, 20, 30, 40}
-    fmt.Printf("   sum(numbers...) = %d\n", sum(numbers...))
-    
-    // Mixed parameters
-    fmt.Println("\n📊 Mixed Parameters:")
-    greetAll("Hello", "Alice", "Bob", "Charlie")
-    
-    // fmt.Println is variadic!
-    fmt.Println("\n📊 fmt.Println is Variadic:")
-    fmt.Println("Multiple", "values", "separated", "by", "spaces")
-    
-    // append is variadic
-    fmt.Println("\n📊 append() is Variadic:")
-    slice := []int{1, 2}
-    slice = append(slice, 3, 4, 5)
-    fmt.Printf("   append(slice, 3, 4, 5) = %v\n", slice)
-    
-    // Spread another slice
-    more := []int{6, 7, 8}
-    slice = append(slice, more...)  // Spread!
-    fmt.Printf("   append(slice, more...) = %v\n", slice)
-}
 
 func sum(nums ...int) int {
     total := 0
@@ -87,39 +105,17 @@ func sum(nums ...int) int {
     return total
 }
 
-func greetAll(greeting string, names ...string) {
-    for _, name := range names {
-        fmt.Printf("   %s, %s!\n", greeting, name)
-    }
+func main() {
+    fmt.Println(sum(), sum(1), sum(1, 2, 3))
+    numbers := []int{10, 20, 30}
+    fmt.Println(sum(numbers...))
 }
 ```
 
 **Output:**
 ```
-╔══════════════════════════════════════════════════════════╗
-║           VARIADIC FUNCTIONS                              ║
-╚══════════════════════════════════════════════════════════╝
-
-📊 Basic Variadic:
-   sum()        = 0
-   sum(1)       = 1
-   sum(1,2,3)   = 6
-   sum(1,2,3,4,5) = 15
-
-📊 Passing Slice with ...:
-   sum(numbers...) = 100
-
-📊 Mixed Parameters:
-   Hello, Alice!
-   Hello, Bob!
-   Hello, Charlie!
-
-📊 fmt.Println is Variadic:
-Multiple values separated by spaces
-
-📊 append() is Variadic:
-   append(slice, 3, 4, 5) = [1 2 3 4 5]
-   append(slice, more...) = [1 2 3 4 5 6 7 8]
+0 1 6
+60
 ```
 
 ---

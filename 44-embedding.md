@@ -15,38 +15,23 @@
 
 ## 🤔 Why Embed Files?
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  BEFORE go:embed (Go 1.16):                                     │
-│  ┌─────────────┐    ┌─────────────┐                            │
-│  │   Binary    │ +  │  config/    │  = Two things to deploy!   │
-│  │   myapp     │    │  static/    │                            │
-│  └─────────────┘    └─────────────┘                            │
-│                                                                 │
-│  AFTER go:embed:                                                │
-│  ┌─────────────────────────────────────┐                       │
-│  │           Single Binary             │                       │
-│  │  ┌───────┐  ┌────────┐  ┌───────┐  │                       │
-│  │  │ Code  │  │ Config │  │ HTML  │  │  Everything in one!   │
-│  │  └───────┘  └────────┘  └───────┘  │                       │
-│  └─────────────────────────────────────┘                       │
-│                                                                 │
-│  BENEFITS:                                                      │
-│  • Single file deployment                                       │
-│  • No missing file issues                                       │
-│  • Files compressed in binary                                   │
-│  • Perfect for: templates, static web, config                   │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+**Before go:embed (Go 1.16):** Binary + config/static folders = two things to deploy.
+
+**After go:embed:** Single binary containing code, config, HTML, and static assets.
+
+**Benefits:**
+- Single file deployment
+- No missing file issues
+- Files compressed in binary
+- Perfect for: templates, static web assets, config
 
 ---
 
 ## 📝 Embedding Basics
 
+### Single File as String
+
 ```go
-// embed_basics.go
 package main
 
 import (
@@ -54,56 +39,46 @@ import (
     "fmt"
 )
 
-// Embed single file as string
 //go:embed config.txt
 var configString string
 
-// Embed single file as bytes
+func main() {
+    fmt.Println(configString)
+}
+// Output:
+// host=localhost
+// port=8080
+```
+
+*Create `config.txt` in same directory with content: `host=localhost` and `port=8080`*
+
+### Single File as Bytes
+
+```go
+package main
+
+import (
+    _ "embed"
+    "fmt"
+)
+
 //go:embed config.txt
 var configBytes []byte
 
 func main() {
-    fmt.Println("╔══════════════════════════════════════════════════════════╗")
-    fmt.Println("║           EMBEDDING SINGLE FILES                          ║")
-    fmt.Println("╚══════════════════════════════════════════════════════════╝")
-    
-    fmt.Println("\n📊 As String:")
-    fmt.Printf("   %s\n", configString)
-    
-    fmt.Println("\n📊 As Bytes:")
-    fmt.Printf("   Length: %d bytes\n", len(configBytes))
+    fmt.Printf("Length: %d bytes\n", len(configBytes))
 }
-
-/*
-Create config.txt in same directory:
-    host=localhost
-    port=8080
-
-Then run:
-    go run embed_basics.go
-*/
-```
-
-**Output:**
-```
-╔══════════════════════════════════════════════════════════╗
-║           EMBEDDING SINGLE FILES                          ║
-╚══════════════════════════════════════════════════════════╝
-
-📊 As String:
-   host=localhost
-   port=8080
-
-📊 As Bytes:
-   Length: 22 bytes
+// Output:
+// Length: 22 bytes
 ```
 
 ---
 
 ## 📁 Embedding Directories
 
+### List and Read from embed.FS
+
 ```go
-// embed_directory.go
 package main
 
 import (
@@ -112,84 +87,57 @@ import (
     "io/fs"
 )
 
-// Embed entire directory
 //go:embed static/*
 var staticFiles embed.FS
 
-// Embed multiple patterns
-//go:embed templates/*.html
-//go:embed templates/*.tmpl
-var templates embed.FS
-
-// Embed with subdirectories
-//go:embed assets
-var assets embed.FS
-
 func main() {
-    fmt.Println("╔══════════════════════════════════════════════════════════╗")
-    fmt.Println("║           EMBEDDING DIRECTORIES                           ║")
-    fmt.Println("╚══════════════════════════════════════════════════════════╝")
-    
-    // List embedded files
-    fmt.Println("\n📊 List Embedded Files:")
     fs.WalkDir(staticFiles, ".", func(path string, d fs.DirEntry, err error) error {
         if err != nil {
             return err
         }
         if !d.IsDir() {
             info, _ := d.Info()
-            fmt.Printf("   %s (%d bytes)\n", path, info.Size())
+            fmt.Printf("%s (%d bytes)\n", path, info.Size())
         }
         return nil
     })
-    
-    // Read file from embedded FS
-    fmt.Println("\n📊 Read Embedded File:")
-    content, err := staticFiles.ReadFile("static/index.html")
-    if err != nil {
-        fmt.Printf("   Error: %v\n", err)
-    } else {
-        fmt.Printf("   Content length: %d\n", len(content))
-    }
+
+    content, _ := staticFiles.ReadFile("static/index.html")
+    fmt.Printf("index.html length: %d\n", len(content))
 }
+// Output:
+// static/index.html (256 bytes)
+// static/style.css (1024 bytes)
+// index.html length: 256
 ```
 
-**Output:**
-```
-╔══════════════════════════════════════════════════════════╗
-║           EMBEDDING DIRECTORIES                           ║
-╚══════════════════════════════════════════════════════════╝
+*Directory structure: `static/index.html`, `static/style.css`*
 
-📊 List Embedded Files:
-   static/index.html (256 bytes)
-   static/style.css (1024 bytes)
+### Multiple Patterns
 
-📊 Read Embedded File:
-   Content length: 256
-```
+```go
+package main
 
-/*
-Directory structure:
-    static/
-        index.html
-        style.css
-    templates/
-        home.html
-        about.html
-*/
+import (
+    "embed"
+)
+
+//go:embed templates/*.html
+//go:embed templates/*.tmpl
+var templates embed.FS
 ```
 
 ---
 
 ## 🌐 Web Server with Embedded Files
 
+### Complete Example
+
 ```go
-// embed_webserver.go
 package main
 
 import (
     "embed"
-    "fmt"
     "io/fs"
     "net/http"
 )
@@ -198,45 +146,18 @@ import (
 var staticFiles embed.FS
 
 func main() {
-    fmt.Println("╔══════════════════════════════════════════════════════════╗")
-    fmt.Println("║           WEB SERVER WITH EMBEDDED FILES                  ║")
-    fmt.Println("╚══════════════════════════════════════════════════════════╝")
-    
-    // Create sub-filesystem to strip "static" prefix
     staticFS, _ := fs.Sub(staticFiles, "static")
-    
-    // Serve embedded files
     http.Handle("/", http.FileServer(http.FS(staticFS)))
-    
-    fmt.Println("\nServer running on http://localhost:8080")
     http.ListenAndServe(":8080", nil)
 }
 ```
 
-**Output:**
-```
-╔══════════════════════════════════════════════════════════╗
-║           WEB SERVER WITH EMBEDDED FILES                  ║
-╚══════════════════════════════════════════════════════════╝
+**Output:** Server runs on http://localhost:8080 and serves embedded files.
 
-Server running on http://localhost:8080
-```
-
-(Server starts and serves embedded files. Access http://localhost:8080/ to see the embedded static files)
-
-/*
-With this structure:
-    static/
-        index.html
-        css/style.css
-        js/app.js
-
-URLs will be:
-    http://localhost:8080/           → static/index.html
-    http://localhost:8080/css/style.css
-    http://localhost:8080/js/app.js
-*/
-```
+*With `static/index.html`, `static/css/style.css`, `static/js/app.js`:*
+- `http://localhost:8080/` → index.html
+- `http://localhost:8080/css/style.css`
+- `http://localhost:8080/js/app.js`
 
 ---
 
@@ -253,4 +174,3 @@ URLs will be:
 ## ➡️ Next Steps
 
 **Next Topic:** [45 - Database Access](./45-database.md)
-

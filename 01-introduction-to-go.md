@@ -30,32 +30,9 @@ Let's break down each term:
 
 Google engineers faced three major problems:
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    GOOGLE'S PROBLEMS                            │
-│                                                                 │
-│  1. SLOW BUILDS                                                 │
-│     ─────────────                                               │
-│     C++ projects took 45+ minutes to compile                    │
-│     Engineers spent hours waiting                               │
-│     Coffee breaks became very long ☕                           │
-│                                                                 │
-│  2. TOO COMPLEX                                                 │
-│     ────────────                                                │
-│     C++ had too many features                                   │
-│     Java had too much ceremony (boilerplate)                    │
-│     Code became hard to read and maintain                       │
-│     New engineers took months to become productive              │
-│                                                                 │
-│  3. CONCURRENCY WAS HARD                                        │
-│     ───────────────────────                                     │
-│     Threads were expensive                                      │
-│     Locks caused deadlocks                                      │
-│     Race conditions were hard to debug                          │
-│     Writing concurrent code was error-prone                     │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+1. **Slow builds** — C++ projects took 45+ minutes to compile; engineers spent hours waiting
+2. **Too complex** — C++ had too many features; Java had too much ceremony (boilerplate); new engineers took months to become productive
+3. **Concurrency was hard** — Threads were expensive; locks caused deadlocks; race conditions were hard to debug
 
 ### The Solution: Go
 
@@ -65,22 +42,14 @@ Three Google engineers created Go:
 - **Rob Pike** (co-created UTF-8, worked on Unix)
 - **Ken Thompson** (co-created Unix and C language!)
 
-They designed Go with these goals:
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    GO'S DESIGN GOALS                            │
-│                                                                 │
-│  ✅ Fast compilation (seconds, not minutes)                     │
-│  ✅ Simple syntax (fewer keywords than C)                       │
-│  ✅ Built-in concurrency (goroutines, channels)                 │
-│  ✅ Garbage collection (automatic memory management)            │
-│  ✅ Single binary output (easy deployment)                      │
-│  ✅ Strong standard library (batteries included)                │
-│  ✅ Easy to learn (productive in days, not months)              │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+**Go's design goals:**
+- Fast compilation (seconds, not minutes)
+- Simple syntax (fewer keywords than C)
+- Built-in concurrency (goroutines, channels)
+- Garbage collection (automatic memory management)
+- Single binary output (easy deployment)
+- Strong standard library (batteries included)
+- Easy to learn (productive in days, not months)
 
 ---
 
@@ -88,24 +57,12 @@ They designed Go with these goals:
 
 ### The Guiding Principles
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│    "Simplicity is complicated."                                 │
-│                               — Rob Pike                        │
-│                                                                 │
-│    "Clear is better than clever."                               │
-│                               — Go Proverb                      │
-│                                                                 │
-│    "A little copying is better than a little dependency."       │
-│                               — Go Proverb                      │
-│                                                                 │
-│    "Don't communicate by sharing memory;                        │
-│     share memory by communicating."                             │
-│                               — Go Proverb                      │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+| Quote | Source |
+|-------|--------|
+| "Simplicity is complicated." | Rob Pike |
+| "Clear is better than clever." | Go Proverb |
+| "A little copying is better than a little dependency." | Go Proverb |
+| "Don't communicate by sharing memory; share memory by communicating." | Go Proverb |
 
 ### What This Means in Practice
 
@@ -122,137 +79,31 @@ They designed Go with these goals:
 
 ### The Compilation Process
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    HOW GO RUNS YOUR CODE                        │
-│                                                                 │
-│                                                                 │
-│   STEP 1: Write Code                                            │
-│   ┌──────────────────────────────────────┐                      │
-│   │  package main                        │                      │
-│   │                                      │                      │
-│   │  func main() {                       │                      │
-│   │      fmt.Println("Hello, World!")    │                      │
-│   │  }                                   │                      │
-│   └──────────────────────────────────────┘                      │
-│                       │                                         │
-│                       ▼                                         │
-│   STEP 2: Lexical Analysis (Tokenizing)                         │
-│   ┌──────────────────────────────────────┐                      │
-│   │  [package] [main] [func] [main]      │                      │
-│   │  [(] [)] [{] [fmt] [.] [Println]...  │                      │
-│   └──────────────────────────────────────┘                      │
-│                       │                                         │
-│                       ▼                                         │
-│   STEP 3: Parsing (AST - Abstract Syntax Tree)                  │
-│   ┌──────────────────────────────────────┐                      │
-│   │         PackageDecl                  │                      │
-│   │              │                       │                      │
-│   │         FuncDecl                     │                      │
-│   │         /     \                      │                      │
-│   │      Name    Body                    │                      │
-│   │      main    CallExpr                │                      │
-│   └──────────────────────────────────────┘                      │
-│                       │                                         │
-│                       ▼                                         │
-│   STEP 4: Type Checking                                         │
-│   ┌──────────────────────────────────────┐                      │
-│   │  ✓ main() exists                     │                      │
-│   │  ✓ fmt.Println() exists              │                      │
-│   │  ✓ String argument is valid          │                      │
-│   └──────────────────────────────────────┘                      │
-│                       │                                         │
-│                       ▼                                         │
-│   STEP 5: Code Generation                                       │
-│   ┌──────────────────────────────────────┐                      │
-│   │  Machine code (binary)               │                      │
-│   │  Optimized for target platform       │                      │
-│   └──────────────────────────────────────┘                      │
-│                       │                                         │
-│                       ▼                                         │
-│   STEP 6: Linking                                               │
-│   ┌──────────────────────────────────────┐                      │
-│   │  Single executable binary            │                      │
-│   │  Includes Go runtime                 │                      │
-│   │  Ready to run anywhere!              │                      │
-│   └──────────────────────────────────────┘                      │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+1. **Write Code** — `.go` source files
+2. **Lexical Analysis** — Tokenizing (package, main, func, etc.)
+3. **Parsing** — Build AST (Abstract Syntax Tree)
+4. **Type Checking** — Verify types, function existence
+5. **Code Generation** — Machine code for target platform
+6. **Linking** — Single executable binary with Go runtime
 
 ### Compiled vs Interpreted
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  INTERPRETED LANGUAGES (Python, JavaScript, Ruby):              │
-│  ─────────────────────────────────────────────────              │
-│                                                                 │
-│  ┌──────────┐    ┌──────────────┐    ┌──────────┐              │
-│  │  Code    │ ──►│  Interpreter │ ──►│  Output  │              │
-│  │  (.py)   │    │  (runtime)   │    │          │              │
-│  └──────────┘    └──────────────┘    └──────────┘              │
-│                        ↑                                        │
-│                  Needs interpreter installed!                   │
-│                  Runs slower (translates on the fly)            │
-│                                                                 │
-│  ═══════════════════════════════════════════════════════════   │
-│                                                                 │
-│  COMPILED LANGUAGES (Go, C, Rust):                              │
-│  ─────────────────────────────────                              │
-│                                                                 │
-│  ┌──────────┐    ┌──────────┐    ┌──────────┐                  │
-│  │  Code    │ ──►│  Binary  │ ──►│  Output  │                  │
-│  │  (.go)   │    │  (exe)   │    │          │                  │
-│  └──────────┘    └──────────┘    └──────────┘                  │
-│                        ↑                                        │
-│                  Self-contained! No runtime needed!             │
-│                  Runs faster (already machine code)             │
-│                                                                 │
-│  ═══════════════════════════════════════════════════════════   │
-│                                                                 │
-│  JAVA (Special Case - JIT Compiled):                            │
-│  ───────────────────────────────────                            │
-│                                                                 │
-│  ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌─────────┐   │
-│  │  Code    │ ──►│ Bytecode │ ──►│   JVM    │ ──►│ Output  │   │
-│  │  (.java) │    │ (.class) │    │(runtime) │    │         │   │
-│  └──────────┘    └──────────┘    └──────────┘    └─────────┘   │
-│                        ↑              ↑                         │
-│             Platform neutral     Needs JVM installed            │
-│             "Write once,         JIT compiles to native         │
-│              run anywhere"       at runtime                     │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+| Type | Examples | How It Works |
+|------|----------|--------------|
+| **Interpreted** | Python, JavaScript, Ruby | Code → Interpreter (runtime) → Output. Needs interpreter installed; runs slower |
+| **Compiled** | Go, C, Rust | Code → Binary → Output. Self-contained; no runtime needed; runs faster |
+| **Java (JIT)** | Java | Code → Bytecode → JVM → Output. Platform neutral; requires JVM (JIT compiles at runtime) |
 
 ### The Go Runtime
 
 Even though Go is compiled, the binary includes a small **runtime**:
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    GO BINARY CONTENTS                           │
-│                                                                 │
-│  ┌─────────────────────────────────────────────────────────┐   │
-│  │                                                         │   │
-│  │   YOUR CODE                                             │   │
-│  │   (Compiled to machine code)                            │   │
-│  │                                                         │   │
-│  ├─────────────────────────────────────────────────────────┤   │
-│  │                                                         │   │
-│  │   GO RUNTIME (Included in binary)                       │   │
-│  │   ├── Garbage Collector                                 │   │
-│  │   ├── Goroutine Scheduler                               │   │
-│  │   ├── Memory Allocator                                  │   │
-│  │   └── Stack Management                                  │   │
-│  │                                                         │   │
-│  └─────────────────────────────────────────────────────────┘   │
-│                                                                 │
-│  NOTE: This is MUCH smaller than JVM (~2MB vs ~200MB)          │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+- Garbage Collector
+- Goroutine Scheduler
+- Memory Allocator
+- Stack Management
+
+*Note: This is much smaller than JVM (~2MB vs ~200MB)*
 
 ---
 
@@ -260,48 +111,11 @@ Even though Go is compiled, the binary includes a small **runtime**:
 
 ### Programming Paradigm
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  JAVA = Object-Oriented Programming (OOP)                       │
-│  ─────────────────────────────────────────                      │
-│                                                                 │
-│  Everything is an Object                                        │
-│  Classes define blueprints                                      │
-│  Inheritance creates hierarchies                                │
-│  Polymorphism through class hierarchies                         │
-│                                                                 │
-│      Animal (class)                                             │
-│         │                                                       │
-│    ┌────┴────┐                                                  │
-│    │         │                                                  │
-│   Dog      Cat   ← Inheritance                                  │
-│  (class)  (class)                                               │
-│                                                                 │
-│  ═══════════════════════════════════════════════════════════   │
-│                                                                 │
-│  GO = Procedural + Composition                                  │
-│  ─────────────────────────────                                  │
-│                                                                 │
-│  Functions operate on data                                      │
-│  Structs define data structures                                 │
-│  Composition builds complex types                               │
-│  Interfaces define behavior contracts                           │
-│                                                                 │
-│    ┌──────────────────┐                                         │
-│    │  Animal (struct) │                                         │
-│    │  Name string     │                                         │
-│    │  Age  int        │                                         │
-│    └──────────────────┘                                         │
-│              ↑                                                  │
-│    ┌─────────┴─────────┐                                        │
-│    │  Dog (struct)     │ ← Composition (HAS-A, not IS-A)        │
-│    │  Animal           │                                        │
-│    │  Breed string     │                                        │
-│    └───────────────────┘                                        │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+| Aspect | Java | Go |
+|--------|------|-----|
+| Model | Object-Oriented (classes, inheritance) | Procedural + Composition (structs, interfaces) |
+| Structure | Classes define blueprints; inheritance creates hierarchies | Structs define data; composition builds complex types |
+| Polymorphism | Through class hierarchies | Through interfaces |
 
 ### The Big Comparison Table
 
@@ -325,53 +139,28 @@ Even though Go is compiled, the binary includes a small **runtime**:
 #### Java (OOP Way):
 
 ```java
-// Animal.java
 public abstract class Animal {
     protected String name;
     protected int age;
-    
-    public Animal(String name, int age) {
-        this.name = name;
-        this.age = age;
-    }
-    
+    public Animal(String name, int age) { this.name = name; this.age = age; }
     public abstract void speak();
-    
-    public String getName() {
-        return name;
-    }
-    
-    public int getAge() {
-        return age;
-    }
 }
 
-// Dog.java
 public class Dog extends Animal {
     private String breed;
-    
     public Dog(String name, int age, String breed) {
         super(name, age);
         this.breed = breed;
     }
-    
     @Override
     public void speak() {
         System.out.println(name + " says: Woof!");
     }
-    
-    public String getBreed() {
-        return breed;
-    }
 }
 
 // Main.java
-public class Main {
-    public static void main(String[] args) {
-        Dog dog = new Dog("Buddy", 3, "Golden Retriever");
-        dog.speak();
-    }
-}
+Dog dog = new Dog("Buddy", 3, "Golden Retriever");
+dog.speak();
 ```
 
 #### Go (Composition Way):
@@ -381,19 +170,16 @@ package main
 
 import "fmt"
 
-// Data structure
 type Animal struct {
     Name string
     Age  int
 }
 
-// Data structure with composition
 type Dog struct {
     Animal        // Embedded! Dog "has an" Animal
     Breed  string
 }
 
-// Behavior attached to Dog
 func (d Dog) Speak() {
     fmt.Printf("%s says: Woof!\n", d.Name)
 }
@@ -412,37 +198,16 @@ func main() {
 Buddy says: Woof!
 ```
 
-### Key Differences Explained:
+### Key Differences Explained
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  1. NO CLASS KEYWORD                                            │
-│     Java: class Dog extends Animal { }                          │
-│     Go:   type Dog struct { Animal }                            │
-│                                                                 │
-│  2. NO EXTENDS KEYWORD                                          │
-│     Java: Dog extends Animal (IS-A relationship)                │
-│     Go:   Dog embeds Animal (HAS-A, but acts like IS-A)         │
-│                                                                 │
-│  3. NO CONSTRUCTOR                                              │
-│     Java: public Dog(String name, int age) { super(name); }     │
-│     Go:   dog := Dog{Animal: Animal{Name: "Buddy"}}             │
-│                                                                 │
-│  4. NO GETTER/SETTER (usually)                                  │
-│     Java: public String getName() { return name; }              │
-│     Go:   dog.Name (direct access if exported)                  │
-│                                                                 │
-│  5. NO ABSTRACT/OVERRIDE                                        │
-│     Java: @Override public void speak() { }                     │
-│     Go:   func (d Dog) Speak() { }                              │
-│                                                                 │
-│  6. NO this KEYWORD                                             │
-│     Java: this.name = name;                                     │
-│     Go:   d.Name (receiver variable, any name)                  │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+| Aspect | Java | Go |
+|--------|------|-----|
+| Class keyword | `class Dog extends Animal { }` | `type Dog struct { Animal }` |
+| Extends | IS-A relationship | HAS-A, but acts like IS-A (embedding) |
+| Constructor | `public Dog(String name, int age) { super(name); }` | `dog := Dog{Animal: Animal{Name: "Buddy"}}` |
+| Getters | `public String getName() { return name; }` | `dog.Name` (direct access if exported) |
+| Override | `@Override public void speak() { }` | `func (d Dog) Speak() { }` |
+| this keyword | `this.name = name` | `d.Name` (receiver variable) |
 
 ---
 
@@ -450,44 +215,29 @@ Buddy says: Woof!
 
 ### Java's OOP = Family Tree
 
-```
-                    Vehicle (abstract class)
-                         │
-           ┌─────────────┼─────────────┐
-           │             │             │
-         Car          Truck         Motorcycle
-           │
-    ┌──────┴──────┐
-    │             │
-  Sedan         SUV
-    │
-    │
-  Tesla Model 3 (your object)
+- **Vehicle** (abstract class)
+  - Car
+    - Sedan
+      - Tesla Model 3
+    - SUV
+  - Truck
+  - Motorcycle
 
-Problem: Tesla is stuck in this hierarchy forever!
-         What if Tesla is also a "Computer"? Multiple inheritance hell!
-```
+*Problem: Tesla is stuck in this hierarchy. What if Tesla is also a "Computer"? Multiple inheritance hell!*
 
 ### Go's Composition = LEGO Blocks
 
 ```
-  ┌──────────┐   ┌──────────┐   ┌──────────┐
-  │  Engine  │   │  Wheels  │   │  Battery │
-  └──────────┘   └──────────┘   └──────────┘
-       │              │              │
-       └──────────────┼──────────────┘
-                      │
-                      ▼
-              ┌───────────────┐
-              │  Tesla Car    │
-              │  - Engine     │
-              │  - Wheels     │
-              │  - Battery    │
-              └───────────────┘
-
-Benefit: Combine any blocks to make anything!
-         Tesla can also be a "Computer" by adding Computer block!
+  [Engine]   [Wheels]   [Battery]
+       \       |       /
+        \      |      /
+         [ Tesla Car ]
+         - Engine
+         - Wheels
+         - Battery
 ```
+
+*Benefit: Combine any blocks. Tesla can also be a "Computer" by adding Computer block!*
 
 ---
 
@@ -527,24 +277,9 @@ Benefit: Combine any blocks to make anything!
 
 ### Why Remove Features?
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│    "Less is exponentially more."                                │
-│                                   — Rob Pike                    │
-│                                                                 │
-│    Every feature added:                                         │
-│    ├── One more thing to learn                                  │
-│    ├── One more thing to misuse                                 │
-│    ├── One more thing to document                               │
-│    ├── One more thing to maintain                               │
-│    └── One more thing to argue about in code reviews            │
-│                                                                 │
-│    Go's approach: Include only what you NEED,                   │
-│                   not what you MIGHT need.                      │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+*"Less is exponentially more." — Rob Pike*
+
+Every feature added: one more thing to learn, misuse, document, maintain, and argue about in code reviews. Go's approach: include only what you NEED, not what you MIGHT need.
 
 ---
 
@@ -563,43 +298,15 @@ Benefit: Combine any blocks to make anything!
 | **Netflix** | Data pipeline tools | Processing efficiency |
 | **Cloudflare** | Edge computing, DNS | Low latency requirements |
 | **PayPal** | Microservices | Developer productivity |
-| **American Express** | Payment processing | Reliability + Performance |
 | **Razorpay** | Payment gateway (Catalyst!) | Your codebase! |
 
 ### Why They Choose Go
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  DECISION FACTORS                                               │
-│                                                                 │
-│  1. PERFORMANCE                                                 │
-│     → Near C-level speed                                        │
-│     → Low memory footprint                                      │
-│     → Handles 100k+ requests/second                             │
-│                                                                 │
-│  2. DEPLOYMENT                                                  │
-│     → Single binary                                             │
-│     → No runtime dependencies                                   │
-│     → Docker images are tiny                                    │
-│                                                                 │
-│  3. CONCURRENCY                                                 │
-│     → Goroutines are cheap (2KB stack)                          │
-│     → Channels for safe communication                           │
-│     → Easy to write concurrent code                             │
-│                                                                 │
-│  4. DEVELOPER PRODUCTIVITY                                      │
-│     → Simple to learn (weeks, not months)                       │
-│     → Fast compilation (seconds)                                │
-│     → Excellent tooling (go fmt, go vet, go test)               │
-│                                                                 │
-│  5. MAINTAINABILITY                                             │
-│     → Readable code (enforced formatting)                       │
-│     → Easy onboarding for new developers                        │
-│     → Less "clever" code, more obvious code                     │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+- **Performance** — Near C-level speed, low memory footprint, handles 100k+ requests/second
+- **Deployment** — Single binary, no runtime dependencies, tiny Docker images
+- **Concurrency** — Goroutines are cheap (2KB stack), channels for safe communication
+- **Developer productivity** — Simple to learn (weeks, not months), fast compilation, excellent tooling
+- **Maintainability** — Readable code (enforced formatting), easy onboarding
 
 ---
 
@@ -617,40 +324,12 @@ Benefit: Combine any blocks to make anything!
 
 ## 🏠 Real-World Analogy: The Complete Picture
 
-Think of programming languages like vehicles:
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  Python  = Bicycle 🚲                                           │
-│           ─────────────                                         │
-│           Easy to learn, good for short trips                   │
-│           Slow for long distances                               │
-│           Everyone can ride one                                 │
-│                                                                 │
-│  Java    = Family SUV 🚙                                        │
-│           ──────────────                                        │
-│           Reliable, lots of safety features                     │
-│           Heavy, needs lots of fuel (JVM memory)                │
-│           Great for enterprise road trips                       │
-│           But takes a while to start (JVM warmup)               │
-│                                                                 │
-│  C++     = Formula 1 Car 🏎️                                     │
-│           ─────────────────                                     │
-│           Extremely fast, wins races                            │
-│           Hard to drive, dangerous if misused                   │
-│           Only experts should drive                             │
-│           Crashes are spectacular (segfaults)                   │
-│                                                                 │
-│  Go      = Electric Motorcycle 🏍️⚡                              │
-│           ─────────────────────────                             │
-│           Fast, efficient, easy to ride                         │
-│           Gets you there quickly without complexity             │
-│           Low maintenance                                       │
-│           Perfect for city (microservices) and highway          │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+| Language | Vehicle | Description |
+|----------|---------|-------------|
+| **Python** | Bicycle 🚲 | Easy to learn, good for short trips; slow for long distances |
+| **Java** | Family SUV 🚙 | Reliable, lots of safety features; heavy, needs JVM memory; warmup time |
+| **C++** | Formula 1 Car 🏎️ | Extremely fast; hard to drive; only experts should drive |
+| **Go** | Electric Motorcycle 🏍️⚡ | Fast, efficient, easy to ride; low maintenance; perfect for microservices |
 
 ---
 

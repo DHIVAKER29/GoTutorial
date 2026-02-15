@@ -16,37 +16,17 @@
 
 ## 🤔 What Is gRPC?
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  REST vs gRPC                                                   │
-│                                                                 │
-│  REST:                                                          │
-│  ┌──────────┐    JSON/HTTP    ┌──────────┐                     │
-│  │  Client  │ ───────────────► │  Server  │                     │
-│  └──────────┘   Text-based    └──────────┘                     │
-│                 Slower                                          │
-│                                                                 │
-│  gRPC:                                                          │
-│  ┌──────────┐   Protobuf/HTTP2  ┌──────────┐                   │
-│  │  Client  │ ─────────────────► │  Server  │                   │
-│  └──────────┘   Binary, Fast    └──────────┘                   │
-│                 Streaming                                       │
-│                                                                 │
-│  gRPC ADVANTAGES:                                               │
-│  • 10x faster than REST/JSON                                    │
-│  • Strongly typed (compile-time checks)                         │
-│  • Bi-directional streaming                                     │
-│  • Code generation                                              │
-│  • Language agnostic                                            │
-│                                                                 │
-│  USE gRPC FOR:                                                  │
-│  • Microservices communication                                  │
-│  • High-performance APIs                                        │
-│  • Real-time streaming                                          │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+| Aspect | REST | gRPC |
+|--------|------|------|
+| Format | JSON/HTTP (text-based) | Protobuf/HTTP2 (binary) |
+| Speed | Slower | ~10x faster |
+| Typing | Runtime | Compile-time |
+| Streaming | Limited | Bi-directional |
+| Code gen | Manual | Automatic |
+
+**gRPC advantages:** Strongly typed, bi-directional streaming, language agnostic, code generation.
+
+**Use gRPC for:** Microservices communication, high-performance APIs, real-time streaming.
 
 ---
 
@@ -55,12 +35,9 @@
 ```protobuf
 // user.proto
 syntax = "proto3";
-
 package user;
-
 option go_package = "myapp/pb/user";
 
-// Message definitions
 message User {
     int64 id = 1;
     string name = 2;
@@ -68,47 +45,14 @@ message User {
     repeated string roles = 4;
 }
 
-message GetUserRequest {
-    int64 id = 1;
-}
+message GetUserRequest { int64 id = 1; }
+message GetUserResponse { User user = 1; }
+message CreateUserRequest { string name = 1; string email = 2; }
 
-message GetUserResponse {
-    User user = 1;
-}
-
-message CreateUserRequest {
-    string name = 1;
-    string email = 2;
-}
-
-message ListUsersRequest {
-    int32 page_size = 1;
-    string page_token = 2;
-}
-
-message ListUsersResponse {
-    repeated User users = 1;
-    string next_page_token = 2;
-}
-
-// Service definition
 service UserService {
-    // Unary RPC
     rpc GetUser(GetUserRequest) returns (GetUserResponse);
     rpc CreateUser(CreateUserRequest) returns (User);
-    
-    // Server streaming
     rpc ListUsers(ListUsersRequest) returns (stream User);
-    
-    // Client streaming
-    rpc BatchCreateUsers(stream CreateUserRequest) returns (ListUsersResponse);
-    
-    // Bi-directional streaming
-    rpc Chat(stream ChatMessage) returns (stream ChatMessage);
-}
-
-message ChatMessage {
-    string text = 1;
 }
 ```
 
@@ -117,16 +61,10 @@ message ChatMessage {
 ## 🛠️ Generate Go Code
 
 ```bash
-# Install tools
 go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
-
-# Generate code
 protoc --go_out=. --go-grpc_out=. user.proto
-
-# This generates:
-#   user.pb.go       - Message types
-#   user_grpc.pb.go  - Client and server interfaces
+# Generates: user.pb.go, user_grpc.pb.go
 ```
 
 ---
@@ -134,32 +72,11 @@ protoc --go_out=. --go-grpc_out=. user.proto
 ## 🖥️ Server Implementation
 
 ```go
-// server.go
-package main
-
-import (
-    "context"
-    "fmt"
-    "log"
-    "net"
-    
-    "google.golang.org/grpc"
-    pb "myapp/pb/user"
-)
-
-// Implement the UserServiceServer interface
 type userServer struct {
-    pb.UnimplementedUserServiceServer  // Required for forward compatibility
+    pb.UnimplementedUserServiceServer
     users map[int64]*pb.User
 }
 
-func NewUserServer() *userServer {
-    return &userServer{
-        users: make(map[int64]*pb.User),
-    }
-}
-
-// Unary RPC implementation
 func (s *userServer) GetUser(ctx context.Context, req *pb.GetUserRequest) (*pb.GetUserResponse, error) {
     user, exists := s.users[req.Id]
     if !exists {
@@ -168,46 +85,13 @@ func (s *userServer) GetUser(ctx context.Context, req *pb.GetUserRequest) (*pb.G
     return &pb.GetUserResponse{User: user}, nil
 }
 
-func (s *userServer) CreateUser(ctx context.Context, req *pb.CreateUserRequest) (*pb.User, error) {
-    user := &pb.User{
-        Id:    int64(len(s.users) + 1),
-        Name:  req.Name,
-        Email: req.Email,
-    }
-    s.users[user.Id] = user
-    return user, nil
-}
-
-// Server streaming implementation
-func (s *userServer) ListUsers(req *pb.ListUsersRequest, stream pb.UserService_ListUsersServer) error {
-    for _, user := range s.users {
-        if err := stream.Send(user); err != nil {
-            return err
-        }
-    }
-    return nil
-}
-
 func main() {
-    lis, err := net.Listen("tcp", ":50051")
-    if err != nil {
-        log.Fatalf("failed to listen: %v", err)
-    }
-    
+    lis, _ := net.Listen("tcp", ":50051")
     grpcServer := grpc.NewServer()
     pb.RegisterUserServiceServer(grpcServer, NewUserServer())
-    
-    log.Println("gRPC server running on :50051")
-    if err := grpcServer.Serve(lis); err != nil {
-        log.Fatalf("failed to serve: %v", err)
-    }
+    grpcServer.Serve(lis)
 }
-```
-
-**Output:**
-```
-gRPC server running on :50051
-(Server continues listening for incoming requests)
+// Output: Server listening on :50051
 ```
 
 ---
@@ -215,76 +99,26 @@ gRPC server running on :50051
 ## 📱 Client Implementation
 
 ```go
-// client.go
-package main
+conn, _ := grpc.Dial("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials()))
+defer conn.Close()
 
-import (
-    "context"
-    "fmt"
-    "io"
-    "log"
-    "time"
-    
-    "google.golang.org/grpc"
-    "google.golang.org/grpc/credentials/insecure"
-    pb "myapp/pb/user"
-)
+client := pb.NewUserServiceClient(conn)
+ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+defer cancel()
 
-func main() {
-    // Connect to server
-    conn, err := grpc.Dial("localhost:50051",
-        grpc.WithTransportCredentials(insecure.NewCredentials()),
-    )
-    if err != nil {
-        log.Fatalf("failed to connect: %v", err)
+user, _ := client.CreateUser(ctx, &pb.CreateUserRequest{Name: "Alice", Email: "alice@example.com"})
+resp, _ := client.GetUser(ctx, &pb.GetUserRequest{Id: user.Id})
+
+// Server streaming
+stream, _ := client.ListUsers(ctx, &pb.ListUsersRequest{})
+for {
+    u, err := stream.Recv()
+    if err == io.EOF {
+        break
     }
-    defer conn.Close()
-    
-    client := pb.NewUserServiceClient(conn)
-    ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-    defer cancel()
-    
-    // Create user
-    user, err := client.CreateUser(ctx, &pb.CreateUserRequest{
-        Name:  "Alice",
-        Email: "alice@example.com",
-    })
-    if err != nil {
-        log.Fatalf("CreateUser failed: %v", err)
-    }
-    fmt.Printf("Created: %+v\n", user)
-    
-    // Get user
-    resp, err := client.GetUser(ctx, &pb.GetUserRequest{Id: user.Id})
-    if err != nil {
-        log.Fatalf("GetUser failed: %v", err)
-    }
-    fmt.Printf("Got: %+v\n", resp.User)
-    
-    // Server streaming
-    stream, err := client.ListUsers(ctx, &pb.ListUsersRequest{})
-    if err != nil {
-        log.Fatalf("ListUsers failed: %v", err)
-    }
-    
-    for {
-        user, err := stream.Recv()
-        if err == io.EOF {
-            break
-        }
-        if err != nil {
-            log.Fatalf("stream error: %v", err)
-        }
-        fmt.Printf("Streamed: %+v\n", user)
-    }
+    fmt.Printf("Streamed: %+v\n", u)
 }
-```
-
-**Output:**
-```
-Created: id:1 name:"Alice" email:"alice@example.com" roles:""
-Got: id:1 name:"Alice" email:"alice@example.com" roles:""
-Streamed: id:1 name:"Alice" email:"alice@example.com" roles:""
+// Output: Created user, got user, streamed users
 ```
 
 ---
@@ -303,4 +137,3 @@ Streamed: id:1 name:"Alice" email:"alice@example.com" roles:""
 ## ➡️ Next Steps
 
 **Next Topic:** [47 - Profiling and Performance](./47-profiling.md)
-

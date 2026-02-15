@@ -23,249 +23,200 @@
 
 ### Real-World Analogy
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  POINTER = HOME ADDRESS                                         │
-│                                                                 │
-│  Imagine you have a friend Alice:                               │
-│                                                                 │
-│  ┌────────────────┐                                            │
-│  │  Alice (Value) │  ← The actual person                       │
-│  │  Lives at      │                                            │
-│  │  123 Main St   │                                            │
-│  └────────────────┘                                            │
-│                                                                 │
-│  ┌────────────────┐                                            │
-│  │  Address Card  │  ← A pointer to Alice                      │
-│  │  "123 Main St" │                                            │
-│  └────────────────┘                                            │
-│                                                                 │
-│  You can:                                                       │
-│  • Give someone the ADDRESS CARD (cheap to copy)                │
-│  • They can VISIT Alice at that address (dereference)           │
-│  • Multiple cards can point to same Alice                       │
-│                                                                 │
-│  In Go:                                                         │
-│  alice := Person{Name: "Alice"}  // The actual person          │
-│  ptr := &alice                    // Address card (pointer)     │
-│  (*ptr).Name = "Alice Smith"      // Visit and modify          │
-│  ptr.Name = "Alice Smith"         // Same (Go shorthand)       │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+- **Value** = The actual person (lives at 123 Main St)
+- **Pointer** = Address card ("123 Main St") — cheap to copy
+- You can give someone the address card; they visit the person at that address (dereference)
+- Multiple pointers can point to the same value
+
+In Go:
+- `alice := Person{Name: "Alice"}` — the actual value
+- `ptr := &alice` — address (pointer)
+- `(*ptr).Name = "Alice Smith"` or `ptr.Name = "Alice Smith"` — visit and modify
 
 ---
 
-## 📊 Memory Visualization
+## 📊 Memory Layout
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  MEMORY LAYOUT                                                  │
-│                                                                 │
-│  x := 42                                                        │
-│  ptr := &x                                                      │
-│                                                                 │
-│  MEMORY:                                                        │
-│  ┌─────────────────────────────────────────────────────────┐   │
-│  │ Address 0x1000  │ Address 0x1008  │ ...                 │   │
-│  │ (variable x)    │ (variable ptr)  │                     │   │
-│  │                 │                 │                     │   │
-│  │     42          │    0x1000       │                     │   │
-│  │     ↑           │       │         │                     │   │
-│  └─────────────────│───────│─────────────────────────────┘   │
-│                    │       │                                    │
-│                    └───────┘                                    │
-│                    ptr points to x                              │
-│                                                                 │
-│  &x   = "address of x" = 0x1000                                │
-│  *ptr = "value at ptr" = 42                                    │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+- `x := 42` — variable x holds 42 at some address (e.g., 0x1000)
+- `ptr := &x` — ptr holds the address of x (0x1000)
+- `&x` = "address of x"
+- `*ptr` = "value at ptr" = 42
 
 ---
 
 ## 📝 Pointer Basics
 
+### Creating a pointer
+
 ```go
-// pointer_basics.go
+x := 42
+ptr := &x  // & = "address of"
+fmt.Printf("x = %d, ptr = %p, *ptr = %d\n", x, ptr, *ptr)
+// Output: x = 42, ptr = 0xc0000140a0, *ptr = 42
+```
+
+### Modifying through pointer
+
+```go
+*ptr = 100  // * = "value at"
+fmt.Println(x) // Output: 100 (changed!)
+```
+
+### new() function
+
+```go
+p := new(int)  // Allocates, returns pointer to zero value
+*p = 50
+fmt.Println(*p) // Output: 50
+```
+
+### Operators summary
+
+- `&` = Address-of operator (get pointer)
+- `*` = Dereference operator (get value)
+- `*T` = Pointer type (e.g., *int, *string)
+
+### Complete Example
+
+```go
 package main
 
 import "fmt"
 
 func main() {
-    fmt.Println("╔══════════════════════════════════════════════════════════╗")
-    fmt.Println("║              POINTER BASICS                               ║")
-    fmt.Println("╚══════════════════════════════════════════════════════════╝")
-    
-    // Creating a pointer
-    fmt.Println("\n📊 Creating Pointers:")
     x := 42
-    ptr := &x  // & = "address of"
-    
-    fmt.Printf("   x = %d\n", x)
-    fmt.Printf("   &x (address) = %p\n", &x)
-    fmt.Printf("   ptr = %p\n", ptr)
-    fmt.Printf("   *ptr (value at ptr) = %d\n", *ptr)
-    
-    // Modifying through pointer
-    fmt.Println("\n📊 Modifying Through Pointer:")
-    *ptr = 100  // * = "value at"
-    fmt.Printf("   After *ptr = 100:\n")
-    fmt.Printf("   x = %d (changed!)\n", x)
-    fmt.Printf("   *ptr = %d\n", *ptr)
-    
-    // Pointer types
-    fmt.Println("\n📊 Pointer Types:")
-    var intPtr *int     // Pointer to int (nil)
-    var strPtr *string  // Pointer to string (nil)
-    
-    fmt.Printf("   var intPtr *int = %v\n", intPtr)
-    fmt.Printf("   var strPtr *string = %v\n", strPtr)
-    
-    // new() function
-    fmt.Println("\n📊 new() Function:")
-    p := new(int)  // Allocates, returns pointer to zero value
-    fmt.Printf("   p := new(int)\n")
-    fmt.Printf("   p = %p\n", p)
-    fmt.Printf("   *p = %d (zero value)\n", *p)
-    
-    *p = 50
-    fmt.Printf("   *p = %d (after assignment)\n", *p)
-    
-    // Operators summary
-    fmt.Println("\n📊 Operators Summary:")
-    fmt.Println("   & = Address-of operator (get pointer)")
-    fmt.Println("   * = Dereference operator (get value)")
-    fmt.Println("   *T = Pointer type (e.g., *int, *string)")
+    ptr := &x
+    fmt.Printf("x = %d, *ptr = %d\n", x, *ptr)
+    *ptr = 100
+    fmt.Printf("After *ptr = 100: x = %d\n", x)
 }
 ```
 
 **Output:**
 ```
-╔══════════════════════════════════════════════════════════╗
-║              POINTER BASICS                               ║
-╚══════════════════════════════════════════════════════════╝
-
-📊 Creating Pointers:
-   x = 42
-   &x (address) = 0xc0000140a0
-   ptr = 0xc0000140a0
-   *ptr (value at ptr) = 42
-
-📊 Modifying Through Pointer:
-   After *ptr = 100:
-   x = 100 (changed!)
-   *ptr = 100
-
-📊 Pointer Types:
-   var intPtr *int = <nil>
-   var strPtr *string = <nil>
-
-📊 new() Function:
-   p := new(int)
-   p = 0xc0000140a8
-   *p = 0 (zero value)
-   *p = 50 (after assignment)
-
-📊 Operators Summary:
-   & = Address-of operator (get pointer)
-   * = Dereference operator (get value)
-   *T = Pointer type (e.g., *int, *string)
+x = 42, *ptr = 42
+After *ptr = 100: x = 100
 ```
-
-*Note: Memory addresses (like 0xc0000140a0) will vary between runs.*
 
 ---
 
 ## 🔄 Pointers and Functions
 
+### Pass by value (doesn't modify)
+
 ```go
-// pointer_functions.go
+func doubleValue(n int) {
+    n = n * 2  // Modifies local copy
+}
+x := 10
+doubleValue(x)
+fmt.Println(x) // Output: 10 (unchanged!)
+```
+
+### Pass by pointer (modifies)
+
+```go
+func doublePointer(n *int) {
+    *n = *n * 2
+}
+y := 10
+doublePointer(&y)
+fmt.Println(y) // Output: 20
+```
+
+### Swap example
+
+```go
+func swap(a, b *int) {
+    *a, *b = *b, *a
+}
+a, b := 5, 10
+swap(&a, &b)
+fmt.Printf("a=%d, b=%d\n", a, b) // Output: a=10, b=5
+```
+
+### Returning pointer (safe in Go!)
+
+```go
+func createInt(n int) *int {
+    result := n
+    return &result  // Returning pointer to local is SAFE in Go!
+}
+ptr := createInt(42)
+fmt.Println(*ptr) // Output: 42
+```
+
+### Complete Example
+
+```go
 package main
 
 import "fmt"
 
-func main() {
-    fmt.Println("╔══════════════════════════════════════════════════════════╗")
-    fmt.Println("║           POINTERS AND FUNCTIONS                          ║")
-    fmt.Println("╚══════════════════════════════════════════════════════════╝")
-    
-    // Pass by value (copy)
-    fmt.Println("\n⚠️ Pass by Value (doesn't modify original):")
-    x := 10
-    fmt.Printf("   Before: x = %d\n", x)
-    doubleValue(x)
-    fmt.Printf("   After doubleValue(x): x = %d (unchanged!)\n", x)
-    
-    // Pass by pointer (reference)
-    fmt.Println("\n✅ Pass by Pointer (modifies original):")
-    y := 10
-    fmt.Printf("   Before: y = %d\n", y)
-    doublePointer(&y)
-    fmt.Printf("   After doublePointer(&y): y = %d (doubled!)\n", y)
-    
-    // Multiple values
-    fmt.Println("\n📊 Swap Example:")
-    a, b := 5, 10
-    fmt.Printf("   Before: a=%d, b=%d\n", a, b)
-    swap(&a, &b)
-    fmt.Printf("   After swap(&a, &b): a=%d, b=%d\n", a, b)
-    
-    // Returning pointer
-    fmt.Println("\n📊 Returning Pointer:")
-    ptr := createInt(42)
-    fmt.Printf("   createInt(42) returned pointer to %d\n", *ptr)
-}
-
-func doubleValue(n int) {
-    n = n * 2  // Modifies local copy
-}
-
 func doublePointer(n *int) {
-    *n = *n * 2  // Modifies original through pointer
+    *n = *n * 2
 }
 
 func swap(a, b *int) {
     *a, *b = *b, *a
 }
 
-func createInt(n int) *int {
-    result := n  // Local variable
-    return &result  // Returning pointer to local is SAFE in Go!
+func main() {
+    y := 10
+    doublePointer(&y)
+    fmt.Println(y)
+    a, b := 5, 10
+    swap(&a, &b)
+    fmt.Printf("a=%d, b=%d\n", a, b)
 }
 ```
 
 **Output:**
 ```
-╔══════════════════════════════════════════════════════════╗
-║           POINTERS AND FUNCTIONS                          ║
-╚══════════════════════════════════════════════════════════╝
-
-⚠️ Pass by Value (doesn't modify original):
-   Before: x = 10
-   After doubleValue(x): x = 10 (unchanged!)
-
-✅ Pass by Pointer (modifies original):
-   Before: y = 10
-   After doublePointer(&y): y = 20 (doubled!)
-
-📊 Swap Example:
-   Before: a=5, b=10
-   After swap(&a, &b): a=10, b=5
-
-📊 Returning Pointer:
-   createInt(42) returned pointer to 42
+20
+a=10, b=5
 ```
 
 ---
 
 ## 🏗️ Pointers and Structs
 
+### Struct value vs pointer
+
 ```go
-// pointer_structs.go
+p1 := Person{Name: "Alice", Age: 25}  // Value
+p2 := &Person{Name: "Bob", Age: 30}   // Pointer
+```
+
+### Accessing fields (auto-dereference)
+
+```go
+fmt.Println(p2.Name)      // Go auto-dereferences
+fmt.Println((*p2).Name)   // Explicit dereference
+```
+
+### Pass struct by pointer to modify
+
+```go
+func updateAgePointer(p *Person) {
+    p.Age = 99
+}
+person := Person{Name: "Charlie", Age: 28}
+updateAgePointer(&person)
+fmt.Println(person.Age) // Output: 99
+```
+
+### Constructor pattern
+
+```go
+func NewPerson(name string, age int) *Person {
+    return &Person{Name: name, Age: age}
+}
+```
+
+### Complete Example
+
+```go
 package main
 
 import "fmt"
@@ -275,98 +226,65 @@ type Person struct {
     Age  int
 }
 
-func main() {
-    fmt.Println("╔══════════════════════════════════════════════════════════╗")
-    fmt.Println("║           POINTERS AND STRUCTS                            ║")
-    fmt.Println("╚══════════════════════════════════════════════════════════╝")
-    
-    // Struct value vs pointer
-    fmt.Println("\n📊 Struct Value vs Pointer:")
-    
-    p1 := Person{Name: "Alice", Age: 25}  // Value
-    p2 := &Person{Name: "Bob", Age: 30}    // Pointer
-    
-    fmt.Printf("   p1 (value): %+v, type: %T\n", p1, p1)
-    fmt.Printf("   p2 (pointer): %+v, type: %T\n", p2, p2)
-    
-    // Accessing fields
-    fmt.Println("\n📊 Accessing Fields:")
-    fmt.Printf("   p1.Name = %q\n", p1.Name)
-    fmt.Printf("   p2.Name = %q (auto-dereference!)\n", p2.Name)
-    fmt.Printf("   (*p2).Name = %q (explicit dereference)\n", (*p2).Name)
-    
-    // Modifying through pointer
-    fmt.Println("\n📊 Modifying Through Pointer:")
-    p2.Age = 31
-    fmt.Printf("   p2.Age = 31 → %+v\n", p2)
-    
-    // Pass struct by value (copied!)
-    fmt.Println("\n⚠️ Pass Struct by Value (copied!):")
-    person := Person{Name: "Charlie", Age: 28}
-    updateAgeValue(person)
-    fmt.Printf("   After updateAgeValue: %+v (unchanged)\n", person)
-    
-    // Pass struct by pointer (modified!)
-    fmt.Println("\n✅ Pass Struct by Pointer (modified!):")
-    updateAgePointer(&person)
-    fmt.Printf("   After updateAgePointer: %+v (changed)\n", person)
-    
-    // Constructor pattern
-    fmt.Println("\n📊 Constructor Returns Pointer:")
-    newPerson := NewPerson("Diana", 35)
-    fmt.Printf("   NewPerson() = %+v\n", newPerson)
-}
-
-func updateAgeValue(p Person) {
-    p.Age = 99  // Modifies copy
-}
-
 func updateAgePointer(p *Person) {
-    p.Age = 99  // Modifies original
+    p.Age = 99
 }
 
-func NewPerson(name string, age int) *Person {
-    return &Person{
-        Name: name,
-        Age:  age,
-    }
+func main() {
+    person := Person{Name: "Charlie", Age: 28}
+    updateAgePointer(&person)
+    fmt.Printf("%+v\n", person)
 }
 ```
 
 **Output:**
 ```
-╔══════════════════════════════════════════════════════════╗
-║           POINTERS AND STRUCTS                            ║
-╚══════════════════════════════════════════════════════════╝
-
-📊 Struct Value vs Pointer:
-   p1 (value): {Name:Alice Age:25}, type: main.Person
-   p2 (pointer): &{Name:Bob Age:30}, type: *main.Person
-
-📊 Accessing Fields:
-   p1.Name = "Alice"
-   p2.Name = "Bob" (auto-dereference!)
-   (*p2).Name = "Bob" (explicit dereference)
-
-📊 Modifying Through Pointer:
-   p2.Age = 31 → &{Name:Bob Age:31}
-
-⚠️ Pass Struct by Value (copied!):
-   After updateAgeValue: {Name:Charlie Age:28} (unchanged)
-
-✅ Pass Struct by Pointer (modified!):
-   After updateAgePointer: {Name:Charlie Age:99} (changed)
-
-📊 Constructor Returns Pointer:
-   NewPerson() = &{Name:Diana Age:35}
+{Name:Charlie Age:99}
 ```
 
 ---
 
 ## ⚠️ Nil Pointers
 
+### Nil check
+
 ```go
-// nil_pointers.go
+var ptr *int
+fmt.Println(ptr == nil) // Output: true
+```
+
+### Dereferencing nil = PANIC
+
+```go
+// *ptr  // This would panic!
+```
+
+### Safe nil check
+
+```go
+if ptr != nil {
+    fmt.Println(*ptr)
+} else {
+    fmt.Println("Pointer is nil")
+}
+```
+
+### Methods can handle nil receivers
+
+```go
+func (p *Person) SafeGreet() string {
+    if p == nil {
+        return "Hello, stranger"
+    }
+    return "Hello, " + p.Name
+}
+var p *Person
+fmt.Println(p.SafeGreet()) // Output: Hello, stranger
+```
+
+### Complete Example
+
+```go
 package main
 
 import "fmt"
@@ -375,147 +293,48 @@ type Person struct {
     Name string
 }
 
-func main() {
-    fmt.Println("╔══════════════════════════════════════════════════════════╗")
-    fmt.Println("║              NIL POINTERS                                 ║")
-    fmt.Println("╚══════════════════════════════════════════════════════════╝")
-    
-    // Nil pointer
-    fmt.Println("\n📊 Nil Pointer:")
-    var ptr *int
-    fmt.Printf("   var ptr *int = %v\n", ptr)
-    fmt.Printf("   ptr == nil: %t\n", ptr == nil)
-    
-    // Dereferencing nil = PANIC!
-    fmt.Println("\n⚠️ Dereferencing Nil = PANIC!")
-    fmt.Println("   *ptr  // This would panic!")
-    
-    // Safe nil check
-    fmt.Println("\n✅ Safe Nil Check:")
-    ptr = nil
-    if ptr != nil {
-        fmt.Printf("   Value: %d\n", *ptr)
-    } else {
-        fmt.Println("   Pointer is nil, skipping dereference")
-    }
-    
-    // Methods can handle nil receivers!
-    fmt.Println("\n💡 Methods Can Handle Nil Receivers:")
-    var p *Person
-    result := p.SafeGreet()
-    fmt.Printf("   nil person.SafeGreet() = %q\n", result)
-    
-    // Common pattern: check nil in methods
-    fmt.Println("\n📊 Common Pattern:")
-    fmt.Println("   func (p *Person) Method() {")
-    fmt.Println("       if p == nil {")
-    fmt.Println("           return  // Handle nil gracefully")
-    fmt.Println("       }")
-    fmt.Println("       // Normal logic")
-    fmt.Println("   }")
-}
-
 func (p *Person) SafeGreet() string {
     if p == nil {
         return "Hello, stranger"
     }
     return "Hello, " + p.Name
 }
+
+func main() {
+    var p *Person
+    fmt.Println(p.SafeGreet())
+}
 ```
 
 **Output:**
 ```
-╔══════════════════════════════════════════════════════════╗
-║              NIL POINTERS                                 ║
-╚══════════════════════════════════════════════════════════╝
-
-📊 Nil Pointer:
-   var ptr *int = <nil>
-   ptr == nil: true
-
-⚠️ Dereferencing Nil = PANIC!
-   *ptr  // This would panic!
-
-✅ Safe Nil Check:
-   Pointer is nil, skipping dereference
-
-💡 Methods Can Handle Nil Receivers:
-   nil person.SafeGreet() = "Hello, stranger"
-
-📊 Common Pattern:
-   func (p *Person) Method() {
-       if p == nil {
-           return  // Handle nil gracefully
-       }
-       // Normal logic
-   }
+Hello, stranger
 ```
 
 ---
 
 ## 🆚 Pointers: Go vs Java vs C
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  GO vs JAVA vs C                                                │
-│                                                                 │
-│  JAVA:                                                          │
-│  • Objects are ALWAYS references (pointers under the hood)      │
-│  • Primitives are always values                                 │
-│  • No explicit pointer syntax                                   │
-│  • Garbage collected                                            │
-│                                                                 │
-│  GO:                                                            │
-│  • EXPLICIT control: choose value or pointer                    │
-│  • All types can be value OR pointer                            │
-│  • & and * operators                                            │
-│  • Garbage collected (safe!)                                    │
-│  • No pointer arithmetic                                        │
-│                                                                 │
-│  C:                                                             │
-│  • Explicit pointers like Go                                    │
-│  • UNSAFE: pointer arithmetic allowed                           │
-│  • Manual memory management                                     │
-│  • Easy to corrupt memory                                       │
-│                                                                 │
-│  GO'S SWEET SPOT:                                               │
-│  • Explicit like C (you choose)                                 │
-│  • Safe like Java (garbage collected, no arithmetic)            │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+| Aspect | Java | Go | C |
+|--------|------|-----|-----|
+| Objects | Always references (pointers under hood) | Explicit: choose value or pointer | Explicit pointers |
+| Primitives | Always values | All types can be value OR pointer | Values |
+| Syntax | No explicit pointer syntax | `&` and `*` operators | `&` and `*` |
+| Memory | Garbage collected | Garbage collected (safe) | Manual management |
+| Pointer arithmetic | N/A | Not allowed | Allowed (unsafe) |
+
+**Go's sweet spot:** Explicit like C (you choose), safe like Java (garbage collected, no arithmetic).
 
 ---
 
 ## 🎯 When to Use Pointers
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  USE POINTERS WHEN:                                             │
-│                                                                 │
-│  1. You need to MODIFY the original value                       │
-│     func update(p *Person) { p.Age++ }                          │
-│                                                                 │
-│  2. The data is LARGE (avoid copying)                           │
-│     func process(data *LargeStruct) { ... }                     │
-│                                                                 │
-│  3. Representing "OPTIONAL" or "missing"                        │
-│     var ptr *int = nil  // No value                             │
-│                                                                 │
-│  4. Sharing data across goroutines                              │
-│     go processData(sharedPtr)                                   │
-│                                                                 │
-│  USE VALUES WHEN:                                               │
-│                                                                 │
-│  1. Data is SMALL (int, bool, small structs)                    │
-│  2. You want IMMUTABILITY (function can't modify)               │
-│  3. You want a COPY of the data                                 │
-│  4. The type is already a reference (slice, map, channel)       │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+| Use Pointers When | Use Values When |
+|-------------------|-----------------|
+| You need to modify the original | Data is small (int, bool, small structs) |
+| Data is large (avoid copying) | You want immutability |
+| Representing "optional" or "missing" (nil) | You want a copy |
+| Sharing data across goroutines | Type is already a reference (slice, map, channel) |
 
 ---
 
@@ -523,8 +342,8 @@ func (p *Person) SafeGreet() string {
 
 1. **&** gets the address (creates pointer)
 2. **\*** dereferences (gets value at address)
-3. **Go is memory-safe** - no pointer arithmetic
-4. **Nil pointers** - check before dereferencing!
+3. **Go is memory-safe** — no pointer arithmetic
+4. **Nil pointers** — check before dereferencing!
 5. **Struct pointers** auto-dereference with `.`
 6. **Returning local pointers** is safe (Go manages memory)
 7. **Use pointers** for large structs and when modification is needed
@@ -535,4 +354,3 @@ func (p *Person) SafeGreet() string {
 ## ➡️ Next Steps
 
 **Next Topic:** [26 - Interfaces](./26-interfaces.md)
-

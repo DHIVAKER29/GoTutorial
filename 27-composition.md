@@ -16,148 +16,145 @@
 
 ## 🚫 Go Has No Inheritance!
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  JAVA INHERITANCE                   GO COMPOSITION              │
-│                                                                 │
-│  ┌─────────┐                        ┌─────────┐                │
-│  │ Animal  │ (parent)               │ Animal  │                │
-│  └────┬────┘                        └─────────┘                │
-│       │ extends                           ↓                     │
-│  ┌────┴────┐                        ┌─────────────┐            │
-│  │   Dog   │ (child)                │    Dog      │            │
-│  └─────────┘                        │ ┌─────────┐ │            │
-│                                     │ │ Animal  │ │ embedded  │
-│  Dog IS-A Animal                    │ └─────────┘ │            │
-│                                     └─────────────┘            │
-│                                                                 │
-│                                     Dog HAS-A Animal            │
-│                                     (but with method promotion) │
-│                                                                 │
-│  PROBLEMS WITH INHERITANCE:                                     │
-│  • Fragile base class problem                                   │
-│  • Tight coupling                                               │
-│  • Diamond problem (multiple inheritance)                       │
-│  • Forces IS-A when HAS-A is more appropriate                   │
-│                                                                 │
-│  GO'S PHILOSOPHY:                                               │
-│  "Prefer composition over inheritance"                          │
-│  - Gang of Four Design Patterns                                 │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+**Java inheritance:** Dog extends Animal → Dog IS-A Animal. Problems include fragile base class, tight coupling, diamond problem, and forcing IS-A when HAS-A fits better.
+
+**Go composition:** Dog embeds Animal → Dog HAS-A Animal (with method promotion). Go follows "prefer composition over inheritance" (Gang of Four).
+
+| Java | Go |
+|------|-----|
+| Dog extends Animal | Dog embeds Animal |
+| Dog IS-A Animal | Dog HAS-A Animal (with promoted methods) |
+| Inheritance hierarchy | Flat composition |
 
 ---
 
 ## 📝 Embedding in Action
 
+Embed a type by declaring it without a field name. Its fields and methods are promoted to the outer type.
+
 ```go
-// composition.go
-package main
-
-import "fmt"
-
-// Base "component"
 type Engine struct {
     Horsepower int
     Type       string
 }
 
 func (e Engine) Start() {
-    fmt.Printf("   Engine starting: %s (%d HP)\n", e.Type, e.Horsepower)
+    fmt.Printf("Engine: %s (%d HP)\n", e.Type, e.Horsepower)
 }
 
-func (e Engine) Stop() {
-    fmt.Println("   Engine stopping")
+type Car struct {
+    Brand  string
+    Engine  // Embedded—methods promoted
 }
 
-// Another component
+// Car can call c.Start() directly
+```
+
+```go
+car := Car{
+    Brand:  "Tesla",
+    Engine: Engine{Horsepower: 670, Type: "Electric"},
+}
+car.Start()           // Promoted from Engine
+fmt.Println(car.Horsepower)  // Promoted field
+fmt.Println(car.Engine.Type) // Explicit access
+// Output: Engine: Electric (670 HP)
+//         670
+//         Electric
+```
+
+### Complete Example: Embedding
+
+```go
+package main
+
+import "fmt"
+
+type Engine struct {
+    Horsepower int
+    Type       string
+}
+
+func (e Engine) Start() {
+    fmt.Printf("Engine starting: %s (%d HP)\n", e.Type, e.Horsepower)
+}
+
 type Wheels struct {
     Count int
     Size  string
 }
 
 func (w Wheels) Rotate() {
-    fmt.Printf("   %d wheels rotating (%s)\n", w.Count, w.Size)
+    fmt.Printf("%d wheels rotating (%s)\n", w.Count, w.Size)
 }
 
-// Composed type (NOT inheritance!)
 type Car struct {
     Brand  string
     Model  string
-    Engine        // Embedded - methods promoted!
-    Wheels        // Embedded
+    Engine
+    Wheels
 }
 
-// Car can have its own methods
 func (c Car) Drive() {
-    fmt.Printf("   Driving %s %s\n", c.Brand, c.Model)
-    c.Start()   // Promoted from Engine!
-    c.Rotate()  // Promoted from Wheels!
+    fmt.Printf("Driving %s %s\n", c.Brand, c.Model)
+    c.Start()
+    c.Rotate()
 }
 
 func main() {
-    fmt.Println("╔══════════════════════════════════════════════════════════╗")
-    fmt.Println("║           COMPOSITION THROUGH EMBEDDING                   ║")
-    fmt.Println("╚══════════════════════════════════════════════════════════╝")
-    
     car := Car{
         Brand:  "Tesla",
         Model:  "Model S",
         Engine: Engine{Horsepower: 670, Type: "Electric"},
         Wheels: Wheels{Count: 4, Size: "21 inch"},
     }
-    
-    fmt.Println("\n📊 Using Composed Type:")
+
     car.Drive()
-    
-    fmt.Println("\n📊 Accessing Embedded Fields:")
-    fmt.Printf("   car.Brand = %s\n", car.Brand)
-    fmt.Printf("   car.Horsepower = %d (from Engine)\n", car.Horsepower)
-    fmt.Printf("   car.Count = %d (from Wheels)\n", car.Count)
-    
-    fmt.Println("\n📊 Calling Promoted Methods:")
-    car.Start()  // From Engine
-    car.Stop()   // From Engine
-    car.Rotate() // From Wheels
-    
-    fmt.Println("\n📊 Accessing Embedded Type Explicitly:")
-    fmt.Printf("   car.Engine.Type = %s\n", car.Engine.Type)
+    fmt.Printf("car.Horsepower = %d (from Engine)\n", car.Horsepower)
+    fmt.Printf("car.Engine.Type = %s\n", car.Engine.Type)
 }
 ```
 
 **Output:**
 ```
-╔══════════════════════════════════════════════════════════╗
-║           COMPOSITION THROUGH EMBEDDING                   ║
-╚══════════════════════════════════════════════════════════╝
-
-📊 Using Composed Type:
-   Driving Tesla Model S
-   Engine starting: Electric (670 HP)
-   4 wheels rotating (21 inch)
-
-📊 Accessing Embedded Fields:
-   car.Brand = Tesla
-   car.Horsepower = 670 (from Engine)
-   car.Count = 4 (from Wheels)
-
-📊 Calling Promoted Methods:
-   Engine starting: Electric (670 HP)
-   Engine stopping
-   4 wheels rotating (21 inch)
-
-📊 Accessing Embedded Type Explicitly:
-   car.Engine.Type = Electric
+Driving Tesla Model S
+Engine starting: Electric (670 HP)
+4 wheels rotating (21 inch)
+car.Horsepower = 670 (from Engine)
+car.Engine.Type = Electric
 ```
 
 ---
 
 ## 🔄 Method Overriding
 
+Define a method on the outer type with the same name to "override" the embedded type's method. Access the original via `outer.Embedded.Method()`.
+
 ```go
-// method_override.go
+type Animal struct {
+    Name string
+}
+
+func (a Animal) Speak() string {
+    return "..."
+}
+
+type Dog struct {
+    Animal
+}
+
+func (d Dog) Speak() string {
+    return "Woof!"
+}
+
+dog := Dog{Animal: Animal{Name: "Buddy"}}
+fmt.Println(dog.Speak())        // "Woof!" (overridden)
+fmt.Println(dog.Animal.Speak()) // "..." (original)
+```
+
+### Complete Example: Method Overriding
+
+```go
 package main
 
 import "fmt"
@@ -175,16 +172,13 @@ func (a Animal) Info() string {
 }
 
 type Dog struct {
-    Animal  // Embedded
-    Breed   string
+    Animal
+    Breed string
 }
 
-// "Override" the Speak method
 func (d Dog) Speak() string {
     return "Woof!"
 }
-
-// Dog.Info() is inherited (promoted) from Animal
 
 type Cat struct {
     Animal
@@ -195,148 +189,104 @@ func (c Cat) Speak() string {
 }
 
 func main() {
-    fmt.Println("╔══════════════════════════════════════════════════════════╗")
-    fmt.Println("║           METHOD 'OVERRIDING'                             ║")
-    fmt.Println("╚══════════════════════════════════════════════════════════╝")
-    
     dog := Dog{Animal: Animal{Name: "Buddy"}, Breed: "Golden Retriever"}
     cat := Cat{Animal: Animal{Name: "Whiskers"}}
-    
-    fmt.Println("\n📊 Method Override:")
-    fmt.Printf("   dog.Speak() = %q (overridden)\n", dog.Speak())
-    fmt.Printf("   cat.Speak() = %q (overridden)\n", cat.Speak())
-    
-    fmt.Println("\n📊 Promoted Method (not overridden):")
-    fmt.Printf("   dog.Info() = %q (from Animal)\n", dog.Info())
-    fmt.Printf("   cat.Info() = %q (from Animal)\n", cat.Info())
-    
-    fmt.Println("\n📊 Accessing 'Parent' Method:")
-    fmt.Printf("   dog.Animal.Speak() = %q (original)\n", dog.Animal.Speak())
+
+    fmt.Printf("dog.Speak() = %q (overridden)\n", dog.Speak())
+    fmt.Printf("cat.Speak() = %q (overridden)\n", cat.Speak())
+    fmt.Printf("dog.Info() = %q (promoted)\n", dog.Info())
+    fmt.Printf("dog.Animal.Speak() = %q (original)\n", dog.Animal.Speak())
 }
 ```
 
 **Output:**
 ```
-╔══════════════════════════════════════════════════════════╗
-║           METHOD 'OVERRIDING'                             ║
-╚══════════════════════════════════════════════════════════╝
-
-📊 Method Override:
-   dog.Speak() = "Woof!" (overridden)
-   cat.Speak() = "Meow!" (overridden)
-
-📊 Promoted Method (not overridden):
-   dog.Info() = "I am Buddy" (from Animal)
-   cat.Info() = "I am Whiskers" (from Animal)
-
-📊 Accessing 'Parent' Method:
-   dog.Animal.Speak() = "..." (original)
+dog.Speak() = "Woof!" (overridden)
+cat.Speak() = "Meow!" (overridden)
+dog.Info() = "I am Buddy" (promoted)
+dog.Animal.Speak() = "..." (original)
 ```
 
 ---
 
 ## 🎭 Polymorphism with Interfaces
 
+Composition provides code reuse; interfaces provide polymorphism. Together they replace inheritance.
+
 ```go
-// polymorphism.go
-package main
-
-import "fmt"
-
-// Interface defines behavior
 type Speaker interface {
     Speak() string
 }
 
-// Base component
+func MakeSpeak(s Speaker) {
+    fmt.Println(s.Speak())
+}
+
+animals := []Speaker{
+    Dog{Animal{Name: "Buddy"}},
+    Cat{Animal{Name: "Whiskers"}},
+}
+for _, a := range animals {
+    MakeSpeak(a)
+}
+// Output: Woof!
+//         Meow!
+```
+
+### Complete Example: Polymorphism
+
+```go
+package main
+
+import "fmt"
+
+type Speaker interface {
+    Speak() string
+}
+
 type Animal struct {
     Name string
 }
 
-// Different types with embedded Animal
-type Dog struct {
-    Animal
-}
+type Dog struct{ Animal }
+func (d Dog) Speak() string { return "Woof!" }
 
-func (d Dog) Speak() string {
-    return "Woof!"
-}
+type Cat struct{ Animal }
+func (c Cat) Speak() string { return "Meow!" }
 
-type Cat struct {
-    Animal
-}
+type Bird struct{ Animal }
+func (b Bird) Speak() string { return "Tweet!" }
 
-func (c Cat) Speak() string {
-    return "Meow!"
-}
-
-type Bird struct {
-    Animal
-}
-
-func (b Bird) Speak() string {
-    return "Tweet!"
-}
-
-// Function accepting interface (polymorphism!)
 func MakeSpeak(s Speaker) {
-    fmt.Printf("   %s\n", s.Speak())
+    fmt.Println(s.Speak())
 }
 
 func main() {
-    fmt.Println("╔══════════════════════════════════════════════════════════╗")
-    fmt.Println("║           POLYMORPHISM WITH INTERFACES                    ║")
-    fmt.Println("╚══════════════════════════════════════════════════════════╝")
-    
     animals := []Speaker{
         Dog{Animal{Name: "Buddy"}},
         Cat{Animal{Name: "Whiskers"}},
         Bird{Animal{Name: "Tweety"}},
     }
-    
-    fmt.Println("\n📊 Polymorphic Behavior:")
-    for _, animal := range animals {
-        MakeSpeak(animal)
+    for _, a := range animals {
+        MakeSpeak(a)
     }
-    
-    fmt.Println("\n💡 Key Insight:")
-    fmt.Println("   • Composition gives us code reuse (embedded fields/methods)")
-    fmt.Println("   • Interfaces give us polymorphism")
-    fmt.Println("   • Together they replace inheritance!")
 }
 ```
 
 **Output:**
 ```
-╔══════════════════════════════════════════════════════════╗
-║           POLYMORPHISM WITH INTERFACES                    ║
-╚══════════════════════════════════════════════════════════╝
-
-📊 Polymorphic Behavior:
-   Woof!
-   Meow!
-   Tweet!
-
-💡 Key Insight:
-   • Composition gives us code reuse (embedded fields/methods)
-   • Interfaces give us polymorphism
-   • Together they replace inheritance!
+Woof!
+Meow!
+Tweet!
 ```
 
 ---
 
 ## 🏭 Production Pattern
 
+Embed reusable components (e.g., `Identifiable`, `Timestamps`) into domain models.
+
 ```go
-// composition_production.go
-package main
-
-import (
-    "fmt"
-    "time"
-)
-
-// Reusable components
 type Timestamps struct {
     CreatedAt time.Time
     UpdatedAt time.Time
@@ -350,10 +300,9 @@ type Identifiable struct {
     ID string
 }
 
-// Domain models compose common behaviors
 type User struct {
-    Identifiable  // Has ID
-    Timestamps    // Has timestamps
+    Identifiable
+    Timestamps
     Name  string
     Email string
 }
@@ -363,72 +312,80 @@ type Order struct {
     Timestamps
     UserID string
     Total  float64
-    Status string
+}
+```
+
+### Complete Example: Production Pattern
+
+```go
+package main
+
+import (
+    "fmt"
+    "time"
+)
+
+type Timestamps struct {
+    CreatedAt time.Time
+    UpdatedAt time.Time
 }
 
-type Product struct {
+func (t *Timestamps) Touch() {
+    t.UpdatedAt = time.Now()
+}
+
+type Identifiable struct {
+    ID string
+}
+
+type User struct {
     Identifiable
     Timestamps
     Name  string
-    Price float64
+    Email string
+}
+
+type Order struct {
+    Identifiable
+    Timestamps
+    UserID string
+    Total  float64
 }
 
 func main() {
-    fmt.Println("╔══════════════════════════════════════════════════════════╗")
-    fmt.Println("║           PRODUCTION COMPOSITION PATTERN                  ║")
-    fmt.Println("╚══════════════════════════════════════════════════════════╝")
-    
     now := time.Now()
-    
     user := User{
         Identifiable: Identifiable{ID: "user-001"},
         Timestamps:   Timestamps{CreatedAt: now, UpdatedAt: now},
         Name:         "Alice",
         Email:        "alice@example.com",
     }
-    
     order := Order{
         Identifiable: Identifiable{ID: "order-001"},
         Timestamps:   Timestamps{CreatedAt: now, UpdatedAt: now},
         UserID:       user.ID,
         Total:        99.99,
-        Status:       "pending",
     }
-    
-    fmt.Println("\n📊 All Models Have ID and Timestamps:")
-    fmt.Printf("   user.ID = %s\n", user.ID)
-    fmt.Printf("   user.CreatedAt = %s\n", user.CreatedAt.Format("2006-01-02"))
-    
-    fmt.Printf("   order.ID = %s\n", order.ID)
-    fmt.Printf("   order.CreatedAt = %s\n", order.CreatedAt.Format("2006-01-02"))
-    
-    fmt.Println("\n📊 Promoted Methods:")
-    order.Touch()  // From Timestamps
-    fmt.Printf("   order.Touch() → UpdatedAt changed\n")
+
+    fmt.Printf("user.ID = %s\n", user.ID)
+    fmt.Printf("order.ID = %s\n", order.ID)
+    order.Touch()
+    fmt.Println("order.Touch() called")
 }
 ```
 
 **Output:**
 ```
-╔══════════════════════════════════════════════════════════╗
-║           PRODUCTION COMPOSITION PATTERN                  ║
-╚══════════════════════════════════════════════════════════╝
-
-📊 All Models Have ID and Timestamps:
-   user.ID = user-001
-   user.CreatedAt = 2026-02-10
-   order.ID = order-001
-   order.CreatedAt = 2026-02-10
-
-📊 Promoted Methods:
-   order.Touch() → UpdatedAt changed
+user.ID = user-001
+order.ID = order-001
+order.Touch() called
 ```
 
 ---
 
 ## 🎯 Key Takeaways
 
-1. **No inheritance** in Go - use composition
+1. **No inheritance** in Go—use composition
 2. **Embedding** promotes fields and methods
 3. **Override** by defining method on outer type
 4. **Access original** via `outer.Embedded.Method()`
@@ -441,4 +398,3 @@ func main() {
 ## ➡️ Next Steps
 
 **Next Topic:** [28 - Error Handling Best Practices](./28-error-handling.md)
-

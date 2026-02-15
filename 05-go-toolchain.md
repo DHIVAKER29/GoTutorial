@@ -18,40 +18,25 @@
 
 When you install Go, you get a single command: `go`. This command does everything:
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  THE go COMMAND - YOUR SWISS ARMY KNIFE                         │
-│                                                                 │
-│  $ go <command> [arguments]                                     │
-│                                                                 │
-│  Building Code:                                                 │
-│  ├── go build    Compile packages and dependencies              │
-│  ├── go run      Compile and run Go program                     │
-│  ├── go install  Compile and install packages and dependencies  │
-│  └── go generate Run code generators                            │
-│                                                                 │
-│  Managing Dependencies:                                         │
-│  ├── go mod      Module maintenance                             │
-│  ├── go get      Download and install packages                  │
-│  └── go work     Workspace maintenance                          │
-│                                                                 │
-│  Testing & Quality:                                             │
-│  ├── go test     Run tests                                      │
-│  ├── go vet      Report suspicious code                         │
-│  └── go fmt      Format source code                             │
-│                                                                 │
-│  Information:                                                   │
-│  ├── go doc      Show documentation                             │
-│  ├── go env      Print Go environment                           │
-│  ├── go list     List packages or modules                       │
-│  └── go version  Print Go version                               │
-│                                                                 │
-│  Debugging:                                                     │
-│  └── go tool     Run specified go tool                          │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+**$ go \<command\> [arguments]**
+
+| Category | Commands |
+|----------|----------|
+| **Building Code** | `go build` — Compile packages and dependencies |
+| | `go run` — Compile and run Go program |
+| | `go install` — Compile and install packages and dependencies |
+| | `go generate` — Run code generators |
+| **Managing Dependencies** | `go mod` — Module maintenance |
+| | `go get` — Download and install packages |
+| | `go work` — Workspace maintenance |
+| **Testing & Quality** | `go test` — Run tests |
+| | `go vet` — Report suspicious code |
+| | `go fmt` — Format source code |
+| **Information** | `go doc` — Show documentation |
+| | `go env` — Print Go environment |
+| | `go list` — List packages or modules |
+| | `go version` — Print Go version |
+| **Debugging** | `go tool` — Run specified go tool |
 
 ---
 
@@ -79,30 +64,20 @@ go build -o bin/api ./cmd/api
 
 ### The Compilation Process
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  go build ./cmd/api                                             │
-│                                                                 │
-│  ┌──────────┐    ┌──────────────┐    ┌──────────────┐          │
-│  │  Source  │    │   Compiler   │    │    Binary    │          │
-│  │   Files  │ ──►│   (fast!)    │ ──►│  (portable)  │          │
-│  │  .go     │    │              │    │   api        │          │
-│  └──────────┘    └──────────────┘    └──────────────┘          │
-│                                                                 │
-│  What goes INTO the binary:                                     │
-│  • Your compiled code                                           │
-│  • All dependency code                                          │
-│  • Go runtime (GC, scheduler, etc.)                             │
-│  • Standard library parts you use                               │
-│                                                                 │
-│  What is NOT needed to RUN:                                     │
-│  • Go installation                                              │
-│  • Source files                                                 │
-│  • Any external dependencies                                    │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+**go build ./cmd/api**
+
+Source Files (.go) → Compiler (fast!) → Binary (portable) api
+
+**What goes INTO the binary:**
+- Your compiled code
+- All dependency code
+- Go runtime (GC, scheduler, etc.)
+- Standard library parts you use
+
+**What is NOT needed to RUN:**
+- Go installation
+- Source files
+- Any external dependencies
 
 ### Build Flags
 
@@ -149,29 +124,10 @@ go run main.go arg1 arg2
 
 ### go run vs go build
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  go run main.go                                                 │
-│  ───────────────                                                │
-│  1. Compile to /tmp/go-build-xxx/main                           │
-│  2. Execute the binary                                          │
-│  3. Delete the binary                                           │
-│                                                                 │
-│  USE FOR: Quick testing during development                      │
-│  DON'T USE FOR: Production deployment                           │
-│                                                                 │
-│  ═══════════════════════════════════════════════════════════   │
-│                                                                 │
-│  go build -o main main.go                                       │
-│  ─────────────────────────────                                  │
-│  1. Compile to ./main (permanent)                               │
-│  2. (You run it manually later)                                 │
-│                                                                 │
-│  USE FOR: Production builds, distribution                       │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+| Command | What it does | Use for |
+|---------|--------------|---------|
+| **go run main.go** | 1. Compile to /tmp/go-build-xxx/main<br>2. Execute the binary<br>3. Delete the binary | Quick testing during development. Don't use for production deployment. |
+| **go build -o main main.go** | 1. Compile to ./main (permanent)<br>2. (You run it manually later) | Production builds, distribution |
 
 ---
 
@@ -197,23 +153,18 @@ go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 
 ### Where Binaries Go
 
+1. `$GOBIN` if set
+2. `$GOPATH/bin` (default: ~/go/bin)
+
+Make sure this is in your PATH:
+```bash
+export PATH=$PATH:$(go env GOPATH)/bin
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  go install                                                     │
-│                                                                 │
-│  Binary installed to:                                           │
-│  1. $GOBIN if set                                               │
-│  2. $GOPATH/bin (default: ~/go/bin)                             │
-│                                                                 │
-│  Make sure this is in your PATH:                                │
-│  export PATH=$PATH:$(go env GOPATH)/bin                         │
-│                                                                 │
-│  Then you can run installed tools anywhere:                     │
-│  $ gopls version                                                │
-│  $ golangci-lint run                                            │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
+
+Then you can run installed tools anywhere:
+```bash
+$ gopls version
+$ golangci-lint run
 ```
 
 ---
@@ -245,25 +196,18 @@ go get github.com/gorilla/mux@v1.7.0
 
 ### Semantic Versioning
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  VERSION FORMAT: vMAJOR.MINOR.PATCH                             │
-│                                                                 │
-│  Example: v1.8.3                                                │
-│           │ │ │                                                 │
-│           │ │ └── PATCH: Bug fixes (compatible)                 │
-│           │ └──── MINOR: New features (compatible)              │
-│           └────── MAJOR: Breaking changes (incompatible)        │
-│                                                                 │
-│  Version Selection:                                             │
-│  @v1.8.0     Exact version                                      │
-│  @latest     Latest stable version                              │
-│  @v1        Latest v1.x.x                                       │
-│  @master     Latest commit on master (not recommended)          │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+**Version format: vMAJOR.MINOR.PATCH**
+
+Example: v1.8.3
+- **MAJOR** — Breaking changes (incompatible)
+- **MINOR** — New features (compatible)
+- **PATCH** — Bug fixes (compatible)
+
+**Version selection:**
+- `@v1.8.0` — Exact version
+- `@latest` — Latest stable version
+- `@v1` — Latest v1.x.x
+- `@master` — Latest commit on master (not recommended)
 
 ---
 
@@ -303,27 +247,19 @@ go mod edit -require=github.com/pkg/errors@v0.9.1
 
 ### go mod tidy - The Most Used
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  go mod tidy                                                    │
-│                                                                 │
-│  Does TWO things:                                               │
-│                                                                 │
-│  1. ADDS missing dependencies                                   │
-│     Your code: import "github.com/gorilla/mux"                  │
-│     go.mod: (missing)                                           │
-│     After tidy: require github.com/gorilla/mux v1.8.0           │
-│                                                                 │
-│  2. REMOVES unused dependencies                                 │
-│     Your code: (no longer uses github.com/old/lib)              │
-│     go.mod: require github.com/old/lib v1.0.0                   │
-│     After tidy: (removed)                                       │
-│                                                                 │
-│  ALWAYS run this before committing!                             │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+**Does TWO things:**
+
+1. **ADDS missing dependencies**
+   - Your code: `import "github.com/gorilla/mux"`
+   - go.mod: (missing)
+   - After tidy: `require github.com/gorilla/mux v1.8.0`
+
+2. **REMOVES unused dependencies**
+   - Your code: (no longer uses github.com/old/lib)
+   - go.mod: `require github.com/old/lib v1.0.0`
+   - After tidy: (removed)
+
+**ALWAYS run this before committing!**
 
 ---
 
@@ -376,23 +312,16 @@ func main() {
 
 ### Why Formatting Matters
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  GO'S PHILOSOPHY ON FORMATTING                                  │
-│                                                                 │
-│  "Gofmt's style is no one's favorite, yet gofmt is everyone's   │
-│   favorite."                                                    │
-│                                                                 │
-│  Benefits:                                                      │
-│  • No debates about tabs vs spaces                              │
-│  • No debates about brace placement                             │
-│  • All Go code looks the same                                   │
-│  • Easy to read others' code                                    │
-│  • Automated in CI/CD pipelines                                 │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+**Go's philosophy on formatting:**
+
+> "Gofmt's style is no one's favorite, yet gofmt is everyone's favorite."
+
+**Benefits:**
+- No debates about tabs vs spaces
+- No debates about brace placement
+- All Go code looks the same
+- Easy to read others' code
+- Automated in CI/CD pipelines
 
 ---
 
@@ -518,49 +447,27 @@ GOOS=linux GOARCH=arm GOARM=7 go build -o myapp-pi
 
 ### Supported Platforms
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  GOOS (Operating System)     GOARCH (Architecture)              │
-│  ───────────────────────     ─────────────────────              │
-│  linux                       amd64 (64-bit Intel/AMD)           │
-│  darwin (macOS)              arm64 (64-bit ARM, M1/M2)          │
-│  windows                     386 (32-bit Intel)                 │
-│  freebsd                     arm (32-bit ARM)                   │
-│  android                     ppc64 (PowerPC)                    │
-│  ios                         wasm (WebAssembly)                 │
-│                                                                 │
-│  See all combinations:                                          │
-│  $ go tool dist list                                            │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
+| GOOS (Operating System) | GOARCH (Architecture) |
+|-------------------------|------------------------|
+| linux | amd64 (64-bit Intel/AMD) |
+| darwin (macOS) | arm64 (64-bit ARM, M1/M2) |
+| windows | 386 (32-bit Intel) |
+| freebsd | arm (32-bit ARM) |
+| android | ppc64 (PowerPC) |
+| ios | wasm (WebAssembly) |
+
+See all combinations:
+```bash
+$ go tool dist list
 ```
 
 ### Why This is Amazing
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  CROSS-COMPILATION IN OTHER LANGUAGES                           │
-│                                                                 │
-│  C++:                                                           │
-│  • Need cross-compiler toolchain for each target                │
-│  • Often need target OS libraries                               │
-│  • Complex setup                                                │
-│                                                                 │
-│  Java:                                                          │
-│  • "Write once, run anywhere"                                   │
-│  • But requires JVM on target                                   │
-│  • JVM is 200+ MB                                               │
-│                                                                 │
-│  Go:                                                            │
-│  • Just set GOOS and GOARCH                                     │
-│  • Works out of the box                                         │
-│  • Binary includes everything                                   │
-│  • No runtime needed on target                                  │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+| Language | Cross-compilation |
+|----------|-------------------|
+| **C++** | Need cross-compiler toolchain for each target. Often need target OS libraries. Complex setup. |
+| **Java** | "Write once, run anywhere" but requires JVM on target. JVM is 200+ MB. |
+| **Go** | Just set GOOS and GOARCH. Works out of the box. Binary includes everything. No runtime needed on target. |
 
 ---
 
@@ -593,29 +500,11 @@ go-build-all: go-build-api go-build-worker
 
 ### Build Flags Explained
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  CGO_ENABLED=0                                                  │
-│  ─────────────                                                  │
-│  Disable C code compilation.                                    │
-│  Creates a fully static binary.                                 │
-│  Works better in Docker containers.                             │
-│                                                                 │
-│  -ldflags="-s -w"                                               │
-│  ────────────────                                               │
-│  -s: Omit symbol table (smaller binary)                         │
-│  -w: Omit DWARF debug info (smaller binary)                     │
-│  Result: ~30% smaller binary                                    │
-│                                                                 │
-│  -X main.version=$(VERSION)                                     │
-│  ──────────────────────────                                     │
-│  Inject version at build time.                                  │
-│  In code: var version string                                    │
-│  After build: version = "1.0.0"                                 │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+| Flag | Meaning |
+|------|---------|
+| **CGO_ENABLED=0** | Disable C code compilation. Creates a fully static binary. Works better in Docker containers. |
+| **-ldflags="-s -w"** | -s: Omit symbol table (smaller binary). -w: Omit DWARF debug info (smaller binary). Result: ~30% smaller binary. |
+| **-X main.version=$(VERSION)** | Inject version at build time. In code: `var version string`. After build: version = "1.0.0" |
 
 ---
 
@@ -667,4 +556,3 @@ go-build-all: go-build-api go-build-worker
 You now understand the Go toolchain. Let's dive into variables and constants.
 
 **Next Topic:** [06 - Variables & Constants](./06-variables-and-constants.md)
-

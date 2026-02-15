@@ -15,8 +15,11 @@
 
 ## 📝 Command Line Arguments
 
+### os.Args Basics
+
 ```go
-// cli_args.go
+// os.Args contains all command line arguments
+// Run: go run main.go hello world 123
 package main
 
 import (
@@ -25,62 +28,42 @@ import (
 )
 
 func main() {
-    fmt.Println("╔══════════════════════════════════════════════════════════╗")
-    fmt.Println("║           COMMAND LINE ARGUMENTS                          ║")
-    fmt.Println("╚══════════════════════════════════════════════════════════╝")
-    
-    // os.Args contains all command line arguments
-    fmt.Println("\n📊 os.Args:")
-    fmt.Printf("   Program name: %s\n", os.Args[0])
-    fmt.Printf("   All args: %v\n", os.Args)
-    fmt.Printf("   Arg count: %d\n", len(os.Args))
-    
-    // Arguments (skip program name)
-    if len(os.Args) > 1 {
-        fmt.Println("\n📊 User Arguments:")
-        for i, arg := range os.Args[1:] {
-            fmt.Printf("   Arg %d: %s\n", i+1, arg)
-        }
+    fmt.Printf("Program name: %s\n", os.Args[0])
+    fmt.Printf("All args: %v\n", os.Args)
+    fmt.Printf("Arg count: %d\n", len(os.Args))
+}
+// Output:
+// Program name: /tmp/go-build.../exe/main
+// All args: [.../main hello world 123]
+// Arg count: 4
+```
+
+### Iterating User Arguments
+
+```go
+package main
+
+import "fmt"
+import "os"
+
+func main() {
+    for i, arg := range os.Args[1:] {
+        fmt.Printf("Arg %d: %s\n", i+1, arg)
     }
 }
-
-/*
-Run with:
-  go run cli_args.go hello world 123
-
-Output:
-  Program name: /tmp/go-build.../exe/cli_args
-  All args: [.../cli_args hello world 123]
-  User Arguments:
-    Arg 1: hello
-    Arg 2: world
-    Arg 3: 123
-*/
-```
-
-**Output:**
-```
-╔══════════════════════════════════════════════════════════╗
-║           COMMAND LINE ARGUMENTS                          ║
-╚══════════════════════════════════════════════════════════╝
-
-📊 os.Args:
-   Program name: /tmp/go-build123456789/exe/cli_args
-   All args: [/tmp/go-build123456789/exe/cli_args hello world 123]
-   Arg count: 4
-
-📊 User Arguments:
-   Arg 1: hello
-   Arg 2: world
-   Arg 3: 123
+// Output (when run with: go run main.go hello world 123):
+// Arg 1: hello
+// Arg 2: world
+// Arg 3: 123
 ```
 
 ---
 
 ## 🚩 Flag Package
 
+### Defining Flags
+
 ```go
-// cli_flags.go
 package main
 
 import (
@@ -89,79 +72,82 @@ import (
 )
 
 func main() {
-    fmt.Println("╔══════════════════════════════════════════════════════════╗")
-    fmt.Println("║           FLAG PACKAGE                                    ║")
-    fmt.Println("╚══════════════════════════════════════════════════════════╝")
-    
-    // Define flags
     name := flag.String("name", "World", "Name to greet")
     age := flag.Int("age", 0, "Your age")
     verbose := flag.Bool("verbose", false, "Enable verbose output")
-    
-    // Pointer version
+
     var email string
     flag.StringVar(&email, "email", "", "Your email address")
-    
-    // Parse command line
+
     flag.Parse()
-    
-    // Use flags
-    fmt.Println("\n📊 Parsed Flags:")
-    fmt.Printf("   Name:    %s\n", *name)
-    fmt.Printf("   Age:     %d\n", *age)
-    fmt.Printf("   Verbose: %t\n", *verbose)
-    fmt.Printf("   Email:   %s\n", email)
-    
-    // Remaining arguments (after flags)
-    fmt.Println("\n📊 Remaining Args:")
-    fmt.Printf("   Args: %v\n", flag.Args())
-    fmt.Printf("   Count: %d\n", flag.NArg())
-    
-    if *verbose {
-        fmt.Println("\n📊 Verbose mode enabled!")
-    }
+
+    fmt.Printf("Name: %s\n", *name)
+    fmt.Printf("Age: %d\n", *age)
+    fmt.Printf("Verbose: %t\n", *verbose)
+    fmt.Printf("Email: %s\n", email)
 }
-
-/*
-Run with:
-  go run cli_flags.go -name=Alice -age=30 -verbose file1.txt file2.txt
-  go run cli_flags.go --help
-
-Output:
-  Parsed Flags:
-    Name:    Alice
-    Age:     30
-    Verbose: true
-  Remaining Args:
-    Args: [file1.txt file2.txt]
-*/
+// Output (run: go run main.go -name=Alice -age=30 -verbose):
+// Name: Alice
+// Age: 30
+// Verbose: true
+// Email:
 ```
 
-**Output:**
-```
-╔══════════════════════════════════════════════════════════╗
-║           FLAG PACKAGE                                    ║
-╚══════════════════════════════════════════════════════════╝
+### Remaining Arguments After Flags
 
-📊 Parsed Flags:
-   Name:    Alice
-   Age:     30
-   Verbose: true
-   Email:   
+```go
+package main
 
-📊 Remaining Args:
-   Args: [file1.txt file2.txt]
-   Count: 2
+import (
+    "flag"
+    "fmt"
+)
 
-📊 Verbose mode enabled!
+func main() {
+    flag.String("name", "", "Name")
+    flag.Parse()
+
+    fmt.Printf("Args: %v\n", flag.Args())
+    fmt.Printf("Count: %d\n", flag.NArg())
+}
+// Output (run: go run main.go -name=Alice file1.txt file2.txt):
+// Args: [file1.txt file2.txt]
+// Count: 2
 ```
 
 ---
 
 ## 🌍 Environment Variables
 
+### Get and Lookup
+
 ```go
-// cli_env.go
+package main
+
+import (
+    "fmt"
+    "os"
+)
+
+func main() {
+    home := os.Getenv("HOME")
+    fmt.Printf("HOME: %s\n", home)
+
+    apiKey, exists := os.LookupEnv("API_KEY")
+    if exists {
+        fmt.Printf("API_KEY: %s\n", apiKey)
+    } else {
+        fmt.Println("API_KEY: (not set)")
+    }
+}
+// Output:
+// HOME: /Users/username
+// API_KEY: (not set)
+```
+
+### Set and List
+
+```go
 package main
 
 import (
@@ -171,79 +157,33 @@ import (
 )
 
 func main() {
-    fmt.Println("╔══════════════════════════════════════════════════════════╗")
-    fmt.Println("║           ENVIRONMENT VARIABLES                           ║")
-    fmt.Println("╚══════════════════════════════════════════════════════════╝")
-    
-    // Get single variable
-    fmt.Println("\n📊 Get Variable:")
-    home := os.Getenv("HOME")
-    fmt.Printf("   HOME: %s\n", home)
-    
-    // Check if exists
-    fmt.Println("\n📊 Check Existence:")
-    apiKey, exists := os.LookupEnv("API_KEY")
-    if exists {
-        fmt.Printf("   API_KEY: %s\n", apiKey)
-    } else {
-        fmt.Println("   API_KEY: (not set)")
-    }
-    
-    // Set variable
-    fmt.Println("\n📊 Set Variable:")
     os.Setenv("MY_VAR", "hello")
-    fmt.Printf("   MY_VAR: %s\n", os.Getenv("MY_VAR"))
-    
-    // All environment variables
-    fmt.Println("\n📊 All Variables (first 5):")
+    fmt.Printf("MY_VAR: %s\n", os.Getenv("MY_VAR"))
+
     for i, env := range os.Environ() {
-        if i >= 5 {
-            fmt.Println("   ...")
+        if i >= 3 {
+            fmt.Println("...")
             break
         }
         parts := strings.SplitN(env, "=", 2)
-        fmt.Printf("   %s=%s...\n", parts[0], truncate(parts[1], 20))
+        fmt.Printf("%s=...\n", parts[0])
     }
 }
-
-func truncate(s string, n int) string {
-    if len(s) <= n {
-        return s
-    }
-    return s[:n]
-}
-```
-
-**Output:**
-```
-╔══════════════════════════════════════════════════════════╗
-║           ENVIRONMENT VARIABLES                           ║
-╚══════════════════════════════════════════════════════════╝
-
-📊 Get Variable:
-   HOME: /Users/dhivaker.s
-
-📊 Check Existence:
-   API_KEY: (not set)
-
-📊 Set Variable:
-   MY_VAR: hello
-
-📊 All Variables (first 5):
-   PATH=/usr/local/bin:/usr/bin:...
-   HOME=/Users/dhivaker.s
-   USER=dhivaker.s
-   SHELL=/bin/zsh
-   TERM=xterm-256color
-   ...
+// Output:
+// MY_VAR: hello
+// PATH=...
+// HOME=...
+// USER=...
+// ...
 ```
 
 ---
 
 ## 🏭 Production CLI Pattern
 
+### Complete Example
+
 ```go
-// cli_production.go
 package main
 
 import (
@@ -252,27 +192,23 @@ import (
     "os"
 )
 
-// Version info (set at build time)
 var (
     Version   = "dev"
     BuildTime = "unknown"
 )
 
-// Config from flags and env
 type Config struct {
-    Host      string
-    Port      int
-    Debug     bool
-    LogLevel  string
+    Host  string
+    Port  int
+    Debug bool
 }
 
 func main() {
-    // Subcommands
     if len(os.Args) < 2 {
         printUsage()
         os.Exit(1)
     }
-    
+
     switch os.Args[1] {
     case "serve":
         serveCmd(os.Args[2:])
@@ -289,20 +225,12 @@ func main() {
 
 func serveCmd(args []string) {
     fs := flag.NewFlagSet("serve", flag.ExitOnError)
-    
-    // Flags with env fallback
     host := fs.String("host", getEnvOrDefault("HOST", "localhost"), "Server host")
     port := fs.Int("port", 8080, "Server port")
     debug := fs.Bool("debug", false, "Enable debug mode")
-    
     fs.Parse(args)
-    
-    cfg := Config{
-        Host:  *host,
-        Port:  *port,
-        Debug: *debug,
-    }
-    
+
+    cfg := Config{Host: *host, Port: *port, Debug: *debug}
     fmt.Printf("Starting server on %s:%d (debug=%t)\n", cfg.Host, cfg.Port, cfg.Debug)
 }
 
@@ -320,29 +248,20 @@ func printUsage() {
     fmt.Println("  version   Show version info")
     fmt.Println("  help      Show this help")
 }
-
-/*
-Build with version:
-  go build -ldflags "-X main.Version=1.0.0 -X main.BuildTime=$(date -u +%Y-%m-%dT%H:%M:%S)" -o myapp
-
-Run:
-  ./myapp serve -port=3000 -debug
-  ./myapp version
-*/
 ```
 
-**Output:**
+**Output** (when running `./myapp serve -port=3000 -debug`):
 ```
 Starting server on localhost:3000 (debug=true)
 ```
 
-(When running `./myapp version`:)
+**Output** (when running `./myapp version`):
 ```
 Version: 1.0.0
 Build: 2026-02-10T12:34:56
 ```
 
-(When running `./myapp` without arguments:)
+**Output** (when running `./myapp` without arguments):
 ```
 Usage: myapp <command> [options]
 
@@ -350,6 +269,11 @@ Commands:
   serve     Start the server
   version   Show version info
   help      Show this help
+```
+
+**Build with version:**
+```bash
+go build -ldflags "-X main.Version=1.0.0 -X main.BuildTime=$(date -u +%Y-%m-%dT%H:%M:%S)" -o myapp
 ```
 
 ---
@@ -367,4 +291,3 @@ Commands:
 ## ➡️ Next Steps
 
 **Next Topic:** [42 - Logging](./42-logging.md)
-

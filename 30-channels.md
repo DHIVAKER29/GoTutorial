@@ -22,44 +22,67 @@
 
 ### Real-World Analogy
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  CHANNEL = PIPE / CONVEYOR BELT                                 │
-│                                                                 │
-│  Goroutine A              Channel               Goroutine B     │
-│  (Producer)                                     (Consumer)      │
-│                                                                 │
-│  ┌─────────┐       ┌─────────────────┐        ┌─────────┐      │
-│  │ Creates │  ───► │  ══════════════ │  ───► │ Receives│      │
-│  │  data   │  send │  ══════════════ │  recv │  data   │      │
-│  └─────────┘       └─────────────────┘        └─────────┘      │
-│                                                                 │
-│  Properties:                                                    │
-│  • Type-safe: chan int only carries ints                        │
-│  • Blocking: send waits for receiver (unbuffered)               │
-│  • Thread-safe: no locks needed!                                │
-│  • Synchronization built-in                                     │
-│                                                                 │
-│  UNBUFFERED (default): Synchronous handoff                      │
-│  ┌─────┐     ┌─────┐                                           │
-│  │ --> │ --> │ --> │  Sender blocks until receiver ready        │
-│  └─────┘     └─────┘                                           │
-│                                                                 │
-│  BUFFERED (capacity N): Can hold N items                        │
-│  ┌─────┬─────┬─────┐                                           │
-│  │  1  │  2  │  3  │  Sender blocks only when buffer full      │
-│  └─────┴─────┴─────┘                                           │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+- **Channel = pipe / conveyor belt** between producer and consumer goroutines
+- **Properties:**
+  - Type-safe: `chan int` only carries ints
+  - Blocking: send waits for receiver (unbuffered)
+  - Thread-safe: no locks needed
+  - Synchronization built-in
+- **Unbuffered (default):** Synchronous handoff — sender blocks until receiver ready
+- **Buffered (capacity N):** Can hold N items — sender blocks only when buffer full
 
 ---
 
 ## 📝 Channel Basics
 
+### Creating Channels
+
 ```go
-// channel_basics.go
+ch := make(chan int)           // Unbuffered
+bufferedCh := make(chan string, 3)  // Buffered, capacity 3
+// Output: ch is chan int, bufferedCh has cap=3
+```
+
+### Basic Send and Receive
+
+```go
+ch := make(chan int)
+go func() { ch <- 42 }()
+value := <-ch  // Blocks until data available
+// Output: value is 42
+```
+
+### Range Over Channel
+
+```go
+ch := make(chan int)
+go func() {
+    for i := 1; i <= 3; i++ {
+        ch <- i * 10
+    }
+    close(ch)
+}()
+for val := range ch {
+    fmt.Println(val)
+}
+// Output: 10, 20, 30
+```
+
+### Buffered Channel
+
+```go
+ch := make(chan string, 3)
+ch <- "first"
+ch <- "second"
+ch <- "third"
+// No blocking until buffer full
+fmt.Println(<-ch, <-ch, <-ch)
+// Output: first second third
+```
+
+### Complete Example: Channel Basics
+
+```go
 package main
 
 import (
@@ -68,87 +91,69 @@ import (
 )
 
 func main() {
-    fmt.Println("╔══════════════════════════════════════════════════════════╗")
-    fmt.Println("║           CHANNEL BASICS                                  ║")
-    fmt.Println("╚══════════════════════════════════════════════════════════╝")
-    
-    // Creating channels
-    fmt.Println("\n📊 Creating Channels:")
-    ch := make(chan int)          // Unbuffered channel
-    bufferedCh := make(chan string, 3)  // Buffered with capacity 3
-    
-    fmt.Printf("   ch: %T\n", ch)
-    fmt.Printf("   bufferedCh: %T, cap=%d\n", bufferedCh, cap(bufferedCh))
-    
-    // Basic send and receive
-    fmt.Println("\n📊 Basic Send and Receive:")
+    ch := make(chan int)
+    bufferedCh := make(chan string, 3)
+
     go func() {
-        ch <- 42  // Send
-        fmt.Println("   goroutine: sent 42")
+        ch <- 42
     }()
-    
-    value := <-ch  // Receive (blocks until data available)
-    fmt.Printf("   main: received %d\n", value)
-    
-    // Multiple values
-    fmt.Println("\n📊 Multiple Values:")
+    fmt.Println("Received:", <-ch)
+
     go func() {
         for i := 1; i <= 3; i++ {
             ch <- i * 10
             time.Sleep(50 * time.Millisecond)
         }
-        close(ch)  // Signal no more values
+        close(ch)
     }()
-    
-    for val := range ch {  // Receive until closed
-        fmt.Printf("   Received: %d\n", val)
+    for val := range ch {
+        fmt.Println("Received:", val)
     }
-    
-    // Buffered channel
-    fmt.Println("\n📊 Buffered Channel (no blocking until full):")
-    bufferedCh <- "first"
-    bufferedCh <- "second"
-    bufferedCh <- "third"
-    // bufferedCh <- "fourth"  // Would block! Buffer full
-    
-    fmt.Printf("   Received: %s\n", <-bufferedCh)
-    fmt.Printf("   Received: %s\n", <-bufferedCh)
-    fmt.Printf("   Received: %s\n", <-bufferedCh)
+
+    bufferedCh <- "a"
+    bufferedCh <- "b"
+    bufferedCh <- "c"
+    fmt.Println(<-bufferedCh, <-bufferedCh, <-bufferedCh)
 }
 ```
 
 **Output:**
 ```
-(goroutine output order may vary)
-╔══════════════════════════════════════════════════════════╗
-║           CHANNEL BASICS                                  ║
-╚══════════════════════════════════════════════════════════╝
-
-📊 Creating Channels:
-   ch: chan int
-   bufferedCh: chan string, cap=3
-
-📊 Basic Send and Receive:
-   main: received 42
-   goroutine: sent 42
-
-📊 Multiple Values:
-   Received: 10
-   Received: 20
-   Received: 30
-
-📊 Buffered Channel (no blocking until full):
-   Received: first
-   Received: second
-   Received: third
+Received: 42
+Received: 10
+Received: 20
+Received: 30
+a b c
 ```
 
 ---
 
 ## 📤📥 Send and Receive Operations
 
+### Receive with OK (Check if Closed)
+
 ```go
-// channel_operations.go
+ch := make(chan int)
+go func() {
+    ch <- 42
+    close(ch)
+}()
+val, ok := <-ch
+// ok is true when channel open, false when closed
+// Output: val=42, ok=true
+```
+
+### Channel Direction in Signatures
+
+| Syntax | Meaning |
+|--------|---------|
+| `chan int` | Bidirectional |
+| `chan<- int` | Send only |
+| `<-chan int` | Receive only |
+
+### Complete Example: Channel Operations
+
+```go
 package main
 
 import (
@@ -157,263 +162,141 @@ import (
 )
 
 func main() {
-    fmt.Println("╔══════════════════════════════════════════════════════════╗")
-    fmt.Println("║           CHANNEL OPERATIONS                              ║")
-    fmt.Println("╚══════════════════════════════════════════════════════════╝")
-    
     ch := make(chan int, 2)
-    
-    // Send operation: ch <- value
-    fmt.Println("\n📊 Send Operation (ch <- value):")
     ch <- 10
     ch <- 20
-    fmt.Println("   Sent 10 and 20")
-    
-    // Receive operation: value := <-ch
-    fmt.Println("\n📊 Receive Operation (value := <-ch):")
-    v1 := <-ch
-    v2 := <-ch
-    fmt.Printf("   Received: %d, %d\n", v1, v2)
-    
-    // Receive with ok (check if channel closed)
-    fmt.Println("\n📊 Receive with OK (check if closed):")
+    fmt.Println(<-ch, <-ch)
+
     ch2 := make(chan int)
     go func() {
         ch2 <- 42
         close(ch2)
     }()
-    
     time.Sleep(10 * time.Millisecond)
-    
     if val, ok := <-ch2; ok {
-        fmt.Printf("   Received: %d (channel open)\n", val)
+        fmt.Println("Received:", val)
     }
-    
-    if val, ok := <-ch2; !ok {
-        fmt.Printf("   Received: %d (channel CLOSED)\n", val)
+    if _, ok := <-ch2; !ok {
+        fmt.Println("Channel closed")
     }
-    
-    // Range over channel
-    fmt.Println("\n📊 Range Over Channel:")
-    ch3 := make(chan int)
-    go func() {
-        for i := 1; i <= 5; i++ {
-            ch3 <- i
-        }
-        close(ch3)  // MUST close for range to terminate!
-    }()
-    
-    fmt.Print("   Values: ")
-    for v := range ch3 {
-        fmt.Printf("%d ", v)
-    }
-    fmt.Println("(channel closed, range exited)")
-    
-    // Channel direction in function signatures
-    fmt.Println("\n📊 Channel Direction (restrict access):")
-    fmt.Println("   chan int     - bidirectional")
-    fmt.Println("   chan<- int   - send only")
-    fmt.Println("   <-chan int   - receive only")
 }
 ```
 
 **Output:**
 ```
-(goroutine output order may vary)
-╔══════════════════════════════════════════════════════════╗
-║           CHANNEL OPERATIONS                              ║
-╚══════════════════════════════════════════════════════════╝
-
-📊 Send Operation (ch <- value):
-   Sent 10 and 20
-
-📊 Receive Operation (value := <-ch):
-   Received: 10, 20
-
-📊 Receive with OK (check if closed):
-   Received: 42 (channel open)
-   Received: 0 (channel CLOSED)
-
-📊 Range Over Channel:
-   Values: 1 2 3 4 5 (channel closed, range exited)
-
-📊 Channel Direction (restrict access):
-   chan int     - bidirectional
-   chan<- int   - send only
-   <-chan int   - receive only
+10 20
+Received: 42
+Channel closed
 ```
 
 ---
 
 ## 🔒 Closing Channels
 
+### Reading from Closed Channel
+
 ```go
-// channel_close.go
+ch := make(chan int)
+go func() {
+    ch <- 1
+    ch <- 2
+    close(ch)
+}()
+for val, ok := <-ch; ok; val, ok = <-ch {
+    fmt.Println(val)
+}
+// Output: 1, 2, then loop exits when ok=false
+```
+
+### Channel Closing Rules
+
+| Rule | Description |
+|------|-------------|
+| Only sender closes | Receiver should not close |
+| Send to closed | **PANIC** |
+| Receive from closed | Zero value, `ok=false` |
+| Close already closed | **PANIC** |
+
+### Complete Example: Closing Channels
+
+```go
 package main
 
 import "fmt"
 
 func main() {
-    fmt.Println("╔══════════════════════════════════════════════════════════╗")
-    fmt.Println("║           CLOSING CHANNELS                                ║")
-    fmt.Println("╚══════════════════════════════════════════════════════════╝")
-    
     ch := make(chan int)
-    
     go func() {
         for i := 1; i <= 3; i++ {
             ch <- i
         }
-        close(ch)  // Signal: no more values
+        close(ch)
     }()
-    
-    // Reading from closed channel
-    fmt.Println("\n📊 Reading from Closed Channel:")
     for {
         val, ok := <-ch
         if !ok {
-            fmt.Println("   Channel closed!")
+            fmt.Println("Channel closed!")
             break
         }
-        fmt.Printf("   Received: %d\n", val)
+        fmt.Println("Received:", val)
     }
-    
-    // Important rules
-    fmt.Println("\n⚠️ Channel Closing Rules:")
-    fmt.Println("   • Only SENDER should close")
-    fmt.Println("   • Sending to closed channel = PANIC")
-    fmt.Println("   • Receiving from closed = zero value, ok=false")
-    fmt.Println("   • Closing already closed = PANIC")
-    fmt.Println("   • Don't need to close if garbage collected")
-    
-    // Receiving from closed channel returns zero value
-    fmt.Println("\n📊 Closed Channel Returns Zero Values:")
-    closedCh := make(chan int)
-    close(closedCh)
-    
-    fmt.Printf("   <-closedCh = %d (zero value)\n", <-closedCh)
-    fmt.Printf("   <-closedCh = %d (still works, zero value)\n", <-closedCh)
 }
 ```
 
 **Output:**
 ```
-(goroutine output order may vary)
-╔══════════════════════════════════════════════════════════╗
-║           CLOSING CHANNELS                                ║
-╚══════════════════════════════════════════════════════════╝
-
-📊 Reading from Closed Channel:
-   Received: 1
-   Received: 2
-   Received: 3
-   Channel closed!
-
-⚠️ Channel Closing Rules:
-   • Only SENDER should close
-   • Sending to closed channel = PANIC
-   • Receiving from closed = zero value, ok=false
-   • Closing already closed = PANIC
-   • Don't need to close if garbage collected
-
-📊 Closed Channel Returns Zero Values:
-   <-closedCh = 0 (zero value)
-   <-closedCh = 0 (still works, zero value)
+Received: 1
+Received: 2
+Received: 3
+Channel closed!
 ```
 
 ---
 
 ## 🔀 Channel Patterns
 
+### Done Channel (Signal Completion)
+
 ```go
-// channel_patterns.go
+done := make(chan struct{})
+go func() {
+    // ... work ...
+    close(done)
+}()
+<-done  // Wait for signal
+```
+
+### Producer-Consumer
+
+```go
+jobs := make(chan int, 5)
+results := make(chan int, 5)
+go func() {
+    for i := 1; i <= 5; i++ {
+        jobs <- i
+    }
+    close(jobs)
+}()
+go func() {
+    for job := range jobs {
+        results <- job * 2
+    }
+    close(results)
+}()
+for r := range results {
+    fmt.Println(r)
+}
+// Output: 2, 4, 6, 8, 10
+```
+
+### Complete Example: Pipeline Pattern
+
+```go
 package main
 
-import (
-    "fmt"
-    "time"
-)
+import "fmt"
 
 func main() {
-    fmt.Println("╔══════════════════════════════════════════════════════════╗")
-    fmt.Println("║           CHANNEL PATTERNS                                ║")
-    fmt.Println("╚══════════════════════════════════════════════════════════╝")
-    
-    // Pattern 1: Done channel (signal completion)
-    fmt.Println("\n📊 Pattern 1: Done Channel")
-    done := make(chan struct{})
-    go func() {
-        fmt.Println("   worker: working...")
-        time.Sleep(100 * time.Millisecond)
-        fmt.Println("   worker: done!")
-        close(done)  // Signal completion
-    }()
-    <-done  // Wait for signal
-    fmt.Println("   main: worker finished")
-    
-    // Pattern 2: Producer-Consumer
-    fmt.Println("\n📊 Pattern 2: Producer-Consumer")
-    jobs := make(chan int, 5)
-    results := make(chan int, 5)
-    
-    // Producer
-    go func() {
-        for i := 1; i <= 5; i++ {
-            jobs <- i
-        }
-        close(jobs)
-    }()
-    
-    // Consumer
-    go func() {
-        for job := range jobs {
-            results <- job * 2  // Process
-        }
-        close(results)
-    }()
-    
-    for result := range results {
-        fmt.Printf("   Result: %d\n", result)
-    }
-    
-    // Pattern 3: Fan-out, Fan-in
-    fmt.Println("\n📊 Pattern 3: Fan-out, Fan-in")
-    fanOutIn()
-    
-    // Pattern 4: Pipeline
-    fmt.Println("\n📊 Pattern 4: Pipeline")
-    pipeline()
-}
-
-func fanOutIn() {
-    input := make(chan int)
-    output := make(chan int)
-    
-    // Fan-out: 3 workers
-    for w := 0; w < 3; w++ {
-        go func(id int) {
-            for n := range input {
-                output <- n * 2
-            }
-        }(w)
-    }
-    
-    // Send work
-    go func() {
-        for i := 1; i <= 6; i++ {
-            input <- i
-        }
-        close(input)
-    }()
-    
-    // Fan-in: collect results
-    for i := 0; i < 6; i++ {
-        fmt.Printf("   Result: %d\n", <-output)
-    }
-}
-
-func pipeline() {
-    // Stage 1: Generate numbers
     gen := func(nums ...int) <-chan int {
         out := make(chan int)
         go func() {
@@ -424,8 +307,6 @@ func pipeline() {
         }()
         return out
     }
-    
-    // Stage 2: Square numbers
     sq := func(in <-chan int) <-chan int {
         out := make(chan int)
         go func() {
@@ -436,75 +317,34 @@ func pipeline() {
         }()
         return out
     }
-    
-    // Pipeline: gen -> sq -> print
     for n := range sq(gen(1, 2, 3, 4, 5)) {
-        fmt.Printf("   Squared: %d\n", n)
+        fmt.Println("Squared:", n)
     }
 }
 ```
 
 **Output:**
 ```
-(goroutine output order may vary)
-╔══════════════════════════════════════════════════════════╗
-║           CHANNEL PATTERNS                                ║
-╚══════════════════════════════════════════════════════════╝
-
-📊 Pattern 1: Done Channel
-   worker: working...
-   worker: done!
-   main: worker finished
-
-📊 Pattern 2: Producer-Consumer
-   Result: 2
-   Result: 4
-   Result: 6
-   Result: 8
-   Result: 10
-
-📊 Pattern 3: Fan-out, Fan-in
-   Result: 2
-   Result: 4
-   Result: 6
-   Result: 8
-   Result: 10
-   Result: 12
-
-📊 Pattern 4: Pipeline
-   Squared: 1
-   Squared: 4
-   Squared: 9
-   Squared: 16
-   Squared: 25
+Squared: 1
+Squared: 4
+Squared: 9
+Squared: 16
+Squared: 25
 ```
 
 ---
 
 ## 🆚 Unbuffered vs Buffered
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  UNBUFFERED CHANNEL (make(chan T))                              │
-│                                                                 │
-│  • Synchronous: sender blocks until receiver ready              │
-│  • Guarantees: message received when send completes             │
-│  • Use when: you need synchronization                           │
-│                                                                 │
-│  BUFFERED CHANNEL (make(chan T, N))                             │
-│                                                                 │
-│  • Asynchronous: sender blocks only when buffer full            │
-│  • No guarantee: message might be in buffer, not received       │
-│  • Use when: you need decoupling, rate limiting                 │
-│                                                                 │
-│  CHOOSING:                                                      │
-│  • Default to unbuffered (simpler, safer)                       │
-│  • Use buffered for performance or known workloads              │
-│  • Buffer size should have meaning (not arbitrary!)             │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+| Aspect | Unbuffered `make(chan T)` | Buffered `make(chan T, N)` |
+|--------|---------------------------|----------------------------|
+| Behavior | Synchronous handoff | Asynchronous until full |
+| Sender blocks | Until receiver ready | Only when buffer full |
+| Guarantee | Message received when send completes | Message may be in buffer |
+| Use when | Need synchronization | Decoupling, rate limiting |
+| Default | Prefer for simplicity | Use for performance |
+
+**Choosing:** Default to unbuffered. Use buffered for known workloads. Buffer size should have meaning.
 
 ---
 
@@ -524,4 +364,3 @@ func pipeline() {
 ## ➡️ Next Steps
 
 **Next Topic:** [31 - Select](./31-select.md)
-

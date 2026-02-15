@@ -20,59 +20,48 @@
 
 Imagine writing a large program in a single file:
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  main.go (10,000 lines!)                                        │
-│  ─────────────────────────                                      │
-│  • Database connection code                                     │
-│  • User authentication code                                     │
-│  • Payment processing code                                      │
-│  • Email sending code                                           │
-│  • Logging code                                                 │
-│  • Utility functions                                            │
-│  • HTTP handlers                                                │
-│  • ... and more                                                 │
-│                                                                 │
-│  PROBLEMS:                                                      │
-│  ❌ Impossible to navigate                                      │
-│  ❌ Can't work on same file with team                           │
-│  ❌ Can't reuse code in other projects                          │
-│  ❌ Can't test individual pieces                                │
-│  ❌ Naming conflicts everywhere                                 │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+**main.go (10,000 lines!)**
+- Database connection code
+- User authentication code
+- Payment processing code
+- Email sending code
+- Logging code
+- Utility functions
+- HTTP handlers
+- ... and more
+
+**Problems:**
+- Impossible to navigate
+- Can't work on same file with team
+- Can't reuse code in other projects
+- Can't test individual pieces
+- Naming conflicts everywhere
 
 ### With Packages
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  myproject/                                                     │
-│  ├── go.mod                 ← Module definition                 │
-│  ├── main.go                ← Entry point (package main)        │
-│  ├── database/              ← package database                  │
-│  │   ├── connection.go                                          │
-│  │   └── queries.go                                             │
-│  ├── auth/                  ← package auth                      │
-│  │   ├── login.go                                               │
-│  │   └── token.go                                               │
-│  ├── payment/               ← package payment                   │
-│  │   ├── process.go                                             │
-│  │   └── refund.go                                              │
-│  └── utils/                 ← package utils                     │
-│      └── helpers.go                                             │
-│                                                                 │
-│  BENEFITS:                                                      │
-│  ✅ Clear organization                                          │
-│  ✅ Team can work in parallel                                   │
-│  ✅ Code is reusable                                            │
-│  ✅ Easy to test pieces                                         │
-│  ✅ Naming scoped to package                                    │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
+myproject/
+├── go.mod                 ← Module definition
+├── main.go                ← Entry point (package main)
+├── database/              ← package database
+│   ├── connection.go
+│   └── queries.go
+├── auth/                  ← package auth
+│   ├── login.go
+│   └── token.go
+├── payment/               ← package payment
+│   ├── process.go
+│   └── refund.go
+└── utils/                 ← package utils
+    └── helpers.go
 ```
+
+**Benefits:**
+- Clear organization
+- Team can work in parallel
+- Code is reusable
+- Easy to test pieces
+- Naming scoped to package
 
 ---
 
@@ -84,68 +73,50 @@ Imagine writing a large program in a single file:
 
 ### Real-World Analogy: Departments in a Company
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  COMPANY (Project)                                              │
-│  ═════════════════                                              │
-│                                                                 │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐             │
-│  │   Finance   │  │   HR        │  │  Engineering│             │
-│  │  Department │  │  Department │  │  Department │             │
-│  ├─────────────┤  ├─────────────┤  ├─────────────┤             │
-│  │ • Payroll   │  │ • Hiring    │  │ • Backend   │             │
-│  │ • Budget    │  │ • Reviews   │  │ • Frontend  │             │
-│  │ • Taxes     │  │ • Benefits  │  │ • Database  │             │
-│  └─────────────┘  └─────────────┘  └─────────────┘             │
-│                                                                 │
-│  In Go:                                                         │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐             │
-│  │   finance   │  │     auth    │  │   handler   │             │
-│  │   package   │  │   package   │  │   package   │             │
-│  ├─────────────┤  ├─────────────┤  ├─────────────┤             │
-│  │ payroll.go  │  │  login.go   │  │  user.go    │             │
-│  │ budget.go   │  │  token.go   │  │  order.go   │             │
-│  │ taxes.go    │  │  verify.go  │  │  payment.go │             │
-│  └─────────────┘  └─────────────┘  └─────────────┘             │
-│                                                                 │
-│  Each package:                                                  │
-│  • Has a specific responsibility                                │
-│  • Exposes only what others need (exported = Capital letter)    │
-│  • Hides internal details (unexported = lowercase)              │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+**Company (Project)**
+- **Finance Department** — Payroll, Budget, Taxes
+- **HR Department** — Hiring, Reviews, Benefits
+- **Engineering Department** — Backend, Frontend, Database
+
+**In Go:**
+- **finance package** — payroll.go, budget.go, taxes.go
+- **auth package** — login.go, token.go, verify.go
+- **handler package** — user.go, order.go, payment.go
+
+Each package:
+- Has a specific responsibility
+- Exposes only what others need (exported = Capital letter)
+- Hides internal details (unexported = lowercase)
 
 ### Package Rules
 
+**1. All files in a directory must have same package name**
+
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  PACKAGE RULES                                                  │
-│                                                                 │
-│  1. All files in a directory must have same package name        │
-│                                                                 │
-│     myproject/utils/                                            │
-│       ├── strings.go   ← package utils                          │
-│       ├── numbers.go   ← package utils                          │
-│       └── dates.go     ← package utils                          │
-│                                                                 │
-│     ❌ WRONG: mixing package names in same directory            │
-│       ├── strings.go   ← package utils                          │
-│       └── numbers.go   ← package helpers   ← ERROR!             │
-│                                                                 │
-│  2. Package name = directory name (convention, not required)    │
-│                                                                 │
-│     myproject/utils/    ← directory "utils"                     │
-│       └── helpers.go    ← package utils  ✅ matches             │
-│                                                                 │
-│  3. Exception: package main can be in any directory name        │
-│                                                                 │
-│     myproject/cmd/api/  ← directory "api"                       │
-│       └── main.go       ← package main  ✅ OK (executable)      │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
+myproject/utils/
+├── strings.go   ← package utils
+├── numbers.go   ← package utils
+└── dates.go     ← package utils
+```
+
+Wrong: mixing package names in same directory
+```
+├── strings.go   ← package utils
+└── numbers.go   ← package helpers   ← ERROR!
+```
+
+**2. Package name = directory name (convention, not required)**
+
+```
+myproject/utils/    ← directory "utils"
+└── helpers.go      ← package utils  ✅ matches
+```
+
+**3. Exception: package main can be in any directory name**
+
+```
+myproject/cmd/api/  ← directory "api"
+└── main.go         ← package main  ✅ OK (executable)
 ```
 
 ---
@@ -158,35 +129,19 @@ Imagine writing a large program in a single file:
 
 ### Module vs Package
 
+| Concept | Description |
+|---------|-------------|
+| **Module** (go.mod) | The whole project. Like a book. |
+| **Package** | One chapter. A collection of related .go files. |
+
+**Real Example:**
+
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  MODULE vs PACKAGE                                              │
-│                                                                 │
-│  ┌────────────────────────────────────────────────────────────┐│
-│  │  MODULE (go.mod)                                           ││
-│  │  ════════════════                                          ││
-│  │  The whole project                                         ││
-│  │  Like a book                                               ││
-│  │                                                            ││
-│  │  ┌────────────┐ ┌────────────┐ ┌────────────┐             ││
-│  │  │  Package   │ │  Package   │ │  Package   │             ││
-│  │  │  ════════  │ │  ════════  │ │  ════════  │             ││
-│  │  │  One       │ │  One       │ │  One       │             ││
-│  │  │  chapter   │ │  chapter   │ │  chapter   │             ││
-│  │  └────────────┘ └────────────┘ └────────────┘             ││
-│  │                                                            ││
-│  └────────────────────────────────────────────────────────────┘│
-│                                                                 │
-│  Real Example:                                                  │
-│                                                                 │
-│  github.com/razorpay/catalyst   ← MODULE (the project)         │
-│    ├── internal/mgst            ← PACKAGE (one feature)         │
-│    ├── internal/boot            ← PACKAGE (initialization)      │
-│    ├── pkg/utils                ← PACKAGE (utilities)           │
-│    └── cmd/api                  ← PACKAGE (main entry point)    │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
+github.com/razorpay/catalyst   ← MODULE (the project)
+├── internal/mgst            ← PACKAGE (one feature)
+├── internal/boot            ← PACKAGE (initialization)
+├── pkg/utils                ← PACKAGE (utilities)
+└── cmd/api                  ← PACKAGE (main entry point)
 ```
 
 ---
@@ -223,38 +178,12 @@ require (
 
 ### Line-by-Line Breakdown
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  module github.com/razorpay/catalyst                            │
-│  ─────────────────────────────────────                          │
-│  • MODULE PATH: unique identifier for this project              │
-│  • Used when importing packages from this module                │
-│  • Usually a URL where code is hosted (but doesn't have to be)  │
-│                                                                 │
-│  go 1.23                                                        │
-│  ─────────                                                      │
-│  • Minimum Go version required                                  │
-│  • Enables version-specific features                            │
-│                                                                 │
-│  require (                                                      │
-│      github.com/gorilla/mux v1.8.0                              │
-│  )                                                              │
-│  ───────────────────────────────────                            │
-│  • DIRECT DEPENDENCIES: packages your code directly imports     │
-│  • Each has a specific version (v1.8.0)                         │
-│  • Versions use semantic versioning (vMAJOR.MINOR.PATCH)        │
-│                                                                 │
-│  require (                                                      │
-│      golang.org/x/net v0.17.0 // indirect                       │
-│  )                                                              │
-│  ────────────────────────────────────────                       │
-│  • INDIRECT DEPENDENCIES: dependencies of your dependencies     │
-│  • You don't import these, but they're needed                   │
-│  • Marked with "// indirect" comment                            │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+| Line | Meaning |
+|------|---------|
+| `module github.com/razorpay/catalyst` | **Module path** — unique identifier. Used when importing. Usually a URL where code is hosted. |
+| `go 1.23` | **Minimum Go version** required. Enables version-specific features. |
+| `require (...)` (direct) | **Direct dependencies** — packages your code directly imports. Each has a specific version (v1.8.0). Uses semantic versioning (vMAJOR.MINOR.PATCH). |
+| `require (...)` (indirect) | **Indirect dependencies** — dependencies of your dependencies. You don't import these, but they're needed. Marked with `// indirect`. |
 
 ### Creating a go.mod
 
@@ -287,28 +216,21 @@ The `go.sum` file is a security feature. It contains checksums (cryptographic ha
 
 ### Why We Need It
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  THE PROBLEM: Supply Chain Attacks                              │
-│                                                                 │
-│  Scenario:                                                      │
-│  1. You depend on "awesome-lib v1.0.0"                          │
-│  2. Attacker hacks the library's repository                     │
-│  3. Attacker modifies v1.0.0 to include malware                 │
-│  4. You download "v1.0.0" (now with malware)                    │
-│  5. Your app is compromised!                                    │
-│                                                                 │
-│  THE SOLUTION: Checksums                                        │
-│                                                                 │
-│  1. First time you download "awesome-lib v1.0.0"                │
-│  2. Go calculates a checksum (hash) of the content              │
-│  3. Checksum is saved in go.sum                                 │
-│  4. Next download, Go checks: does content match checksum?      │
-│  5. If not → ERROR! Someone tampered with the code!             │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+**The Problem: Supply Chain Attacks**
+
+1. You depend on "awesome-lib v1.0.0"
+2. Attacker hacks the library's repository
+3. Attacker modifies v1.0.0 to include malware
+4. You download "v1.0.0" (now with malware)
+5. Your app is compromised!
+
+**The Solution: Checksums**
+
+1. First time you download "awesome-lib v1.0.0"
+2. Go calculates a checksum (hash) of the content
+3. Checksum is saved in go.sum
+4. Next download, Go checks: does content match checksum?
+5. If not → ERROR! Someone tampered with the code!
 
 ### Structure
 
@@ -320,54 +242,23 @@ github.com/gorilla/mux v1.8.0/go.mod h1:DVbg23sWSpFRCP0SfiEN6jmj59UnW/n46BH5rLB7
 
 ### Line Breakdown
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  github.com/gorilla/mux v1.8.0 h1:i40aqf...koI=                 │
-│  ─────────────────────────────────────────────────              │
-│  │                    │      │                                  │
-│  │                    │      └── h1: = hash of the MODULE ZIP   │
-│  │                    └── Version                               │
-│  └── Module path                                                │
-│                                                                 │
-│  github.com/gorilla/mux v1.8.0/go.mod h1:DVbg23...71So=         │
-│  ───────────────────────────────────────────────────────        │
-│  │                              │                               │
-│  │                              └── /go.mod = hash of go.mod    │
-│  └── Module path + version                file only             │
-│                                                                 │
-│  Two hashes per dependency:                                     │
-│  1. Hash of entire module content                               │
-│  2. Hash of just the go.mod file                                │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+- `github.com/gorilla/mux v1.8.0 h1:i40aqf...koI=` — Module path | Version | h1: = hash of the MODULE ZIP
+- `github.com/gorilla/mux v1.8.0/go.mod h1:DVbg23...71So=` — /go.mod = hash of go.mod file only
+
+Two hashes per dependency:
+1. Hash of entire module content
+2. Hash of just the go.mod file
 
 ### Real-World Analogy
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  CHECKSUM = SEAL ON A MEDICINE BOTTLE                           │
-│                                                                 │
-│  When you buy medicine:                                         │
-│  ┌─────────────────┐                                            │
-│  │  💊 Aspirin     │  ← Sealed wrapper                          │
-│  │  ──────────────  │                                           │
-│  │  If seal broken │  → Don't use! May be tampered!             │
-│  │  If seal intact │  → Safe to use!                            │
-│  └─────────────────┘                                            │
-│                                                                 │
-│  In Go:                                                         │
-│  ┌─────────────────┐                                            │
-│  │  📦 gorilla/mux │  ← Checksum in go.sum                      │
-│  │  ──────────────  │                                           │
-│  │  Checksum match │  → Safe! Use it!                           │
-│  │  Checksum fail  │  → ERROR! Don't use!                       │
-│  └─────────────────┘                                            │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+**Checksum = Seal on a medicine bottle**
+
+- If seal broken → Don't use! May be tampered!
+- If seal intact → Safe to use!
+
+**In Go:**
+- Checksum match → Safe! Use it!
+- Checksum fail → ERROR! Don't use!
 
 ---
 
@@ -420,34 +311,29 @@ require github.com/gorilla/mux v1.8.0
 
 ### The Capital Letter Rule
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  GO'S VISIBILITY RULE                                           │
-│                                                                 │
-│  Capital letter   = Exported (Public)   = Other packages CAN    │
-│  Lowercase letter = Unexported (Private) = Other packages CANNOT│
-│                                                                 │
-│  // utils/helpers.go                                            │
-│  package utils                                                  │
-│                                                                 │
-│  func Add(a, b int) int {      ← Exported (Capital A)           │
-│      return a + b                 Other packages can use        │
-│  }                                                              │
-│                                                                 │
-│  func subtract(a, b int) int { ← Unexported (lowercase s)       │
-│      return a - b                 Only this package can use     │
-│  }                                                              │
-│                                                                 │
-│  var MaxValue = 100            ← Exported variable              │
-│  var minValue = 0              ← Unexported variable            │
-│                                                                 │
-│  type User struct {            ← Exported type                  │
-│      Name  string              ← Exported field                 │
-│      email string              ← Unexported field               │
-│  }                                                              │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
+**Go's visibility rule:**
+- **Capital letter** = Exported (Public) = Other packages CAN use
+- **Lowercase letter** = Unexported (Private) = Other packages CANNOT use
+
+```go
+// utils/helpers.go
+package utils
+
+func Add(a, b int) int {      // Exported (Capital A) - other packages can use
+    return a + b
+}
+
+func subtract(a, b int) int { // Unexported (lowercase s) - only this package
+    return a - b
+}
+
+var MaxValue = 100            // Exported variable
+var minValue = 0              // Unexported variable
+
+type User struct {            // Exported type
+    Name  string              // Exported field
+    email string              // Unexported field
+}
 ```
 
 ### Java Comparison
@@ -569,27 +455,21 @@ catalyst/
 
 ### Pattern 2: internal/ for Private Code
 
+**The "internal" directory is special**
+
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  THE "internal" DIRECTORY IS SPECIAL                            │
-│                                                                 │
-│  mymodule/                                                      │
-│    ├── internal/         ← MAGIC DIRECTORY!                     │
-│    │   └── secrets/      Packages here can ONLY be imported by  │
-│    │       └── key.go    packages in mymodule (same module)     │
-│    │                                                            │
-│    └── pkg/              ← Normal directory                     │
-│        └── utils/        Packages here can be imported by       │
-│            └── helper.go anyone                                 │
-│                                                                 │
-│  Example:                                                       │
-│  ✅ mymodule/cmd/api can import mymodule/internal/secrets       │
-│  ❌ othermodule cannot import mymodule/internal/secrets         │
-│     (Go compiler enforces this!)                                │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
+mymodule/
+├── internal/         ← MAGIC DIRECTORY!
+│   └── secrets/      Packages here can ONLY be imported by
+│       └── key.go    packages in mymodule (same module)
+│
+└── pkg/              ← Normal directory
+    └── utils/       Packages here can be imported by
+        └── helper.go anyone
 ```
+
+- ✅ mymodule/cmd/api can import mymodule/internal/secrets
+- ❌ othermodule cannot import mymodule/internal/secrets (Go compiler enforces this!)
 
 ---
 
@@ -696,4 +576,3 @@ go mod why github.com/some/package
 You now understand how Go organizes code with packages and modules. Let's explore the Go toolchain in depth.
 
 **Next Topic:** [05 - Go Toolchain](./05-go-toolchain.md)
-
